@@ -38,6 +38,7 @@ export type Database = {
           psi_audit_url: string | null
           psi_grade: string | null
           psi_mobile_score: number | null
+          scheduler_url: string | null
           under_the_hood_graphic_url: string | null
           w3c_audit_url: string | null
           w3c_grade: string | null
@@ -68,6 +69,7 @@ export type Database = {
           psi_audit_url?: string | null
           psi_grade?: string | null
           psi_mobile_score?: number | null
+          scheduler_url?: string | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
           w3c_grade?: string | null
@@ -98,6 +100,7 @@ export type Database = {
           psi_audit_url?: string | null
           psi_grade?: string | null
           psi_mobile_score?: number | null
+          scheduler_url?: string | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
           w3c_grade?: string | null
