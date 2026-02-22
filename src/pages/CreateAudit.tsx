@@ -46,6 +46,7 @@ const CreateAudit = () => {
     under_the_hood_graphic_url: "",
     presence_scan_image_url: "",
     scheduler_url: "",
+    company_logo_url: "",
   });
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -54,6 +55,21 @@ const CreateAudit = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // Best-effort logo discovery if no logo URL provided but website URL exists
+    let discoveredLogo = form.company_logo_url || null;
+    if (!discoveredLogo && form.website_url) {
+      try {
+        const { data } = await supabase.functions.invoke("discover-logo", {
+          body: { website_url: form.website_url },
+        });
+        if (data?.success && data?.logo_url) {
+          discoveredLogo = data.logo_url;
+        }
+      } catch {
+        // Best-effort — ignore failures
+      }
+    }
 
     const payload: Record<string, unknown> = {
       company_name: form.company_name || null,
@@ -74,6 +90,7 @@ const CreateAudit = () => {
       under_the_hood_graphic_url: form.under_the_hood_graphic_url || null,
       presence_scan_image_url: form.presence_scan_image_url || null,
       scheduler_url: form.scheduler_url || null,
+      company_logo_url: discoveredLogo,
     };
 
     const { data, error } = await supabase
@@ -110,6 +127,7 @@ const CreateAudit = () => {
                   <Field label="City" name="location_city" value={form.location_city} onChange={set("location_city")} />
                   <Field label="State" name="location_state" value={form.location_state} onChange={set("location_state")} />
                   <Field label="Provider" name="provider" value={form.provider} onChange={set("provider")} />
+                  <Field label="Company Logo URL (optional)" name="company_logo_url" placeholder="https://..." value={form.company_logo_url} onChange={set("company_logo_url")} />
                 </div>
               </section>
 
