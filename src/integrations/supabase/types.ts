@@ -19,6 +19,7 @@ export type Database = {
           accessibility_audit_url: string | null
           accessibility_grade: string | null
           accessibility_score: number | null
+          company_logo_url: string | null
           company_name: string | null
           created_at: string
           design_grade: string | null
@@ -50,6 +51,7 @@ export type Database = {
           accessibility_audit_url?: string | null
           accessibility_grade?: string | null
           accessibility_score?: number | null
+          company_logo_url?: string | null
           company_name?: string | null
           created_at?: string
           design_grade?: string | null
@@ -81,6 +83,7 @@ export type Database = {
           accessibility_audit_url?: string | null
           accessibility_grade?: string | null
           accessibility_score?: number | null
+          company_logo_url?: string | null
           company_name?: string | null
           created_at?: string
           design_grade?: string | null
