@@ -495,6 +495,15 @@ const AuditReport = () => {
         <div className="wrap">
           <div className="presenceGrid">
             <div className="presenceImgCol">
+              <img src={DEFAULT_SCAN_IMAGE} alt="Presence scan" />
+            </div>
+            <div className="presenceTextCol">
+              <SectionHeading text="ONLINE PRESENCE ISSUES" />
+              <p className="subtle" style={{ textAlign: "right", marginLeft: "auto" }}>
+                We also ran a comprehensive scan of your business across the internet and found a large list of issues
+                across multiple platforms. To build trust, rank and get found, your entire digital presence must be
+                structured, aligned, and optimized.
+              </p>
               <div className="scannedBusinessInfo">
                 <div className="sbiField">
                   <span className="sbiLabel">Business Name</span>
@@ -517,15 +526,6 @@ const AuditReport = () => {
                   </span>
                 </div>
               </div>
-              <img src={DEFAULT_SCAN_IMAGE} alt="Presence scan" />
-            </div>
-            <div className="presenceTextCol">
-              <SectionHeading text="ONLINE PRESENCE ISSUES" />
-              <p className="subtle" style={{ textAlign: "right", marginLeft: "auto" }}>
-                We also ran a comprehensive scan of your business across the internet and found a large list of issues
-                across multiple platforms. To build trust, rank and get found, your entire digital presence must be
-                structured, aligned, and optimized.
-              </p>
             </div>
           </div>
         </div>
