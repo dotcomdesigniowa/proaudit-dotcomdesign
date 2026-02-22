@@ -120,6 +120,14 @@
   position: relative;
   filter: drop-shadow(0 16px 24px rgba(0,0,0,.28));
   transform-origin: 50% 70%;
+  animation: heartbeat 2.4s ease-in-out infinite;
+}
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.045); }
+  24% { transform: scale(1); }
+  36% { transform: scale(1.03); }
+  48% { transform: scale(1); }
 }
 .audit-page .gradeLetter[data-grade="A"] { color: var(--gradeA); }
 .audit-page .gradeLetter[data-grade="B"] { color: var(--gradeB); }
