@@ -60,7 +60,7 @@
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 26px;
-  z-index: 1;
+  z-index: 10;
 }
 .audit-page .heroTitle {
   margin: 0;
@@ -91,7 +91,6 @@
   border: 1px solid rgba(255,255,255,.16);
   border-radius: 999px;
   background: rgba(255,255,255,.08);
-  backdrop-filter: blur(10px);
   white-space: nowrap;
   line-height: 1.2;
 }
@@ -276,19 +275,35 @@
   width: min(560px, 88vw);
   padding: 14px;
   border-radius: 16px;
-  background: #0b0c10 !important;
-  color: rgba(233,236,241,.95) !important;
-  border: 1px solid rgba(255,255,255,.12) !important;
   box-shadow: 0 22px 60px rgba(0,0,0,.28);
+  visibility: hidden;
   opacity: 0;
   transform: translateY(6px);
-  transition: opacity .16s ease, transform .16s ease;
+  transition: opacity .16s ease, transform .16s ease, visibility 0s linear .16s;
   pointer-events: none;
   z-index: 60;
   font-size: var(--base);
   line-height: 1.45;
 }
-.audit-page .tipHost:hover .tip { opacity: 1 !important; transform: translateY(0); }
+.audit-page .tipHost:hover .tip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity .16s ease, transform .16s ease, visibility 0s linear 0s;
+}
+
+/* Shared fully-opaque tooltip box */
+.audit-page .tooltipBox {
+  background: #0b0c10 !important;
+  background-color: #0b0c10 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  mix-blend-mode: normal !important;
+  isolation: isolate !important;
+  z-index: 99999 !important;
+  color: rgba(233,236,241,.96) !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+}
 .audit-page .tipTopRight .tip { right: 0; top: calc(100% + 10px); }
 .audit-page .tipAboveLeft .tip { left: 0; bottom: calc(100% + 10px); }
 .audit-page .lawTip { color: #7f1d1d; text-decoration-color: rgba(127,29,29,.35); font-weight: 950; }
