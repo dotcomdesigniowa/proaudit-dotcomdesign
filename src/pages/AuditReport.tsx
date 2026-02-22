@@ -131,13 +131,16 @@ function useTypewriter(ref: React.RefObject<HTMLElement | null>, text: string, s
         if (!entries[0]?.isIntersecting || done.current) return;
         done.current = true;
         io.disconnect();
-        if (prefersReduced) { el.textContent = text; return; }
-        el.textContent = "";
+        if (prefersReduced) { el.innerHTML = text; return; }
+        // Reserve full width with invisible text so layout never shifts
+        el.innerHTML = `<span style="visibility:hidden">${text}</span>`;
         let i = 0;
         const interval = setInterval(() => {
           i++;
-          el.textContent = text.slice(0, i);
-          if (i >= text.length) clearInterval(interval);
+          const visible = text.slice(0, i);
+          const hidden = text.slice(i);
+          el.innerHTML = `${visible}<span style="visibility:hidden">${hidden}</span>`;
+          if (i >= text.length) { el.textContent = text; clearInterval(interval); }
         }, speed);
       },
       { threshold: 0.3 }
