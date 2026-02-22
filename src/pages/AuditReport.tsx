@@ -505,13 +505,16 @@ const AuditReport = () => {
                 structured, aligned, and optimized.
               </p>
               <div className="scannedBusinessInfo">
+                <p style={{ fontSize: "10px", color: "#ff0", fontFamily: "monospace", textAlign: "right", margin: 0 }}>
+                  DEBUG: {audit.company_name} | {audit.location_city} | {audit.location_state} | {audit.business_phone} | {audit.website_url}
+                </p>
                 <div className="sbiField">
                   <span className="sbiLabel">Business Name</span>
-                  <span className="sbiValue">{audit.company_name || "—"}</span>
+                  <span className="sbiValue">{audit.company_name ?? "—"}</span>
                 </div>
                 <div className="sbiField">
                   <span className="sbiLabel">City, State</span>
-                  <span className="sbiValue">{audit.location_city || "—"}, {audit.location_state || "—"}</span>
+                  <span className="sbiValue">{`${audit.location_city ?? "—"}, ${audit.location_state ?? "—"}`}</span>
                 </div>
                 <div className="sbiField">
                   <span className="sbiLabel">Phone Number</span>
