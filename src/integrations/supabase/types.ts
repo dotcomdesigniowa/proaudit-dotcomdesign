@@ -112,7 +112,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      score_to_grade: { Args: { score: number }; Returns: string }
     }
     Enums: {
       [_ in never]: never
