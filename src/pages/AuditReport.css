@@ -172,7 +172,7 @@
   font-weight: 800;
 }
 .audit-page .logoBox {
-  width: 130px; height: 130px;
+  width: 200px; height: 130px;
   border-radius: 22px;
   border: 1px solid rgba(255,255,255,.18);
   background: rgba(255,255,255,.08);
@@ -362,29 +362,21 @@
   border-top: 1px solid rgba(15,18,32,.06);
   border-bottom: 1px solid rgba(15,18,32,.06);
 }
-.audit-page .overviewGrid { display: grid; grid-template-columns: 1fr 320px; gap: 18px; align-items: start; }
+.audit-page .overviewGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: stretch; }
 .audit-page .story { font-size: var(--base); color: #111827; max-width: 900px; font-weight: 600; }
 .audit-page .story p { margin: 0 0 14px; }
 
 .audit-page .card {
-  border-radius: 20px;
-  border: 1px solid rgba(15,18,32,.10);
-  background: #fff;
-  box-shadow: var(--shadow2);
-  padding: 12px;
   overflow: hidden;
 }
-.audit-page .card img { border-radius: 16px; object-fit: contain; }
+.audit-page .card img { object-fit: contain; }
 
 .audit-page .scanBox {
-  border-radius: var(--radius);
-  background: #fff;
-  border: 1px solid rgba(15,18,32,.08);
-  box-shadow: var(--shadow2);
-  padding: 18px;
   overflow: hidden;
+  max-width: 50%;
+  margin: 0 auto;
 }
-.audit-page .scanBox img { border-radius: 18px; object-fit: contain; }
+.audit-page .scanBox img { object-fit: contain; }
 
 /* CTA */
 .audit-page .cta {

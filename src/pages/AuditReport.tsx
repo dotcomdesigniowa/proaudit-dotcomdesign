@@ -414,7 +414,7 @@ const AuditReport = () => {
                   it lowers perceived quality and weakens trust. And when trust is weak, visitors hesitate —
                   reducing engagement and conversions.
                 </p>
-                <div className="metricLabel" style={{ marginTop: 12 }}>Summary ↓</div>
+                <button type="button" className="pillBtn static" style={{ marginTop: 12 }}>Summary ↓</button>
                 <ul className="xList" ref={summaryListRef}>
                   {DESIGN_BULLETS.map((b, i) => (
                     <li key={i} data-text={b} style={{ opacity: 0, transform: "translateY(6px)", transition: "opacity .3s, transform .3s" }}>
