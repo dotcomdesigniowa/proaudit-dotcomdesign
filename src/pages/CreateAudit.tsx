@@ -7,6 +7,22 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 
+interface FieldProps {
+  label: string;
+  name: string;
+  type?: string;
+  placeholder?: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}
+
+const Field = ({ label, name, type = "text", placeholder = "", value, onChange }: FieldProps) => (
+  <div className="space-y-1.5">
+    <Label htmlFor={name}>{label}</Label>
+    <Input id={name} type={type} placeholder={placeholder} value={value} onChange={onChange} />
+  </div>
+);
+
 const CreateAudit = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -76,13 +92,6 @@ const CreateAudit = () => {
     navigate(`/audit/${data.id}`);
   };
 
-  const Field = ({ label, name, type = "text", placeholder = "" }: { label: string; name: string; type?: string; placeholder?: string }) => (
-    <div className="space-y-1.5">
-      <Label htmlFor={name}>{label}</Label>
-      <Input id={name} type={type} placeholder={placeholder} value={(form as any)[name]} onChange={set(name)} />
-    </div>
-  );
-
   return (
     <div className="min-h-screen bg-background p-6 md:p-10">
       <div className="mx-auto max-w-3xl">
@@ -96,11 +105,11 @@ const CreateAudit = () => {
               <section className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Company Information</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Company Name" name="company_name" />
-                  <Field label="Website URL" name="website_url" placeholder="https://..." />
-                  <Field label="City" name="location_city" />
-                  <Field label="State" name="location_state" />
-                  <Field label="Provider" name="provider" />
+                  <Field label="Company Name" name="company_name" value={form.company_name} onChange={set("company_name")} />
+                  <Field label="Website URL" name="website_url" placeholder="https://..." value={form.website_url} onChange={set("website_url")} />
+                  <Field label="City" name="location_city" value={form.location_city} onChange={set("location_city")} />
+                  <Field label="State" name="location_state" value={form.location_state} onChange={set("location_state")} />
+                  <Field label="Provider" name="provider" value={form.provider} onChange={set("provider")} />
                 </div>
               </section>
 
@@ -108,9 +117,9 @@ const CreateAudit = () => {
               <section className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Prepared By</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Name" name="prepared_by_name" />
-                  <Field label="Email" name="prepared_by_email" type="email" />
-                  <Field label="Phone" name="prepared_by_phone" type="tel" />
+                  <Field label="Name" name="prepared_by_name" value={form.prepared_by_name} onChange={set("prepared_by_name")} />
+                  <Field label="Email" name="prepared_by_email" type="email" value={form.prepared_by_email} onChange={set("prepared_by_email")} />
+                  <Field label="Phone" name="prepared_by_phone" type="tel" value={form.prepared_by_phone} onChange={set("prepared_by_phone")} />
                 </div>
               </section>
 
@@ -118,13 +127,13 @@ const CreateAudit = () => {
               <section className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Audit Scores</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="W3C Issue Count" name="w3c_issue_count" type="number" />
-                  <Field label="W3C Audit URL" name="w3c_audit_url" placeholder="https://..." />
-                  <Field label="PSI Mobile Score (0-100)" name="psi_mobile_score" type="number" />
-                  <Field label="PSI Audit URL" name="psi_audit_url" placeholder="https://..." />
-                  <Field label="Accessibility Score (0-100)" name="accessibility_score" type="number" />
-                  <Field label="Accessibility Audit URL" name="accessibility_audit_url" placeholder="https://..." />
-                  <Field label="Design Score (0-100)" name="design_score" type="number" />
+                  <Field label="W3C Issue Count" name="w3c_issue_count" type="number" value={form.w3c_issue_count} onChange={set("w3c_issue_count")} />
+                  <Field label="W3C Audit URL" name="w3c_audit_url" placeholder="https://..." value={form.w3c_audit_url} onChange={set("w3c_audit_url")} />
+                  <Field label="PSI Mobile Score (0-100)" name="psi_mobile_score" type="number" value={form.psi_mobile_score} onChange={set("psi_mobile_score")} />
+                  <Field label="PSI Audit URL" name="psi_audit_url" placeholder="https://..." value={form.psi_audit_url} onChange={set("psi_audit_url")} />
+                  <Field label="Accessibility Score (0-100)" name="accessibility_score" type="number" value={form.accessibility_score} onChange={set("accessibility_score")} />
+                  <Field label="Accessibility Audit URL" name="accessibility_audit_url" placeholder="https://..." value={form.accessibility_audit_url} onChange={set("accessibility_audit_url")} />
+                  <Field label="Design Score (0-100)" name="design_score" type="number" value={form.design_score} onChange={set("design_score")} />
                 </div>
               </section>
 
@@ -132,9 +141,9 @@ const CreateAudit = () => {
               <section className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Assets & Links</h3>
                 <div className="grid gap-4 sm:grid-cols-1">
-                  <Field label="Under the Hood Graphic URL" name="under_the_hood_graphic_url" placeholder="https://..." />
-                  <Field label="Presence Scan Image URL" name="presence_scan_image_url" placeholder="https://..." />
-                  <Field label="Scheduler URL (optional)" name="scheduler_url" placeholder="https://..." />
+                  <Field label="Under the Hood Graphic URL" name="under_the_hood_graphic_url" placeholder="https://..." value={form.under_the_hood_graphic_url} onChange={set("under_the_hood_graphic_url")} />
+                  <Field label="Presence Scan Image URL" name="presence_scan_image_url" placeholder="https://..." value={form.presence_scan_image_url} onChange={set("presence_scan_image_url")} />
+                  <Field label="Scheduler URL (optional)" name="scheduler_url" placeholder="https://..." value={form.scheduler_url} onChange={set("scheduler_url")} />
                 </div>
               </section>
 
