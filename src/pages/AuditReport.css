@@ -410,30 +410,40 @@
   gap: 6px;
   margin-top: 14px;
 }
-.audit-page .sbiField {
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding: 6px 12px;
-  border: 1px solid rgba(15, 18, 32, 0.10);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
-  text-align: right;
+.audit-page .scanField {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  padding: 6px 12px !important;
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 18, 32, 0.10) !important;
+  border-radius: 8px !important;
+  overflow: visible !important;
+  text-align: right !important;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
-.audit-page .sbiLabel {
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.45);
-  font-weight: 500;
-  line-height: 1.2;
+.audit-page .scanLabel {
+  color: #475569 !important;
+  opacity: 1 !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  line-height: 1.1 !important;
+  visibility: visible !important;
+  position: static !important;
 }
-.audit-page .sbiValue {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.92);
-  word-break: break-word;
-  line-height: 1.3;
+.audit-page .scanValue {
+  color: #0b0c10 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 15px !important;
+  font-weight: 800 !important;
+  line-height: 1.2 !important;
+  position: static !important;
+  z-index: 2 !important;
+  word-break: break-word !important;
 }
 
 /* CTA */
