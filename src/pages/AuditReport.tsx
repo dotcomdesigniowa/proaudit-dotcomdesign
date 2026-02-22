@@ -6,8 +6,8 @@ import "./AuditReport.css";
 
 type Audit = Tables<"audit">;
 
-const DEFAULT_UTH_IMAGE = "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80";
-const DEFAULT_SCAN_IMAGE = "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80";
+const DEFAULT_UTH_IMAGE = "/images/under-the-hood.png";
+const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
 
 const DESIGN_BULLETS = [
   "Does not reflect the quality of the actual work you do.",
