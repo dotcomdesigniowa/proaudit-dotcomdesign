@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import "./AuditReport.css";
 
-type Audit = Tables<"audit">;
+type Audit = Tables<"audit"> & { business_phone?: string | null };
 
 const DEFAULT_UTH_IMAGE = "/images/under-the-hood.png";
 const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
@@ -515,7 +515,7 @@ const AuditReport = () => {
                 </div>
                 <div className="sbiField">
                   <span className="sbiLabel">Phone Number</span>
-                  <span className="sbiValue">{(audit as any).business_phone || "—"}</span>
+                  <span className="sbiValue">{audit.business_phone ?? "—"}</span>
                 </div>
                 <div className="sbiField">
                   <span className="sbiLabel">Website Address</span>
