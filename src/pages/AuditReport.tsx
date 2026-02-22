@@ -245,11 +245,11 @@ const AuditReport = () => {
     })();
   }, [id]);
 
-  // Hero heading typewriter
+  // Hero company name typewriter
   useEffect(() => {
     if (!audit || !heroHeadingRef.current) return;
     const el = heroHeadingRef.current;
-    const text = "WEBSITE & ONLINE PRESENCE AUDIT";
+    const text = (audit.company_name || "—").toUpperCase();
     if (prefersReduced) { el.textContent = text; return; }
     el.textContent = "";
     let i = 0;
@@ -287,8 +287,8 @@ const AuditReport = () => {
         <div className="wrap">
           <div className="heroTop">
             <h1 className="heroTitle caps">
-              <span className="heroTitleSub">{audit.company_name || "—"}</span>
-              <span className="heroHeading" ref={heroHeadingRef}>&nbsp;</span>
+              <span className="heroTitleSub" ref={heroHeadingRef}>&nbsp;</span>
+              <span className="heroHeading">WEBSITE &amp; ONLINE PRESENCE AUDIT</span>
             </h1>
             <div className="heroBadges">
               <span className="heroBadge" style={{ textTransform: "none", fontWeight: 400 }}>
