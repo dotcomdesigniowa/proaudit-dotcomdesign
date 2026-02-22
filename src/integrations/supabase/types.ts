@@ -22,6 +22,7 @@ export type Database = {
           company_logo_url: string | null
           company_name: string | null
           created_at: string
+          created_by: string | null
           design_grade: string | null
           design_score: number | null
           id: string
@@ -54,6 +55,7 @@ export type Database = {
           company_logo_url?: string | null
           company_name?: string | null
           created_at?: string
+          created_by?: string | null
           design_grade?: string | null
           design_score?: number | null
           id?: string
@@ -86,6 +88,7 @@ export type Database = {
           company_logo_url?: string | null
           company_name?: string | null
           created_at?: string
+          created_by?: string | null
           design_grade?: string | null
           design_score?: number | null
           id?: string
@@ -110,6 +113,30 @@ export type Database = {
           w3c_issue_count?: number | null
           w3c_score?: number | null
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
         }
         Relationships: []
       }
