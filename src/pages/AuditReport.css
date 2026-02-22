@@ -393,7 +393,7 @@
 .audit-page .presenceImgCol { display: flex; align-items: center; justify-content: center; }
 .audit-page .presenceImgCol img { max-width: 50%; height: auto; object-fit: contain; }
 .audit-page .presenceTextCol { text-align: right; }
-.audit-page .presenceTextCol .sectionTitle { text-align: right; }
+.audit-page .presenceTextCol .sectionTitle { text-align: left; }
 
 /* CTA */
 .audit-page .cta {
