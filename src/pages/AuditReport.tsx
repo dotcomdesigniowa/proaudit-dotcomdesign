@@ -33,6 +33,27 @@ const companyInitials = (name: string | null) => {
   return name.split(/\s+/).map((w) => w[0]).join("").toUpperCase().slice(0, 4);
 };
 
+const normalizeLogoUrl = (logoUrl: string | null, websiteUrl: string | null): string | null => {
+  if (!logoUrl) return null;
+  let url = logoUrl.trim();
+  if (!url) return null;
+  // Relative path like "/logo.png" → resolve against website origin
+  if (url.startsWith("/") && !url.startsWith("//")) {
+    if (websiteUrl) {
+      try {
+        const origin = new URL(websiteUrl.startsWith("http") ? websiteUrl : `https://${websiteUrl}`).origin;
+        return `${origin}${url}`;
+      } catch { return null; }
+    }
+    return null;
+  }
+  // Protocol-relative "//example.com/logo.png"
+  if (url.startsWith("//")) return `https:${url}`;
+  // Missing protocol entirely "example.com/logo.png"
+  if (!url.startsWith("http")) return `https://${url}`;
+  return url;
+};
+
 const formatDate = (dateStr: string | null) => {
   if (!dateStr) return "—";
   const d = new Date(dateStr + "T00:00:00");
@@ -164,7 +185,7 @@ function useBulletAnimation(listRef: React.RefObject<HTMLUListElement | null>) {
 const PreparedByTooltip = ({ audit }: { audit: Audit }) => (
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
-    <span className="tip" style={{ background: "rgba(11,12,16,0.97)", borderColor: "rgba(255,255,255,0.18)" }}>
+    <span className="tip">
       <div className="repLine"><span className="repLabel">Name</span><span className="repVal">{audit.prepared_by_name || "—"}</span></div>
       <div className="repLine"><span className="repLabel">Email</span><span className="repVal">{audit.prepared_by_email || "—"}</span></div>
       <div className="repLine"><span className="repLabel">Phone</span><span className="repVal">{audit.prepared_by_phone || "—"}</span></div>
@@ -206,6 +227,7 @@ const AuditReport = () => {
   const [audit, setAudit] = useState<Audit | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState(false);
 
   const summaryListRef = useRef<HTMLUListElement>(null);
   const heroHeadingRef = useRef<HTMLSpanElement>(null);
@@ -256,7 +278,7 @@ const AuditReport = () => {
     );
 
   const og = audit.overall_grade || "F";
-  const logoUrl = audit.company_logo_url as string | null;
+  const normalizedLogo = normalizeLogoUrl(audit.company_logo_url, audit.website_url);
 
   return (
     <div className="audit-page">
@@ -283,10 +305,10 @@ const AuditReport = () => {
             <div>
               <div className="scoreLabel">Overall Score</div>
               <div className="gradeStack">
-                <p className="gradeLetter" data-grade={og} ref={overallGradeRef}>
+                <div className="gradeLetter" data-grade={og} style={{ position: "relative" }}>
                   <span className={`gradeGlow ${glowClass(og)}`} />
-                  &nbsp;
-                </p>
+                  <span ref={overallGradeRef} style={{ position: "relative", zIndex: 2 }}>{og}</span>
+                </div>
               </div>
             </div>
 
@@ -300,8 +322,14 @@ const AuditReport = () => {
                     <div><div className="metaLabel">Location</div><div>{audit.location_city || "—"}, {audit.location_state || "—"}</div></div>
                   </div>
                   <div className="logoBox">
-                    {logoUrl ? (
-                      <img src={logoUrl} alt={`${audit.company_name} logo`} />
+                    {normalizedLogo && !logoError ? (
+                      <img
+                        src={normalizedLogo}
+                        alt={`${audit.company_name} logo`}
+                        loading="eager"
+                        referrerPolicy="no-referrer"
+                        onError={() => setLogoError(true)}
+                      />
                     ) : (
                       companyInitials(audit.company_name)
                     )}
@@ -337,7 +365,7 @@ const AuditReport = () => {
                   🚩 Websites full of errors and warnings pay{" "}
                   <span className="tipHost tipTopRight">
                     The Bad Website Tax
-                    <span className="tip" style={{ background: "rgba(11,12,16,0.97)", borderColor: "rgba(255,255,255,0.18)" }}>
+                    <span className="tip">
                       When a website isn't properly constructed, it drags down everything connected to it.
                       Small businesses end up spending 30–50% more just to get the same results. You pay more
                       to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
@@ -388,7 +416,7 @@ const AuditReport = () => {
                     🚩 Scored under 90 are NOT compliant under{" "}
                     <span className="tipHost tipTopRight lawTip">
                       United States Law
-                      <span className="tip" style={{ background: "rgba(11,12,16,0.97)", borderColor: "rgba(255,255,255,0.18)" }}>
+                      <span className="tip">
                         Every website that operates in the United States must comply with the ADA &amp; Section 508
                         accessibility legislations, or else is subject to fines and accessibility-related lawsuits.
                       </span>
@@ -414,12 +442,12 @@ const AuditReport = () => {
                   it lowers perceived quality and weakens trust. And when trust is weak, visitors hesitate —
                   reducing engagement and conversions.
                 </p>
-                <button type="button" className="pillBtn static" style={{ marginTop: 12 }}>Summary ↓</button>
+                <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Summary ↓</button>
                 <ul className="xList" ref={summaryListRef}>
                   {DESIGN_BULLETS.map((b, i) => (
-                    <li key={i} data-text={b} style={{ opacity: 0, transform: "translateY(6px)", transition: "opacity .3s, transform .3s" }}>
+                    <li key={i} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
                       <span className="xIcon">❌</span>
-                      <span className="liText"></span>
+                      <span className="liText">{b}</span>
                     </li>
                   ))}
                 </ul>
