@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 
 interface FieldProps {
@@ -48,6 +49,24 @@ const CreateAudit = () => {
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  // Auto-generate W3C and Accessibility URLs from website URL
+  useEffect(() => {
+    const url = form.website_url.trim();
+    if (!url) return;
+    let normalized = url;
+    if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
+      normalized = `https://${normalized}`;
+    }
+    // Ensure trailing slash
+    if (!normalized.endsWith('/')) normalized += '/';
+    const encoded = encodeURIComponent(normalized);
+    setForm((f) => ({
+      ...f,
+      w3c_audit_url: `https://validator.w3.org/nu/?doc=${encoded}`,
+      accessibility_audit_url: `https://www.accessibilitychecker.org/audit/?website=${encoded}&flag=us`,
+    }));
+  }, [form.website_url]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,7 +140,18 @@ const CreateAudit = () => {
                   <Field label="Website URL" name="website_url" placeholder="https://..." value={form.website_url} onChange={set("website_url")} />
                   <Field label="City" name="location_city" value={form.location_city} onChange={set("location_city")} />
                   <Field label="State" name="location_state" value={form.location_state} onChange={set("location_state")} />
-                  <Field label="Provider" name="provider" value={form.provider} onChange={set("provider")} />
+                  <div className="space-y-1.5">
+                    <Label htmlFor="provider">Provider</Label>
+                    <Select value={form.provider} onValueChange={(val) => setForm((f) => ({ ...f, provider: val }))}>
+                      <SelectTrigger id="provider">
+                        <SelectValue placeholder="Select provider" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Hibu (Duda)">Hibu (Duda)</SelectItem>
+                        <SelectItem value="Thryv (Duda)">Thryv (Duda)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </section>
 
