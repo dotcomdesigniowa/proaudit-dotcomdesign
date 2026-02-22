@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,7 +27,9 @@ const Field = ({ label, name, type = "text", placeholder = "", value, onChange }
 
 const CreateAudit = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [profile, setProfile] = useState<{ full_name: string | null; phone: string | null }>({ full_name: null, phone: null });
 
   const [form, setForm] = useState({
     company_name: "",
@@ -34,9 +37,6 @@ const CreateAudit = () => {
     location_city: "",
     location_state: "",
     provider: "",
-    prepared_by_name: "",
-    prepared_by_email: "",
-    prepared_by_phone: "",
     w3c_issue_count: "",
     w3c_audit_url: "",
     psi_mobile_score: "",
@@ -46,6 +46,19 @@ const CreateAudit = () => {
     design_score: "35",
     scheduler_url: "",
   });
+
+  // Fetch profile for auto-fill
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("full_name, phone")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setProfile(data);
+      });
+  }, [user]);
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
@@ -58,7 +71,6 @@ const CreateAudit = () => {
     if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
       normalized = `https://${normalized}`;
     }
-    // Ensure trailing slash
     if (!normalized.endsWith('/')) normalized += '/';
     const encoded = encodeURIComponent(normalized);
     setForm((f) => ({
@@ -83,7 +95,7 @@ const CreateAudit = () => {
           discoveredLogo = data.logo_url;
         }
       } catch {
-        // Best-effort — ignore failures
+        // Best-effort
       }
     }
 
@@ -93,9 +105,9 @@ const CreateAudit = () => {
       location_city: form.location_city || null,
       location_state: form.location_state || null,
       provider: form.provider || null,
-      prepared_by_name: form.prepared_by_name || null,
-      prepared_by_email: form.prepared_by_email || null,
-      prepared_by_phone: form.prepared_by_phone || null,
+      prepared_by_name: profile.full_name || null,
+      prepared_by_email: user?.email || null,
+      prepared_by_phone: profile.phone || null,
       w3c_issue_count: form.w3c_issue_count ? parseInt(form.w3c_issue_count) : null,
       w3c_audit_url: form.w3c_audit_url || null,
       psi_mobile_score: form.psi_mobile_score ? parseInt(form.psi_mobile_score) : null,
@@ -124,7 +136,7 @@ const CreateAudit = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-6 md:p-10">
+    <div className="p-6 md:p-10">
       <div className="mx-auto max-w-3xl">
         <Card>
           <CardHeader>
@@ -155,14 +167,17 @@ const CreateAudit = () => {
                 </div>
               </section>
 
-              {/* Prepared By */}
-              <section className="space-y-4">
+              {/* Prepared By info display */}
+              <section className="space-y-2">
                 <h3 className="text-lg font-semibold text-foreground">Prepared By</h3>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="Name" name="prepared_by_name" value={form.prepared_by_name} onChange={set("prepared_by_name")} />
-                  <Field label="Email" name="prepared_by_email" type="email" value={form.prepared_by_email} onChange={set("prepared_by_email")} />
-                  <Field label="Phone" name="prepared_by_phone" type="tel" value={form.prepared_by_phone} onChange={set("prepared_by_phone")} />
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  Auto-filled from your profile: <strong>{profile.full_name || "—"}</strong> · {user?.email || "—"} · {profile.phone || "—"}
+                </p>
+                {!profile.full_name && (
+                  <p className="text-sm text-destructive">
+                    Please <a href="/profile" className="underline">update your profile</a> to set your name and phone.
+                  </p>
+                )}
               </section>
 
               {/* Scores */}
