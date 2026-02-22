@@ -185,7 +185,7 @@ function useBulletAnimation(listRef: React.RefObject<HTMLUListElement | null>) {
 const PreparedByTooltip = ({ audit }: { audit: Audit }) => (
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
-    <span className="tip">
+    <span className="tip tooltipBox">
       <div className="repLine"><span className="repLabel">Name</span><span className="repVal">{audit.prepared_by_name || "—"}</span></div>
       <div className="repLine"><span className="repLabel">Email</span><span className="repVal">{audit.prepared_by_email || "—"}</span></div>
       <div className="repLine"><span className="repLabel">Phone</span><span className="repVal">{audit.prepared_by_phone || "—"}</span></div>
@@ -365,7 +365,7 @@ const AuditReport = () => {
                   🚩 Websites full of errors and warnings pay{" "}
                   <span className="tipHost tipTopRight">
                     The Bad Website Tax
-                    <span className="tip">
+                    <span className="tip tooltipBox">
                       When a website isn't properly constructed, it drags down everything connected to it.
                       Small businesses end up spending 30–50% more just to get the same results. You pay more
                       to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
@@ -416,7 +416,7 @@ const AuditReport = () => {
                     🚩 Scored under 90 are NOT compliant under{" "}
                     <span className="tipHost tipTopRight lawTip">
                       United States Law
-                      <span className="tip">
+                      <span className="tip tooltipBox">
                         Every website that operates in the United States must comply with the ADA &amp; Section 508
                         accessibility legislations, or else is subject to fines and accessibility-related lawsuits.
                       </span>
