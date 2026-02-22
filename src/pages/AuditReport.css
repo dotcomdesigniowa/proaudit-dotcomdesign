@@ -276,9 +276,9 @@
   width: min(560px, 88vw);
   padding: 14px;
   border-radius: 16px;
-  background: #0b0c10;
-  color: rgba(233,236,241,.95);
-  border: 1px solid rgba(255,255,255,.18);
+  background: #0b0c10 !important;
+  color: rgba(233,236,241,.95) !important;
+  border: 1px solid rgba(255,255,255,.12) !important;
   box-shadow: 0 22px 60px rgba(0,0,0,.28);
   opacity: 0;
   transform: translateY(6px);
@@ -288,7 +288,7 @@
   font-size: var(--base);
   line-height: 1.45;
 }
-.audit-page .tipHost:hover .tip { opacity: 1; transform: translateY(0); }
+.audit-page .tipHost:hover .tip { opacity: 1 !important; transform: translateY(0); }
 .audit-page .tipTopRight .tip { right: 0; top: calc(100% + 10px); }
 .audit-page .tipAboveLeft .tip { left: 0; bottom: calc(100% + 10px); }
 .audit-page .lawTip { color: #7f1d1d; text-decoration-color: rgba(127,29,29,.35); font-weight: 950; }
