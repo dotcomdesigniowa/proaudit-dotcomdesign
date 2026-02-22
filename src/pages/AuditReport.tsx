@@ -495,6 +495,28 @@ const AuditReport = () => {
         <div className="wrap">
           <div className="presenceGrid">
             <div className="presenceImgCol">
+              <div className="scannedBusinessInfo">
+                <div className="sbiField">
+                  <span className="sbiLabel">Business Name</span>
+                  <span className="sbiValue">{audit.company_name || "—"}</span>
+                </div>
+                <div className="sbiField">
+                  <span className="sbiLabel">City, State</span>
+                  <span className="sbiValue">{audit.location_city || "—"}, {audit.location_state || "—"}</span>
+                </div>
+                <div className="sbiField">
+                  <span className="sbiLabel">Phone Number</span>
+                  <span className="sbiValue">{(audit as any).business_phone || "—"}</span>
+                </div>
+                <div className="sbiField">
+                  <span className="sbiLabel">Website Address</span>
+                  <span className="sbiValue">
+                    {audit.website_url
+                      ? audit.website_url.replace(/^https?:\/\//, "").replace(/\/$/, "")
+                      : "—"}
+                  </span>
+                </div>
+              </div>
               <img src={DEFAULT_SCAN_IMAGE} alt="Presence scan" />
             </div>
             <div className="presenceTextCol">

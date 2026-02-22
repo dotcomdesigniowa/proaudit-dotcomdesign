@@ -1,0 +1,1 @@
+ALTER TABLE public.audit ADD COLUMN business_phone text;

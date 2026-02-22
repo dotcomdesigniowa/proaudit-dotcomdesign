@@ -37,6 +37,7 @@ const CreateAudit = () => {
     location_city: "",
     location_state: "",
     provider: "",
+    business_phone: "",
     w3c_issue_count: "",
     w3c_audit_url: "",
     psi_mobile_score: "",
@@ -105,6 +106,7 @@ const CreateAudit = () => {
       location_city: form.location_city || null,
       location_state: form.location_state || null,
       provider: form.provider || null,
+      business_phone: form.business_phone || null,
       prepared_by_name: profile.full_name || null,
       prepared_by_email: user?.email || null,
       prepared_by_phone: profile.phone || null,
@@ -152,6 +154,7 @@ const CreateAudit = () => {
                   <Field label="Website URL" name="website_url" placeholder="https://..." value={form.website_url} onChange={set("website_url")} />
                   <Field label="City" name="location_city" value={form.location_city} onChange={set("location_city")} />
                   <Field label="State" name="location_state" value={form.location_state} onChange={set("location_state")} />
+                  <Field label="Business Phone Number" name="business_phone" placeholder="(313) 555-1234" value={form.business_phone} onChange={set("business_phone")} />
                   <div className="space-y-1.5">
                     <Label htmlFor="provider">Provider</Label>
                     <Select value={form.provider} onValueChange={(val) => setForm((f) => ({ ...f, provider: val }))}>

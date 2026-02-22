@@ -398,10 +398,47 @@
 
 /* PRESENCE GRID */
 .audit-page .presenceGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; }
-.audit-page .presenceImgCol { display: flex; align-items: center; justify-content: center; }
+.audit-page .presenceImgCol { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; }
 .audit-page .presenceImgCol img { max-width: 85%; height: auto; object-fit: contain; }
 .audit-page .presenceTextCol { text-align: right; }
 .audit-page .presenceTextCol .sectionTitle { text-align: right; width: 100%; display: block; }
+
+/* SCANNED BUSINESS INFO */
+.audit-page .scannedBusinessInfo {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: 100%;
+  max-width: 420px;
+}
+.audit-page .sbiField {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 14px;
+  border: 1px solid rgba(15, 18, 32, 0.10);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+}
+.audit-page .sbiLabel {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.45);
+  font-weight: 500;
+}
+.audit-page .sbiValue {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+  word-break: break-word;
+}
+
+@media (max-width: 600px) {
+  .audit-page .scannedBusinessInfo {
+    grid-template-columns: 1fr;
+  }
+}
 
 /* CTA */
 .audit-page .cta {
