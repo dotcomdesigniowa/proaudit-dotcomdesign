@@ -301,7 +301,7 @@ const AuditReport = () => {
                   </div>
                   <div className="logoBox">
                     {logoUrl ? (
-                      <img src={logoUrl} alt={`${audit.company_name} logo`} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+                      <img src={logoUrl} alt={`${audit.company_name} logo`} />
                     ) : (
                       companyInitials(audit.company_name)
                     )}
@@ -462,14 +462,18 @@ const AuditReport = () => {
       {/* ===== ONLINE PRESENCE ISSUES ===== */}
       <section>
         <div className="wrap">
-          <SectionHeading text="ONLINE PRESENCE ISSUES" />
-          <p className="subtle">
-            We also ran a comprehensive scan of your business across the internet and found a large list of issues
-            across multiple platforms. To build trust, rank and get found, your entire digital presence must be
-            structured, aligned, and optimized.
-          </p>
-          <div className="scanBox">
-            <img src={DEFAULT_SCAN_IMAGE} alt="Presence scan" />
+          <div className="presenceGrid">
+            <div className="presenceImgCol">
+              <img src={DEFAULT_SCAN_IMAGE} alt="Presence scan" />
+            </div>
+            <div className="presenceTextCol">
+              <SectionHeading text="ONLINE PRESENCE ISSUES" />
+              <p className="subtle" style={{ textAlign: "right", marginLeft: "auto" }}>
+                We also ran a comprehensive scan of your business across the internet and found a large list of issues
+                across multiple platforms. To build trust, rank and get found, your entire digital presence must be
+                structured, aligned, and optimized.
+              </p>
+            </div>
           </div>
         </div>
       </section>
