@@ -256,9 +256,7 @@ const AuditReport = () => {
     );
 
   const og = audit.overall_grade || "F";
-  const uthImage = audit.under_the_hood_graphic_url || DEFAULT_UTH_IMAGE;
-  const scanImage = audit.presence_scan_image_url || DEFAULT_SCAN_IMAGE;
-  const logoUrl = (audit as any).company_logo_url as string | null;
+  const logoUrl = audit.company_logo_url as string | null;
 
   return (
     <div className="audit-page">
@@ -455,7 +453,7 @@ const AuditReport = () => {
               </p>
             </div>
             <div className="card">
-              <img src={uthImage} alt="Under the hood graphic" />
+              <img src={DEFAULT_UTH_IMAGE} alt="Under the hood graphic" />
             </div>
           </div>
         </div>
@@ -471,7 +469,7 @@ const AuditReport = () => {
             structured, aligned, and optimized.
           </p>
           <div className="scanBox">
-            <img src={scanImage} alt="Presence scan" />
+            <img src={DEFAULT_SCAN_IMAGE} alt="Presence scan" />
           </div>
         </div>
       </section>

@@ -43,8 +43,6 @@ const CreateAudit = () => {
     accessibility_score: "",
     accessibility_audit_url: "",
     design_score: "35",
-    under_the_hood_graphic_url: "",
-    presence_scan_image_url: "",
     scheduler_url: "",
     company_logo_url: "",
   });
@@ -87,8 +85,6 @@ const CreateAudit = () => {
       accessibility_score: form.accessibility_score ? parseInt(form.accessibility_score) : null,
       accessibility_audit_url: form.accessibility_audit_url || null,
       design_score: form.design_score ? parseInt(form.design_score) : 35,
-      under_the_hood_graphic_url: form.under_the_hood_graphic_url || null,
-      presence_scan_image_url: form.presence_scan_image_url || null,
       scheduler_url: form.scheduler_url || null,
       company_logo_url: discoveredLogo,
     };
@@ -159,8 +155,6 @@ const CreateAudit = () => {
               <section className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Assets & Links</h3>
                 <div className="grid gap-4 sm:grid-cols-1">
-                  <Field label="Under the Hood Graphic URL" name="under_the_hood_graphic_url" placeholder="https://..." value={form.under_the_hood_graphic_url} onChange={set("under_the_hood_graphic_url")} />
-                  <Field label="Presence Scan Image URL" name="presence_scan_image_url" placeholder="https://..." value={form.presence_scan_image_url} onChange={set("presence_scan_image_url")} />
                   <Field label="Scheduler URL (optional)" name="scheduler_url" placeholder="https://..." value={form.scheduler_url} onChange={set("scheduler_url")} />
                 </div>
               </section>
