@@ -17,13 +17,18 @@ export type Database = {
       audit: {
         Row: {
           accessibility_audit_url: string | null
+          accessibility_grade: string | null
           accessibility_score: number | null
           company_name: string | null
           created_at: string
+          design_grade: string | null
           design_score: number | null
           id: string
+          legal_risk_flag: boolean | null
           location_city: string | null
           location_state: string | null
+          overall_grade: string | null
+          overall_score: number | null
           prepared_by_email: string | null
           prepared_by_name: string | null
           prepared_by_phone: string | null
@@ -31,21 +36,29 @@ export type Database = {
           presence_scan_image_url: string | null
           provider: string | null
           psi_audit_url: string | null
+          psi_grade: string | null
           psi_mobile_score: number | null
           under_the_hood_graphic_url: string | null
           w3c_audit_url: string | null
+          w3c_grade: string | null
           w3c_issue_count: number | null
+          w3c_score: number | null
           website_url: string | null
         }
         Insert: {
           accessibility_audit_url?: string | null
+          accessibility_grade?: string | null
           accessibility_score?: number | null
           company_name?: string | null
           created_at?: string
+          design_grade?: string | null
           design_score?: number | null
           id?: string
+          legal_risk_flag?: boolean | null
           location_city?: string | null
           location_state?: string | null
+          overall_grade?: string | null
+          overall_score?: number | null
           prepared_by_email?: string | null
           prepared_by_name?: string | null
           prepared_by_phone?: string | null
@@ -53,21 +66,29 @@ export type Database = {
           presence_scan_image_url?: string | null
           provider?: string | null
           psi_audit_url?: string | null
+          psi_grade?: string | null
           psi_mobile_score?: number | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
+          w3c_grade?: string | null
           w3c_issue_count?: number | null
+          w3c_score?: number | null
           website_url?: string | null
         }
         Update: {
           accessibility_audit_url?: string | null
+          accessibility_grade?: string | null
           accessibility_score?: number | null
           company_name?: string | null
           created_at?: string
+          design_grade?: string | null
           design_score?: number | null
           id?: string
+          legal_risk_flag?: boolean | null
           location_city?: string | null
           location_state?: string | null
+          overall_grade?: string | null
+          overall_score?: number | null
           prepared_by_email?: string | null
           prepared_by_name?: string | null
           prepared_by_phone?: string | null
@@ -75,10 +96,13 @@ export type Database = {
           presence_scan_image_url?: string | null
           provider?: string | null
           psi_audit_url?: string | null
+          psi_grade?: string | null
           psi_mobile_score?: number | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
+          w3c_grade?: string | null
           w3c_issue_count?: number | null
+          w3c_score?: number | null
           website_url?: string | null
         }
         Relationships: []
