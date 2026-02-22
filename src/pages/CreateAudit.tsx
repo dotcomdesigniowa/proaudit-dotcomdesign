@@ -44,7 +44,6 @@ const CreateAudit = () => {
     accessibility_audit_url: "",
     design_score: "35",
     scheduler_url: "",
-    company_logo_url: "",
   });
 
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -54,9 +53,9 @@ const CreateAudit = () => {
     e.preventDefault();
     setLoading(true);
 
-    // Best-effort logo discovery if no logo URL provided but website URL exists
-    let discoveredLogo = form.company_logo_url || null;
-    if (!discoveredLogo && form.website_url) {
+    // Auto-discover logo from website URL
+    let discoveredLogo: string | null = null;
+    if (form.website_url) {
       try {
         const { data } = await supabase.functions.invoke("discover-logo", {
           body: { website_url: form.website_url },
@@ -123,7 +122,6 @@ const CreateAudit = () => {
                   <Field label="City" name="location_city" value={form.location_city} onChange={set("location_city")} />
                   <Field label="State" name="location_state" value={form.location_state} onChange={set("location_state")} />
                   <Field label="Provider" name="provider" value={form.provider} onChange={set("provider")} />
-                  <Field label="Company Logo URL (optional)" name="company_logo_url" placeholder="https://..." value={form.company_logo_url} onChange={set("company_logo_url")} />
                 </div>
               </section>
 
