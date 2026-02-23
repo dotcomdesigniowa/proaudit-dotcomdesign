@@ -5,20 +5,21 @@ interface ComputerScreenshotProps {
 const ComputerScreenshot = ({ screenshotUrl }: ComputerScreenshotProps) => {
   return (
     <div style={{ position: "relative", width: "100%", maxWidth: 600 }}>
-      {/* Screen content area — positioned to align with the transparent screen opening */}
+      {/* Screen content area — aligned to the white screen opening of the laptop frame */}
       <div
         style={{
           position: "absolute",
-          top: "5.5%",
-          left: "12%",
-          width: "76%",
-          height: "60%",
-          borderRadius: 4,
+          top: "3.8%",
+          left: "10.2%",
+          width: "79.6%",
+          height: "73.5%",
+          borderRadius: "6px 6px 0 0",
           overflow: "hidden",
           background: "#111",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
+          zIndex: 1,
         }}
       >
         {screenshotUrl ? (
