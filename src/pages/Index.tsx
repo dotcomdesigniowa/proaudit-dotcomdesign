@@ -119,8 +119,22 @@ const Index = () => {
   };
 
   const handleDelete = async (auditId: string) => {
-    await supabase.from("audit").update({ is_deleted: true }).eq("id", auditId);
-    await supabase.from("audit_shares").update({ is_active: false }).eq("audit_id", auditId);
+    // Get share IDs to delete views first
+    const { data: shareRows } = await supabase
+      .from("audit_shares")
+      .select("id")
+      .eq("audit_id", auditId);
+    const shareIds = (shareRows || []).map((s) => s.id);
+    // Delete views, then shares, then audit (respecting FK order)
+    if (shareIds.length > 0) {
+      await supabase.from("audit_share_views").delete().in("share_id", shareIds);
+      await supabase.from("audit_shares").delete().eq("audit_id", auditId);
+    }
+    const { error } = await supabase.from("audit").delete().eq("id", auditId);
+    if (error) {
+      toast.error("Failed to delete audit");
+      return;
+    }
     setAudits((prev) => prev.filter((a) => a.id !== auditId));
     toast.success("Audit deleted");
   };
