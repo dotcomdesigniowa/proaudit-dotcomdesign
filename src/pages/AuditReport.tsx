@@ -299,17 +299,6 @@ const AuditReport = () => {
 
   return (
     <div className="audit-page">
-      {/* ===== BREADCRUMB + BACK ===== */}
-      <div className="wrap" style={{ paddingTop: 16, paddingBottom: 8 }}>
-        <Link to="/" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors">
-          ← Back to Dashboard
-        </Link>
-        <div className="mt-1 text-xs text-muted-foreground">
-          <Link to="/" className="hover:underline">Dashboard</Link>
-          <span className="mx-1.5">/</span>
-          <span className="text-foreground">{audit.company_name || "Untitled"}</span>
-        </div>
-      </div>
       {/* ===== HERO ===== */}
       <section className="hero">
         <div className="wrap">
