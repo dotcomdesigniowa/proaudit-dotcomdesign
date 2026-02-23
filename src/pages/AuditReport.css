@@ -387,7 +387,7 @@
   border-top: 1px solid rgba(15,18,32,.06);
   border-bottom: 1px solid rgba(15,18,32,.06);
 }
-.audit-page .overviewGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
+.audit-page .overviewGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: start; }
 .audit-page .story { font-size: var(--base); color: #111827; max-width: 900px; font-weight: 600; }
 .audit-page .story p { margin: 0 0 14px; }
 
