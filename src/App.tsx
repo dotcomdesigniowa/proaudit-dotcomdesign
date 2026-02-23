@@ -55,7 +55,14 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route path="/audit/:id" element={<AuditReport />} />
+            <Route
+              path="/audit/:id"
+              element={
+                <ProtectedRoute>
+                  <AppLayout><AuditReport /></AppLayout>
+                </ProtectedRoute>
+              }
+            />
             <Route path="/shared/audit/:token" element={<SharedAuditReport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

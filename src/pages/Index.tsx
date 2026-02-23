@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -77,6 +77,7 @@ const shortUA = (ua: string | null) => {
 };
 
 const Index = () => {
+  const navigate = useNavigate();
   const [audits, setAudits] = useState<AuditRow[]>([]);
   const [shares, setShares] = useState<Record<string, ShareInfo>>({});
   const [loading, setLoading] = useState(true);
@@ -183,16 +184,20 @@ const Index = () => {
               {filtered.map((a) => {
                 const share = shares[a.id];
                 return (
-                  <tr key={a.id} className="border-b border-border last:border-0 hover:bg-muted/30">
+                  <tr
+                    key={a.id}
+                    className="border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer"
+                    onClick={() => navigate(`/audit/${a.id}`)}
+                  >
                     <td className="px-3 py-3 whitespace-nowrap text-xs">
                       {a.prepared_date
                         ? new Date(a.prepared_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                         : "—"}
                     </td>
                     <td className="px-3 py-3">
-                      <Link to={`/audit/${a.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
+                      <span className="font-medium text-primary">
                         {a.company_name || "Untitled"}
-                      </Link>
+                      </span>
                     </td>
                     <td className={`px-3 py-3 text-center text-lg font-bold ${gradeColor(a.overall_grade)}`}>
                       {a.overall_grade || "—"}
@@ -221,7 +226,7 @@ const Index = () => {
                     <td className="px-3 py-3 text-xs whitespace-nowrap">
                       {fmt(share?.last_viewed_at ?? null)}
                     </td>
-                    <td className="px-3 py-3 text-center">
+                    <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                       <div className="inline-flex items-center gap-1">
                         {share?.is_active && (
                           <Button
