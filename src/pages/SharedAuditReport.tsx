@@ -50,24 +50,19 @@ const DESIGN_BULLETS = [
 const MATRIX = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
 const randChar = () => MATRIX[(Math.random() * MATRIX.length) | 0];
 const prefersReduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-// Animation hooks (same as AuditReport)
+
+// Simple count-up animation (no hidden text issues)
 function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, duration = 1200) {
   const done = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el || done.current) return;
-    const io = new IntersectionObserver((entries) => {
-      if (!entries[0]?.isIntersecting || done.current) return;
-      done.current = true; io.disconnect();
-      if (prefersReduced) { el.textContent = String(target); return; }
-      const start = performance.now();
-      const tick = (t: number) => { const p = Math.min((t - start) / duration, 1); el.textContent = String(Math.round(p * target)); if (p < 1) requestAnimationFrame(tick); };
-      requestAnimationFrame(tick);
-    }, { threshold: 0.5 });
-    io.observe(el);
-    return () => io.disconnect();
+    done.current = true;
+    if (prefersReduced) { el.textContent = String(target); return; }
+    const start = performance.now();
+    const tick = (t: number) => { const p = Math.min((t - start) / duration, 1); el.textContent = String(Math.round(p * target)); if (p < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
   }, [target, duration]);
 }
 
@@ -76,67 +71,12 @@ function useMatrixGrade(ref: React.RefObject<HTMLElement | null>, finalChar: str
   useEffect(() => {
     const el = ref.current;
     if (!el || done.current) return;
-    const io = new IntersectionObserver((entries) => {
-      if (!entries[0]?.isIntersecting || done.current) return;
-      done.current = true; io.disconnect();
-      if (prefersReduced) { el.textContent = finalChar; return; }
-      const start = performance.now();
-      const tick = (t: number) => { if (t - start < duration) { el.textContent = randChar(); requestAnimationFrame(tick); } else { el.textContent = finalChar; } };
-      requestAnimationFrame(tick);
-    }, { threshold: 0.6 });
-    io.observe(el);
-    return () => io.disconnect();
+    done.current = true;
+    if (prefersReduced) { el.textContent = finalChar; return; }
+    const start = performance.now();
+    const tick = (t: number) => { if (t - start < duration) { el.textContent = randChar(); requestAnimationFrame(tick); } else { el.textContent = finalChar; } };
+    requestAnimationFrame(tick);
   }, [finalChar, duration]);
-}
-
-function useTypewriter(ref: React.RefObject<HTMLElement | null>, text: string, speed = 55) {
-  const done = useRef(false);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el || done.current) return;
-    const io = new IntersectionObserver((entries) => {
-      if (!entries[0]?.isIntersecting || done.current) return;
-      done.current = true; io.disconnect();
-      if (prefersReduced) { el.innerHTML = text; return; }
-      el.innerHTML = `<span style="visibility:hidden">${text}</span>`;
-      let i = 0;
-      const interval = setInterval(() => {
-        i++;
-        const visible = text.slice(0, i);
-        const hidden = text.slice(i);
-        el.innerHTML = `${visible}<span style="visibility:hidden">${hidden}</span>`;
-        if (i >= text.length) { el.textContent = text; clearInterval(interval); }
-      }, speed);
-    }, { threshold: 0.3 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, [text, speed]);
-}
-
-function useBulletAnimation(listRef: React.RefObject<HTMLUListElement | null>) {
-  const done = useRef(false);
-  useEffect(() => {
-    const el = listRef.current;
-    if (!el || done.current) return;
-    const items = Array.from(el.querySelectorAll("li"));
-    const io = new IntersectionObserver(async (entries) => {
-      if (!entries[0]?.isIntersecting || done.current) return;
-      done.current = true; io.disconnect();
-      for (const li of items) {
-        (li as HTMLElement).style.opacity = "1";
-        (li as HTMLElement).style.transform = "translateY(0)";
-        const span = li.querySelector(".liText") as HTMLElement;
-        const text = li.getAttribute("data-text") || "";
-        if (span) {
-          if (prefersReduced) { span.textContent = text; continue; }
-          span.textContent = "";
-          for (let i = 1; i <= text.length; i++) { span.textContent = text.slice(0, i); await sleep(40); }
-        }
-      }
-    }, { threshold: 0.25 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
 }
 
 // Sub-components
@@ -174,9 +114,7 @@ const MetricNumber = ({ value, suffix }: { value: number; suffix: string }) => {
 };
 
 const SectionHeading = ({ text, className = "" }: { text: string; className?: string }) => {
-  const ref = useRef<HTMLHeadingElement>(null);
-  useTypewriter(ref, text, 45);
-  return <h2 className={`sectionTitle caps ${className}`} ref={ref}>&nbsp;</h2>;
+  return <h2 className={`sectionTitle caps ${className}`}>{text}</h2>;
 };
 
 // Main shared component
@@ -195,11 +133,11 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
   const [logoError, setLogoError] = useState(false);
   const tracked = useRef(false);
 
-  const summaryListRef = useRef<HTMLUListElement>(null);
+  
   const heroHeadingRef = useRef<HTMLSpanElement>(null);
   const overallGradeRef = useRef<HTMLParagraphElement>(null);
 
-  useBulletAnimation(summaryListRef);
+  
 
   useEffect(() => {
     if (!resolvedToken || tracked.current) return;
@@ -235,16 +173,10 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
     })();
   }, [resolvedToken]);
 
-  // Hero company name typewriter
+  // Set hero company name directly (no typewriter to avoid missing text)
   useEffect(() => {
     if (!audit || !heroHeadingRef.current) return;
-    const el = heroHeadingRef.current;
-    const text = (audit.company_name || "—").toUpperCase();
-    if (prefersReduced) { el.textContent = text; return; }
-    el.textContent = "";
-    let i = 0;
-    const interval = setInterval(() => { i++; el.textContent = text.slice(0, i); if (i >= text.length) clearInterval(interval); }, 50);
-    return () => clearInterval(interval);
+    heroHeadingRef.current.textContent = (audit.company_name || "—").toUpperCase();
   }, [audit]);
 
   useMatrixGrade(overallGradeRef, audit?.overall_grade || "F");
@@ -398,7 +330,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   it lowers perceived quality and weakens trust.
                 </p>
                 <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Summary ↓</button>
-                <ul className="xList" ref={summaryListRef}>
+                <ul className="xList">
                   {DESIGN_BULLETS.map((b, i) => (
                     <li key={i} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
                       <span className="xIcon">❌</span>
