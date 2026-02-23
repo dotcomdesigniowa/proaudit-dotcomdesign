@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -267,7 +267,9 @@ const AuditReport = () => {
     setRefreshingScreenshot(false);
   }, [auditId, audit]);
 
-  const { loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const isCalibrating = searchParams.get("calibrate") === "1" && !!user;
 
   useEffect(() => {
     if (!auditId || authLoading) return;
@@ -555,8 +557,8 @@ const AuditReport = () => {
                 consistently find you.
               </p>
             </div>
-            <div className="card" style={{ position: "relative" }}>
-              <ComputerScreenshot screenshotUrl={(audit as any).website_screenshot_url} />
+            <div className="card" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <ComputerScreenshot screenshotUrl={(audit as any).website_screenshot_url} calibrate={isCalibrating} />
               <Button
                 variant="ghost"
                 size="sm"
