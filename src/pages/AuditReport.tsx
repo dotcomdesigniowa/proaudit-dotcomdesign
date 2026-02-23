@@ -1,10 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
 import { Copy } from "lucide-react";
 import { toast } from "sonner";
-import { supabase as sbClient } from "@/integrations/supabase/client";
 import "./AuditReport.css";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
@@ -242,14 +242,16 @@ const AuditReport = () => {
 
   useBulletAnimation(summaryListRef);
 
+  const { loading: authLoading } = useAuth();
+
   useEffect(() => {
-    if (!id) return;
+    if (!id || authLoading) return;
     (async () => {
       const { data, error } = await supabase.from("audit").select("*").eq("id", id).maybeSingle();
       if (error) setError(error.message);
       else setAudit(data as Audit);
       // Fetch share token
-      const { data: shareData } = await sbClient
+      const { data: shareData } = await supabase
         .from("audit_shares")
         .select("share_token")
         .eq("audit_id", id)
@@ -258,7 +260,7 @@ const AuditReport = () => {
       if (shareData?.[0]) setShareToken(shareData[0].share_token);
       setLoading(false);
     })();
-  }, [id]);
+  }, [id, authLoading]);
 
   // Hero company name typewriter
   useEffect(() => {
