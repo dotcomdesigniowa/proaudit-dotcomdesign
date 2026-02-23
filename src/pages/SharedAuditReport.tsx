@@ -1,14 +1,41 @@
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import AuditSharePanel from "@/components/AuditSharePanel";
 import "./AuditReport.css";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
 
+// Reuse helpers from AuditReport (duplicated to keep files independent)
 const DEFAULT_UTH_IMAGE = "/images/under-the-hood.png";
 const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
+
+const glowClass = (grade: string | null) => {
+  switch (grade) { case "A": return "a"; case "B": return "b"; case "C": return "c"; case "D": return "d"; default: return "f"; }
+};
+const companyInitials = (name: string | null) => {
+  if (!name) return "—";
+  return name.split(/\s+/).map((w) => w[0]).join("").toUpperCase().slice(0, 4);
+};
+const normalizeLogoUrl = (logoUrl: string | null, websiteUrl: string | null): string | null => {
+  if (!logoUrl) return null;
+  let url = logoUrl.trim();
+  if (!url) return null;
+  if (url.startsWith("/") && !url.startsWith("//")) {
+    if (websiteUrl) {
+      try { const origin = new URL(websiteUrl.startsWith("http") ? websiteUrl : `https://${websiteUrl}`).origin; return `${origin}${url}`; } catch { return null; }
+    }
+    return null;
+  }
+  if (url.startsWith("//")) return `https:${url}`;
+  if (!url.startsWith("http")) return `https://${url}`;
+  return url;
+};
+const formatDate = (dateStr: string | null) => {
+  if (!dateStr) return "—";
+  const d = new Date(dateStr + "T00:00:00");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+};
 
 const DESIGN_BULLETS = [
   "Does not reflect the quality of the actual work you do.",
@@ -19,75 +46,25 @@ const DESIGN_BULLETS = [
   "Does not build immediate trust.",
 ];
 
-const glowClass = (grade: string | null) => {
-  switch (grade) {
-    case "A": return "a";
-    case "B": return "b";
-    case "C": return "c";
-    case "D": return "d";
-    default: return "f";
-  }
-};
-
-const companyInitials = (name: string | null) => {
-  if (!name) return "—";
-  return name.split(/\s+/).map((w) => w[0]).join("").toUpperCase().slice(0, 4);
-};
-
-const normalizeLogoUrl = (logoUrl: string | null, websiteUrl: string | null): string | null => {
-  if (!logoUrl) return null;
-  let url = logoUrl.trim();
-  if (!url) return null;
-  // Relative path like "/logo.png" → resolve against website origin
-  if (url.startsWith("/") && !url.startsWith("//")) {
-    if (websiteUrl) {
-      try {
-        const origin = new URL(websiteUrl.startsWith("http") ? websiteUrl : `https://${websiteUrl}`).origin;
-        return `${origin}${url}`;
-      } catch { return null; }
-    }
-    return null;
-  }
-  // Protocol-relative "//example.com/logo.png"
-  if (url.startsWith("//")) return `https:${url}`;
-  // Missing protocol entirely "example.com/logo.png"
-  if (!url.startsWith("http")) return `https://${url}`;
-  return url;
-};
-
-const formatDate = (dateStr: string | null) => {
-  if (!dateStr) return "—";
-  const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-};
-
-// ── Animation helpers ──
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const MATRIX = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
 const randChar = () => MATRIX[(Math.random() * MATRIX.length) | 0];
 const prefersReduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+// Animation hooks (same as AuditReport)
 function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, duration = 1200) {
   const done = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el || done.current) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0]?.isIntersecting || done.current) return;
-        done.current = true;
-        io.disconnect();
-        if (prefersReduced) { el.textContent = String(target); return; }
-        const start = performance.now();
-        const tick = (t: number) => {
-          const p = Math.min((t - start) / duration, 1);
-          el.textContent = String(Math.round(p * target));
-          if (p < 1) requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
-      },
-      { threshold: 0.5 }
-    );
+    const io = new IntersectionObserver((entries) => {
+      if (!entries[0]?.isIntersecting || done.current) return;
+      done.current = true; io.disconnect();
+      if (prefersReduced) { el.textContent = String(target); return; }
+      const start = performance.now();
+      const tick = (t: number) => { const p = Math.min((t - start) / duration, 1); el.textContent = String(Math.round(p * target)); if (p < 1) requestAnimationFrame(tick); };
+      requestAnimationFrame(tick);
+    }, { threshold: 0.5 });
     io.observe(el);
     return () => io.disconnect();
   }, [target, duration]);
@@ -98,25 +75,14 @@ function useMatrixGrade(ref: React.RefObject<HTMLElement | null>, finalChar: str
   useEffect(() => {
     const el = ref.current;
     if (!el || done.current) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0]?.isIntersecting || done.current) return;
-        done.current = true;
-        io.disconnect();
-        if (prefersReduced) { el.textContent = finalChar; return; }
-        const start = performance.now();
-        const tick = (t: number) => {
-          if (t - start < duration) {
-            el.textContent = randChar();
-            requestAnimationFrame(tick);
-          } else {
-            el.textContent = finalChar;
-          }
-        };
-        requestAnimationFrame(tick);
-      },
-      { threshold: 0.6 }
-    );
+    const io = new IntersectionObserver((entries) => {
+      if (!entries[0]?.isIntersecting || done.current) return;
+      done.current = true; io.disconnect();
+      if (prefersReduced) { el.textContent = finalChar; return; }
+      const start = performance.now();
+      const tick = (t: number) => { if (t - start < duration) { el.textContent = randChar(); requestAnimationFrame(tick); } else { el.textContent = finalChar; } };
+      requestAnimationFrame(tick);
+    }, { threshold: 0.6 });
     io.observe(el);
     return () => io.disconnect();
   }, [finalChar, duration]);
@@ -127,65 +93,52 @@ function useTypewriter(ref: React.RefObject<HTMLElement | null>, text: string, s
   useEffect(() => {
     const el = ref.current;
     if (!el || done.current) return;
-    const io = new IntersectionObserver(
-      (entries) => {
-        if (!entries[0]?.isIntersecting || done.current) return;
-        done.current = true;
-        io.disconnect();
-        if (prefersReduced) { el.innerHTML = text; return; }
-        // Reserve full width with invisible text so layout never shifts
-        el.innerHTML = `<span style="visibility:hidden">${text}</span>`;
-        let i = 0;
-        const interval = setInterval(() => {
-          i++;
-          const visible = text.slice(0, i);
-          const hidden = text.slice(i);
-          el.innerHTML = `${visible}<span style="visibility:hidden">${hidden}</span>`;
-          if (i >= text.length) { el.textContent = text; clearInterval(interval); }
-        }, speed);
-      },
-      { threshold: 0.3 }
-    );
+    const io = new IntersectionObserver((entries) => {
+      if (!entries[0]?.isIntersecting || done.current) return;
+      done.current = true; io.disconnect();
+      if (prefersReduced) { el.innerHTML = text; return; }
+      el.innerHTML = `<span style="visibility:hidden">${text}</span>`;
+      let i = 0;
+      const interval = setInterval(() => {
+        i++;
+        const visible = text.slice(0, i);
+        const hidden = text.slice(i);
+        el.innerHTML = `${visible}<span style="visibility:hidden">${hidden}</span>`;
+        if (i >= text.length) { el.textContent = text; clearInterval(interval); }
+      }, speed);
+    }, { threshold: 0.3 });
     io.observe(el);
     return () => io.disconnect();
   }, [text, speed]);
 }
 
-// ── Bullet list animation ──
 function useBulletAnimation(listRef: React.RefObject<HTMLUListElement | null>) {
   const done = useRef(false);
   useEffect(() => {
     const el = listRef.current;
     if (!el || done.current) return;
     const items = Array.from(el.querySelectorAll("li"));
-    const io = new IntersectionObserver(
-      async (entries) => {
-        if (!entries[0]?.isIntersecting || done.current) return;
-        done.current = true;
-        io.disconnect();
-        for (const li of items) {
-          (li as HTMLElement).style.opacity = "1";
-          (li as HTMLElement).style.transform = "translateY(0)";
-          const span = li.querySelector(".liText") as HTMLElement;
-          const text = li.getAttribute("data-text") || "";
-          if (span) {
-            if (prefersReduced) { span.textContent = text; continue; }
-            span.textContent = "";
-            for (let i = 1; i <= text.length; i++) {
-              span.textContent = text.slice(0, i);
-              await sleep(40);
-            }
-          }
+    const io = new IntersectionObserver(async (entries) => {
+      if (!entries[0]?.isIntersecting || done.current) return;
+      done.current = true; io.disconnect();
+      for (const li of items) {
+        (li as HTMLElement).style.opacity = "1";
+        (li as HTMLElement).style.transform = "translateY(0)";
+        const span = li.querySelector(".liText") as HTMLElement;
+        const text = li.getAttribute("data-text") || "";
+        if (span) {
+          if (prefersReduced) { span.textContent = text; continue; }
+          span.textContent = "";
+          for (let i = 1; i <= text.length; i++) { span.textContent = text.slice(0, i); await sleep(40); }
         }
-      },
-      { threshold: 0.25 }
-    );
+      }
+    }, { threshold: 0.25 });
     io.observe(el);
     return () => io.disconnect();
   }, []);
 }
 
-// ── Sub-components ──
+// Sub-components
 const PreparedByTooltip = ({ audit }: { audit: Audit }) => (
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
@@ -225,13 +178,14 @@ const SectionHeading = ({ text, className = "" }: { text: string; className?: st
   return <h2 className={`sectionTitle caps ${className}`} ref={ref}>&nbsp;</h2>;
 };
 
-// ── Main ──
-const AuditReport = () => {
-  const { id } = useParams<{ id: string }>();
+// Main shared component
+const SharedAuditReport = () => {
+  const { token } = useParams<{ token: string }>();
   const [audit, setAudit] = useState<Audit | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logoError, setLogoError] = useState(false);
+  const tracked = useRef(false);
 
   const summaryListRef = useRef<HTMLUListElement>(null);
   const heroHeadingRef = useRef<HTMLSpanElement>(null);
@@ -240,14 +194,28 @@ const AuditReport = () => {
   useBulletAnimation(summaryListRef);
 
   useEffect(() => {
-    if (!id) return;
+    if (!token || tracked.current) return;
+    tracked.current = true;
+
     (async () => {
-      const { data, error } = await supabase.from("audit").select("*").eq("id", id).single();
-      if (error) setError(error.message);
-      else setAudit(data as Audit);
+      try {
+        const res = await supabase.functions.invoke("track-share-view", {
+          body: { token },
+        });
+
+        if (res.error || res.data?.error) {
+          setError("This link is no longer available.");
+          setLoading(false);
+          return;
+        }
+
+        setAudit(res.data.audit as Audit);
+      } catch {
+        setError("This link is no longer available.");
+      }
       setLoading(false);
     })();
-  }, [id]);
+  }, [token]);
 
   // Hero company name typewriter
   useEffect(() => {
@@ -257,15 +225,10 @@ const AuditReport = () => {
     if (prefersReduced) { el.textContent = text; return; }
     el.textContent = "";
     let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      el.textContent = text.slice(0, i);
-      if (i >= text.length) clearInterval(interval);
-    }, 50);
+    const interval = setInterval(() => { i++; el.textContent = text.slice(0, i); if (i >= text.length) clearInterval(interval); }, 50);
     return () => clearInterval(interval);
   }, [audit]);
 
-  // Overall grade matrix
   useMatrixGrade(overallGradeRef, audit?.overall_grade || "F");
 
   if (loading)
@@ -276,8 +239,8 @@ const AuditReport = () => {
     );
   if (error || !audit)
     return (
-      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", color: "#dc2626" }}>
-        {error || "Audit not found"}
+      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", color: "#dc2626", flexDirection: "column", gap: 8 }}>
+        <p style={{ fontSize: 18, fontWeight: 700 }}>{error || "This link is no longer available."}</p>
       </div>
     );
 
@@ -299,12 +262,10 @@ const AuditReport = () => {
                 Prepared: {formatDate(audit.prepared_date)}
               </span>
               <span className="heroBadge" style={{ textTransform: "none", fontWeight: 400 }}>
-                Prepared By:{" "}
-                <PreparedByTooltip audit={audit} />
+                Prepared By: <PreparedByTooltip audit={audit} />
               </span>
             </div>
           </div>
-
           <div className="gradeMetaRow">
             <div>
               <div className="scoreLabel">Overall Score</div>
@@ -315,7 +276,6 @@ const AuditReport = () => {
                 </div>
               </div>
             </div>
-
             <div className="metaCard">
               <div className="metaInner">
                 <div className="metaRow">
@@ -327,28 +287,13 @@ const AuditReport = () => {
                   </div>
                   <div className="logoBox">
                     {normalizedLogo && !logoError ? (
-                      <img
-                        src={normalizedLogo}
-                        alt={`${audit.company_name} logo`}
-                        loading="eager"
-                        referrerPolicy="no-referrer"
-                        onError={() => setLogoError(true)}
-                      />
-                    ) : (
-                      companyInitials(audit.company_name)
-                    )}
+                      <img src={normalizedLogo} alt={`${audit.company_name} logo`} loading="eager" referrerPolicy="no-referrer" onError={() => setLogoError(true)} />
+                    ) : companyInitials(audit.company_name)}
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ===== SHARE & ENGAGEMENT ===== */}
-      <section style={{ paddingTop: 0, paddingBottom: 0 }}>
-        <div className="wrap">
-          <AuditSharePanel auditId={audit.id} />
         </div>
       </section>
 
@@ -360,9 +305,7 @@ const AuditReport = () => {
             These metrics represent objective scores and signals that directly influence visibility, trust, reach and more.
             Scores were generated using neutral, reputable auditing platforms like W3C, Google PageSpeed Insights &amp; Accessibility Checker.
           </p>
-
           <div className="metrics">
-            {/* W3C */}
             <div className="metricRow">
               <MetricNumber value={audit.w3c_issue_count ?? 0} suffix="Total #" />
               <div>
@@ -378,23 +321,16 @@ const AuditReport = () => {
                     The Bad Website Tax
                     <span className="tip tooltipBox">
                       When a website isn't properly constructed, it drags down everything connected to it.
-                      Small businesses end up spending 30–50% more just to get the same results. You pay more
-                      to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
-                      should. That's the tax — higher costs, lower performance, constant uphill battle. Every
-                      dollar has to work harder just to overcome what's broken underneath.
+                      Small businesses end up spending 30–50% more just to get the same results.
                     </span>
                   </span>
                 </div>
                 {audit.w3c_audit_url && (
-                  <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                    View Audit <span>→</span>
-                  </a>
+                  <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
                 )}
               </div>
               <MetricGradeBox grade={audit.w3c_grade || "F"} />
             </div>
-
-            {/* PSI */}
             <div className="metricRow">
               <MetricNumber value={audit.psi_mobile_score ?? 0} suffix="out of 100" />
               <div>
@@ -402,18 +338,13 @@ const AuditReport = () => {
                 <p className="metricText">
                   Your mobile performance score directly impacts how your business shows up in search results.
                   When your site is slow or underperforms on mobile, users leave… and Google notices.
-                  Over time, this drastically weakens your visibility.
                 </p>
                 {audit.psi_audit_url && (
-                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                    View Audit <span>→</span>
-                  </a>
+                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
                 )}
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} />
             </div>
-
-            {/* Accessibility */}
             <div className="metricRow">
               <MetricNumber value={audit.accessibility_score ?? 0} suffix="percent" />
               <div>
@@ -435,23 +366,18 @@ const AuditReport = () => {
                   </div>
                 )}
                 {audit.accessibility_audit_url && (
-                  <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                    View Audit <span>→</span>
-                  </a>
+                  <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
                 )}
               </div>
               <MetricGradeBox grade={audit.accessibility_grade || "F"} />
             </div>
-
-            {/* Design */}
             <div className="metricRow">
               <MetricNumber value={audit.design_score ?? 0} suffix="out of 100" />
               <div>
                 <div className="metricLabel">Design &amp; Visual Score</div>
                 <p className="metricText">
                   Your website design shapes first impressions instantly. When it feels generic or outdated,
-                  it lowers perceived quality and weakens trust. And when trust is weak, visitors hesitate —
-                  reducing engagement and conversions.
+                  it lowers perceived quality and weakens trust.
                 </p>
                 <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Summary ↓</button>
                 <ul className="xList" ref={summaryListRef}>
@@ -475,21 +401,9 @@ const AuditReport = () => {
           <SectionHeading text="UNDER THE HOOD" />
           <div className="overviewGrid">
             <div className="story">
-              <p>
-                {audit.company_name || "This company"} appears to be a well-established, reputable and trustworthy
-                business with real credibility in the marketplace. However, the website, online presence, and overall
-                digital reputation do not reflect that same level of strength.
-              </p>
-              <p>
-                The drag-and-drop builder ({audit.provider || "platform"}) currently powering the website introduces
-                major structural deficiencies under the hood. While the site may look functional, the code of the
-                website is creating major problems with visibility and performance.
-              </p>
-              <p>
-                <strong>In Plain English:</strong> The website you are currently paying for is likely limiting your
-                online reach, making it harder for potential customers, referrals, and word-of-mouth traffic to
-                consistently find you.
-              </p>
+              <p>{audit.company_name || "This company"} appears to be a well-established, reputable and trustworthy business with real credibility in the marketplace. However, the website, online presence, and overall digital reputation do not reflect that same level of strength.</p>
+              <p>The drag-and-drop builder ({audit.provider || "platform"}) currently powering the website introduces major structural deficiencies under the hood.</p>
+              <p><strong>In Plain English:</strong> The website you are currently paying for is likely limiting your online reach.</p>
             </div>
             <div className="card">
               <img src={DEFAULT_UTH_IMAGE} alt="Under the hood graphic" />
@@ -508,31 +422,13 @@ const AuditReport = () => {
             <div className="presenceTextCol">
               <SectionHeading text="ONLINE PRESENCE ISSUES" />
               <p className="subtle" style={{ textAlign: "right", marginLeft: "auto" }}>
-                We also ran a comprehensive scan of your business across the internet and found a large list of issues
-                across multiple platforms. To build trust, rank and get found, your entire digital presence must be
-                structured, aligned, and optimized.
+                We also ran a comprehensive scan of your business across the internet and found a large list of issues.
               </p>
               <div className="scannedBusinessInfo">
-                <div className="scanField">
-                  <span className="scanLabel">Business Name</span>
-                  <span className="scanValue">{audit.company_name ?? "—"}</span>
-                </div>
-                <div className="scanField">
-                  <span className="scanLabel">City, State</span>
-                  <span className="scanValue">{`${audit.location_city ?? "—"}, ${audit.location_state ?? "—"}`}</span>
-                </div>
-                <div className="scanField">
-                  <span className="scanLabel">Phone Number</span>
-                  <span className="scanValue">{audit.business_phone ?? "—"}</span>
-                </div>
-                <div className="scanField">
-                  <span className="scanLabel">Website Address</span>
-                  <span className="scanValue">
-                    {audit.website_url
-                      ? audit.website_url.replace(/^https?:\/\//, "").replace(/\/$/, "")
-                      : "—"}
-                  </span>
-                </div>
+                <div className="scanField"><span className="scanLabel">Business Name</span><span className="scanValue">{audit.company_name ?? "—"}</span></div>
+                <div className="scanField"><span className="scanLabel">City, State</span><span className="scanValue">{`${audit.location_city ?? "—"}, ${audit.location_state ?? "—"}`}</span></div>
+                <div className="scanField"><span className="scanLabel">Phone Number</span><span className="scanValue">{audit.business_phone ?? "—"}</span></div>
+                <div className="scanField"><span className="scanLabel">Website Address</span><span className="scanValue">{audit.website_url ? audit.website_url.replace(/^https?:\/\//, "").replace(/\/$/, "") : "—"}</span></div>
               </div>
             </div>
           </div>
@@ -558,8 +454,7 @@ const AuditReport = () => {
               </span>
             )}
             <p className="ctaAlt">
-              You can also Call / Text / Email{" "}
-              <PreparedByTooltip audit={audit} />.
+              You can also Call / Text / Email <PreparedByTooltip audit={audit} />.
             </p>
           </div>
         </div>
@@ -568,4 +463,4 @@ const AuditReport = () => {
   );
 };
 
-export default AuditReport;
+export default SharedAuditReport;

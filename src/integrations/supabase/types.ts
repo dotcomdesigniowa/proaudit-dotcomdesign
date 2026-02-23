@@ -119,6 +119,88 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_share_views: {
+        Row: {
+          id: string
+          ip_address: string | null
+          referrer: string | null
+          share_id: string
+          user_agent: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          referrer?: string | null
+          share_id: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          referrer?: string | null
+          share_id?: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_share_views_share_id_fkey"
+            columns: ["share_id"]
+            isOneToOne: false
+            referencedRelation: "audit_shares"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_shares: {
+        Row: {
+          audit_id: string
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          first_viewed_at: string | null
+          id: string
+          is_active: boolean
+          last_viewed_at: string | null
+          share_token: string
+          view_count: number
+        }
+        Insert: {
+          audit_id: string
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          first_viewed_at?: string | null
+          id?: string
+          is_active?: boolean
+          last_viewed_at?: string | null
+          share_token: string
+          view_count?: number
+        }
+        Update: {
+          audit_id?: string
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          first_viewed_at?: string | null
+          id?: string
+          is_active?: boolean
+          last_viewed_at?: string | null
+          share_token?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_shares_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "audit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -148,6 +230,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      record_share_view: {
+        Args: {
+          p_ip_address?: string
+          p_referrer?: string
+          p_share_token: string
+          p_user_agent?: string
+        }
+        Returns: Json
+      }
       score_to_grade: { Args: { score: number }; Returns: string }
     }
     Enums: {

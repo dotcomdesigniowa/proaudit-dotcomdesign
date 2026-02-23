@@ -14,6 +14,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import SharedAuditReport from "./pages/SharedAuditReport";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -55,6 +56,7 @@ const App = () => (
               }
             />
             <Route path="/audit/:id" element={<AuditReport />} />
+            <Route path="/shared/audit/:token" element={<SharedAuditReport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
