@@ -1,1 +1,4 @@
 project_id = "cocieziwytadhzcktqhf"
+
+[functions.track-share-view]
+verify_jwt = false

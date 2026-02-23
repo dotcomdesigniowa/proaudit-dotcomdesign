@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Copy, Eye } from "lucide-react";
+import { toast } from "sonner";
 
 interface AuditRow {
   id: string;
@@ -13,6 +14,13 @@ interface AuditRow {
   overall_score: number | null;
   prepared_date: string | null;
   prepared_by_name: string | null;
+}
+
+interface ShareInfo {
+  audit_id: string;
+  share_token: string;
+  view_count: number;
+  is_active: boolean;
 }
 
 const gradeColor = (g: string | null) => {
@@ -27,23 +35,37 @@ const gradeColor = (g: string | null) => {
 
 const Index = () => {
   const [audits, setAudits] = useState<AuditRow[]>([]);
+  const [shares, setShares] = useState<Record<string, ShareInfo>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    supabase
-      .from("audit")
-      .select("id, company_name, overall_grade, overall_score, prepared_date, prepared_by_name")
-      .order("created_at", { ascending: false })
-      .then(({ data }) => {
-        setAudits((data as AuditRow[]) || []);
-        setLoading(false);
-      });
+    Promise.all([
+      supabase
+        .from("audit")
+        .select("id, company_name, overall_grade, overall_score, prepared_date, prepared_by_name")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("audit_shares")
+        .select("audit_id, share_token, view_count, is_active")
+        .eq("is_active", true),
+    ]).then(([auditRes, shareRes]) => {
+      setAudits((auditRes.data as AuditRow[]) || []);
+      const shareMap: Record<string, ShareInfo> = {};
+      (shareRes.data || []).forEach((s: ShareInfo) => { shareMap[s.audit_id] = s; });
+      setShares(shareMap);
+      setLoading(false);
+    });
   }, []);
 
   const filtered = audits.filter((a) =>
     !search || (a.company_name || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const copyShareLink = (token: string) => {
+    navigator.clipboard.writeText(`${window.location.origin}/shared/audit/${token}`);
+    toast.success("Link copied");
+  };
 
   return (
     <div className="mx-auto max-w-5xl p-6">
@@ -83,29 +105,55 @@ const Index = () => {
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Company</th>
                 <th className="px-4 py-3 text-center font-medium text-muted-foreground">Grade</th>
                 <th className="px-4 py-3 text-center font-medium text-muted-foreground">Score</th>
+                <th className="px-4 py-3 text-center font-medium text-muted-foreground">Views</th>
                 <th className="px-4 py-3 text-left font-medium text-muted-foreground">Prepared By</th>
+                <th className="px-4 py-3 text-center font-medium text-muted-foreground">Share</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((a) => (
-                <tr key={a.id} className="border-b border-border last:border-0 hover:bg-muted/30">
-                  <td className="px-4 py-3 whitespace-nowrap">
-                    {a.prepared_date
-                      ? new Date(a.prepared_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-                      : "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Link to={`/audit/${a.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
-                      {a.company_name || "Untitled"}
-                    </Link>
-                  </td>
-                  <td className={`px-4 py-3 text-center text-lg font-bold ${gradeColor(a.overall_grade)}`}>
-                    {a.overall_grade || "—"}
-                  </td>
-                  <td className="px-4 py-3 text-center">{a.overall_score ?? "—"}</td>
-                  <td className="px-4 py-3">{a.prepared_by_name || "—"}</td>
-                </tr>
-              ))}
+              {filtered.map((a) => {
+                const share = shares[a.id];
+                return (
+                  <tr key={a.id} className="border-b border-border last:border-0 hover:bg-muted/30">
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {a.prepared_date
+                        ? new Date(a.prepared_date + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Link to={`/audit/${a.id}`} className="font-medium text-primary underline-offset-2 hover:underline">
+                        {a.company_name || "Untitled"}
+                      </Link>
+                    </td>
+                    <td className={`px-4 py-3 text-center text-lg font-bold ${gradeColor(a.overall_grade)}`}>
+                      {a.overall_grade || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-center">{a.overall_score ?? "—"}</td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center gap-1 text-muted-foreground">
+                        <Eye size={14} />
+                        {share?.view_count ?? 0}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">{a.prepared_by_name || "—"}</td>
+                    <td className="px-4 py-3 text-center">
+                      {share ? (
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8"
+                          onClick={() => copyShareLink(share.share_token)}
+                          title="Copy share link"
+                        >
+                          <Copy size={14} />
+                        </Button>
+                      ) : (
+                        <span className="text-muted-foreground text-xs">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
