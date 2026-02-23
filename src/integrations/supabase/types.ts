@@ -222,6 +222,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_admin: boolean
           notify_on_open: boolean
           phone: string | null
           scheduler_url: string | null
@@ -231,6 +232,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          is_admin?: boolean
           notify_on_open?: boolean
           phone?: string | null
           scheduler_url?: string | null
@@ -240,9 +242,58 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_admin?: boolean
           notify_on_open?: boolean
           phone?: string | null
           scheduler_url?: string | null
+        }
+        Relationships: []
+      }
+      scoring_settings: {
+        Row: {
+          grade_a_min: number
+          grade_b_min: number
+          grade_c_min: number
+          grade_d_min: number
+          id: string
+          is_active: boolean
+          updated_at: string
+          updated_by: string | null
+          w3c_issue_penalty: number
+          weight_accessibility: number
+          weight_design: number
+          weight_psi_mobile: number
+          weight_w3c: number
+        }
+        Insert: {
+          grade_a_min?: number
+          grade_b_min?: number
+          grade_c_min?: number
+          grade_d_min?: number
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          w3c_issue_penalty?: number
+          weight_accessibility?: number
+          weight_design?: number
+          weight_psi_mobile?: number
+          weight_w3c?: number
+        }
+        Update: {
+          grade_a_min?: number
+          grade_b_min?: number
+          grade_c_min?: number
+          grade_d_min?: number
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          w3c_issue_penalty?: number
+          weight_accessibility?: number
+          weight_design?: number
+          weight_psi_mobile?: number
+          weight_w3c?: number
         }
         Relationships: []
       }
@@ -251,6 +302,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      recalculate_all_audits: { Args: { since_days?: number }; Returns: number }
       record_share_view: {
         Args: {
           p_ip_address?: string
@@ -260,7 +312,18 @@ export type Database = {
         }
         Returns: Json
       }
-      score_to_grade: { Args: { score: number }; Returns: string }
+      score_to_grade:
+        | { Args: { score: number }; Returns: string }
+        | {
+            Args: {
+              a_min?: number
+              b_min?: number
+              c_min?: number
+              d_min?: number
+              score: number
+            }
+            Returns: string
+          }
     }
     Enums: {
       [_ in never]: never

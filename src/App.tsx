@@ -5,10 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import AdminRoute from "@/components/AdminRoute";
 import AppLayout from "@/components/AppLayout";
 import Index from "./pages/Index";
 import CreateAudit from "./pages/CreateAudit";
 import AuditRouteResolver from "./pages/AuditRouteResolver";
+import Scoring from "./pages/Scoring";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
@@ -53,6 +55,14 @@ const App = () => (
                 <ProtectedRoute>
                   <AppLayout><Profile /></AppLayout>
                 </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/scoring"
+              element={
+                <AdminRoute>
+                  <AppLayout><Scoring /></AppLayout>
+                </AdminRoute>
               }
             />
             <Route path="/audit/:param" element={<AuditRouteResolver />} />
