@@ -33,7 +33,7 @@ const AppLayout = ({ children, navActions }: AppLayoutProps) => {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-foreground">
-              <img src={logo} alt="ProAudit" className="h-6 w-6 rounded" />
+              <img src={logo} alt="ProAudit" className="h-7 w-7 object-contain" />
               ProAudit
             </Link>
             <nav className="hidden sm:flex items-center gap-1">
