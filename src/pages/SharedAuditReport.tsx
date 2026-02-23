@@ -353,9 +353,9 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
       {/* ===== UNDER THE HOOD ===== */}
       <section className="overview">
         <div className="wrap">
-          <SectionHeading text="UNDER THE HOOD" />
           <div className="overviewGrid">
             <div className="story">
+              <SectionHeading text="UNDER THE HOOD" />
               <p>{audit.company_name || "This company"} appears to be a well-established, reputable and trustworthy business with real credibility in the marketplace. However, the website, online presence, and overall digital reputation do not reflect that same level of strength.</p>
               <p>The drag-and-drop builder ({audit.provider || "platform"}) currently powering the website introduces major structural deficiencies under the hood. While the site may look functional, the code of the website is creating major problems with visibility and performance.</p>
               <p><strong>In Plain English:</strong> The website you are currently paying for is likely limiting your online reach, making it harder for potential customers, referrals, and word-of-mouth traffic to consistently find you.</p>
