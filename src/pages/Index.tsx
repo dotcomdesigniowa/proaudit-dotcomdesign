@@ -130,7 +130,7 @@ const Index = () => {
       await supabase.from("audit_share_views").delete().in("share_id", shareIds);
       await supabase.from("audit_shares").delete().eq("audit_id", auditId);
     }
-    const { error } = await supabase.from("audit").delete().eq("id", auditId);
+    const { error, count } = await supabase.from("audit").delete().eq("id", auditId).select("id");
     if (error) {
       toast.error("Failed to delete audit");
       return;
