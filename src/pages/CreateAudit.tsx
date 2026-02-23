@@ -45,7 +45,6 @@ const CreateAudit = () => {
     accessibility_score: "",
     accessibility_audit_url: "",
     design_score: "35",
-    scheduler_url: "",
   });
 
   // Fetch profile for auto-fill
@@ -117,7 +116,7 @@ const CreateAudit = () => {
       accessibility_score: form.accessibility_score ? parseInt(form.accessibility_score) : null,
       accessibility_audit_url: form.accessibility_audit_url || null,
       design_score: form.design_score ? parseInt(form.design_score) : 35,
-      scheduler_url: form.scheduler_url || null,
+      
       company_logo_url: discoveredLogo,
     };
 
@@ -197,13 +196,6 @@ const CreateAudit = () => {
                 </div>
               </section>
 
-              {/* Assets */}
-              <section className="space-y-4">
-                <h3 className="text-lg font-semibold text-foreground">Assets & Links</h3>
-                <div className="grid gap-4 sm:grid-cols-1">
-                  <Field label="Scheduler URL (optional)" name="scheduler_url" placeholder="https://..." value={form.scheduler_url} onChange={set("scheduler_url")} />
-                </div>
-              </section>
 
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? "Creating…" : "Create Audit"}

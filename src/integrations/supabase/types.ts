@@ -218,6 +218,7 @@ export type Database = {
           id: string
           notify_on_open: boolean
           phone: string | null
+          scheduler_url: string | null
         }
         Insert: {
           created_at?: string
@@ -226,6 +227,7 @@ export type Database = {
           id: string
           notify_on_open?: boolean
           phone?: string | null
+          scheduler_url?: string | null
         }
         Update: {
           created_at?: string
@@ -234,6 +236,7 @@ export type Database = {
           id?: string
           notify_on_open?: boolean
           phone?: string | null
+          scheduler_url?: string | null
         }
         Relationships: []
       }

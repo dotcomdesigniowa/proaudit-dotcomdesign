@@ -13,6 +13,7 @@ const Profile = () => {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [notifyOnOpen, setNotifyOnOpen] = useState(true);
+  const [schedulerUrl, setSchedulerUrl] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -20,7 +21,7 @@ const Profile = () => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("full_name, phone, notify_on_open")
+      .select("full_name, phone, notify_on_open, scheduler_url")
       .eq("id", user.id)
       .single()
       .then(({ data }) => {
@@ -28,6 +29,7 @@ const Profile = () => {
           setFullName(data.full_name || "");
           setPhone(data.phone || "");
           setNotifyOnOpen(data.notify_on_open ?? true);
+          setSchedulerUrl(data.scheduler_url || "");
         }
         setLoading(false);
       });
@@ -39,7 +41,7 @@ const Profile = () => {
     setSaving(true);
     const { error } = await supabase
       .from("profiles")
-      .update({ full_name: fullName, phone, notify_on_open: notifyOnOpen })
+      .update({ full_name: fullName, phone, notify_on_open: notifyOnOpen, scheduler_url: schedulerUrl || null })
       .eq("id", user.id);
     setSaving(false);
     if (error) {
@@ -74,6 +76,10 @@ const Profile = () => {
             <div className="space-y-1.5">
               <Label htmlFor="phone">Phone</Label>
               <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="555-123-4567" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="scheduler_url">My Scheduling Link</Label>
+              <Input id="scheduler_url" value={schedulerUrl} onChange={(e) => setSchedulerUrl(e.target.value)} placeholder="https://calendly.com/yourname" />
             </div>
 
             <div className="flex items-center justify-between rounded-lg border border-border p-4">

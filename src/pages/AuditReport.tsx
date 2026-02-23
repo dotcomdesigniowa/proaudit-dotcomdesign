@@ -237,6 +237,7 @@ const AuditReport = () => {
   const [error, setError] = useState<string | null>(null);
   const [logoError, setLogoError] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
+  const [schedulerUrl, setSchedulerUrl] = useState<string | null>(null);
 
   const summaryListRef = useRef<HTMLUListElement>(null);
   const heroHeadingRef = useRef<HTMLSpanElement>(null);
@@ -251,7 +252,21 @@ const AuditReport = () => {
     (async () => {
       const { data, error } = await supabase.from("audit").select("*").eq("id", id).maybeSingle();
       if (error) setError(error.message);
-      else setAudit(data as Audit);
+      else {
+        setAudit(data as Audit);
+        // Load creator's scheduler URL
+        const creatorId = (data as Audit)?.created_by;
+        if (creatorId) {
+          const { data: profileData } = await supabase
+            .from("profiles")
+            .select("scheduler_url")
+            .eq("id", creatorId)
+            .single();
+          if (profileData?.scheduler_url) {
+            setSchedulerUrl(profileData.scheduler_url);
+          }
+        }
+      }
       // Fetch share token
       const { data: shareData } = await supabase
         .from("audit_shares")
@@ -574,12 +589,12 @@ const AuditReport = () => {
               A brief call will allow us to walk through these findings in greater detail, show you exactly what
               we're seeing, and answer any questions.
             </p>
-            {audit.scheduler_url ? (
-              <a href={audit.scheduler_url} target="_blank" rel="noopener noreferrer" className="btn">
+            {schedulerUrl ? (
+              <a href={schedulerUrl} target="_blank" rel="noopener noreferrer" className="btn">
                 Schedule a Call <span>→</span>
               </a>
             ) : (
-              <span className="btn" style={{ animation: "none", cursor: "default" }}>
+              <span className="btn" style={{ animation: "none", cursor: "default", opacity: 0.5 }} title="Scheduling link not set">
                 Schedule a Call <span>→</span>
               </span>
             )}
