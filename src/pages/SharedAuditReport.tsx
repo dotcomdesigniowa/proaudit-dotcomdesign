@@ -84,14 +84,16 @@ const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: str
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
     <span className="tip tooltipBox">
-      {avatarUrl && (
-        <div style={{ textAlign: "center", marginBottom: 10 }}>
-          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", display: "inline-block", border: "2px solid rgba(255,255,255,.15)" }} />
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ flex: "1 1 auto", minWidth: 0 }}>
+          <div className="repLine"><span className="repLabel">Name</span><span className="repVal">{audit.prepared_by_name || "—"}</span></div>
+          <div className="repLine"><span className="repLabel">Email</span><span className="repVal">{audit.prepared_by_email || "—"}</span></div>
+          <div className="repLine"><span className="repLabel">Phone</span><span className="repVal">{audit.prepared_by_phone || "—"}</span></div>
         </div>
-      )}
-      <div className="repLine"><span className="repLabel">Name</span><span className="repVal">{audit.prepared_by_name || "—"}</span></div>
-      <div className="repLine"><span className="repLabel">Email</span><span className="repVal">{audit.prepared_by_email || "—"}</span></div>
-      <div className="repLine"><span className="repLabel">Phone</span><span className="repVal">{audit.prepared_by_phone || "—"}</span></div>
+        {avatarUrl && (
+          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.15)" }} />
+        )}
+      </div>
     </span>
   </span>
 );
