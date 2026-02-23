@@ -80,10 +80,15 @@ function useMatrixGrade(ref: React.RefObject<HTMLElement | null>, finalChar: str
 }
 
 // Sub-components
-const PreparedByTooltip = ({ audit }: { audit: Audit }) => (
+const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: string | null }) => (
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
     <span className="tip tooltipBox">
+      {avatarUrl && (
+        <div style={{ textAlign: "center", marginBottom: 10 }}>
+          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", display: "inline-block", border: "2px solid rgba(255,255,255,.15)" }} />
+        </div>
+      )}
       <div className="repLine"><span className="repLabel">Name</span><span className="repVal">{audit.prepared_by_name || "—"}</span></div>
       <div className="repLine"><span className="repLabel">Email</span><span className="repVal">{audit.prepared_by_email || "—"}</span></div>
       <div className="repLine"><span className="repLabel">Phone</span><span className="repVal">{audit.prepared_by_phone || "—"}</span></div>
@@ -128,6 +133,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
   const resolvedToken = tokenOverride || params.token;
   const [audit, setAudit] = useState<Audit | null>(null);
   const [schedulerUrl, setSchedulerUrl] = useState<string | null>(null);
+  const [preparedByAvatarUrl, setPreparedByAvatarUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logoError, setLogoError] = useState(false);
@@ -160,6 +166,9 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
 
         if (res.data.scheduler_url) {
           setSchedulerUrl(res.data.scheduler_url);
+        }
+        if (res.data.prepared_by_avatar_url) {
+          setPreparedByAvatarUrl(res.data.prepared_by_avatar_url);
         }
 
         // Canonical slug redirect for clean URLs
@@ -212,7 +221,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 Prepared: {formatDate(audit.prepared_date)}
               </span>
               <span className="heroBadge" style={{ textTransform: "none", fontWeight: 400 }}>
-                Prepared By: <PreparedByTooltip audit={audit} />
+                Prepared By: <PreparedByTooltip audit={audit} avatarUrl={preparedByAvatarUrl} />
               </span>
             </div>
           </div>
@@ -411,7 +420,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               </span>
             )}
             <p className="ctaAlt">
-              You can also Call / Text / Email <PreparedByTooltip audit={audit} />.
+              You can also Call / Text / Email <PreparedByTooltip audit={audit} avatarUrl={preparedByAvatarUrl} />.
             </p>
           </div>
         </div>
