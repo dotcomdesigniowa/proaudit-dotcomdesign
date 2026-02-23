@@ -26,7 +26,7 @@ const ComputerScreenshot = ({ screenshotUrl }: ComputerScreenshotProps) => {
           <img
             src={screenshotUrl}
             alt="Website screenshot"
-            style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+            style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "top", display: "block" }}
           />
         ) : (
           <span style={{ color: "#888", fontSize: 14, fontFamily: "monospace" }}>
