@@ -245,7 +245,7 @@ const AuditReport = () => {
   useEffect(() => {
     if (!id) return;
     (async () => {
-      const { data, error } = await supabase.from("audit").select("*").eq("id", id).single();
+      const { data, error } = await supabase.from("audit").select("*").eq("id", id).maybeSingle();
       if (error) setError(error.message);
       else setAudit(data as Audit);
       // Fetch share token
