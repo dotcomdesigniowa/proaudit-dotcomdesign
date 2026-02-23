@@ -216,6 +216,7 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          notify_on_open: boolean
           phone: string | null
         }
         Insert: {
@@ -223,6 +224,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          notify_on_open?: boolean
           phone?: string | null
         }
         Update: {
@@ -230,6 +232,7 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          notify_on_open?: boolean
           phone?: string | null
         }
         Relationships: []
