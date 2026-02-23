@@ -1,4 +1,5 @@
 import { useState } from "react";
+import logo from "@/assets/logo.png";
 import { Link, Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -29,6 +30,11 @@ const Login = () => {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
+      <div className="w-full max-w-sm space-y-6">
+        <div className="flex flex-col items-center gap-2">
+          <img src={logo} alt="ProAudit" className="h-10 object-contain" />
+          <h1 className="text-2xl font-bold text-foreground">ProAudit</h1>
+        </div>
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>Sign In</CardTitle>
@@ -57,6 +63,8 @@ const Login = () => {
           </p>
         </CardContent>
       </Card>
+      <p className="text-center text-xs text-muted-foreground">by Dotcom Design</p>
+      </div>
     </div>
   );
 };
