@@ -231,7 +231,8 @@ const SectionHeading = ({ text, className = "" }: { text: string; className?: st
 
 // ── Main ──
 const AuditReport = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, param } = useParams<{ id?: string; param?: string }>();
+  const auditId = id || param;
   const [audit, setAudit] = useState<Audit | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -248,9 +249,9 @@ const AuditReport = () => {
   const { loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (!id || authLoading) return;
+    if (!auditId || authLoading) return;
     (async () => {
-      const { data, error } = await supabase.from("audit").select("*").eq("id", id).maybeSingle();
+      const { data, error } = await supabase.from("audit").select("*").eq("id", auditId).maybeSingle();
       if (error) setError(error.message);
       else {
         setAudit(data as Audit);
@@ -270,14 +271,15 @@ const AuditReport = () => {
       // Fetch share token
       const { data: shareData } = await supabase
         .from("audit_shares")
-        .select("share_token")
-        .eq("audit_id", id)
+        .select("share_token, slug, short_token")
+        .eq("audit_id", auditId)
         .eq("is_active", true)
         .limit(1);
       if (shareData?.[0]) setShareToken(shareData[0].share_token);
+      if (shareData?.[0]) setShareToken(shareData[0].share_token);
       setLoading(false);
     })();
-  }, [id, authLoading]);
+  }, [auditId, authLoading]);
 
   // Hero company name typewriter
   useEffect(() => {

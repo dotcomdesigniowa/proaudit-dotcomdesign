@@ -8,7 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import AppLayout from "@/components/AppLayout";
 import Index from "./pages/Index";
 import CreateAudit from "./pages/CreateAudit";
-import AuditReport from "./pages/AuditReport";
+import AuditRouteResolver from "./pages/AuditRouteResolver";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
@@ -55,14 +55,7 @@ const App = () => (
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/audit/:id"
-              element={
-                <ProtectedRoute>
-                  <AuditReport />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/audit/:param" element={<AuditRouteResolver />} />
             <Route path="/shared/audit/:token" element={<SharedAuditReport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
