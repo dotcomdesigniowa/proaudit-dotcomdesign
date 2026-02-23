@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 
@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
  * Tune these via ?calibrate=1 on an audit page, then paste the values here.
  */
 export const SCREEN_CALIBRATION = {
-  top: 12,
-  left: 19.8,
-  width: 60.5,
-  height: 54,
+  top: 17.6,
+  left: 16.3,
+  width: 67.3,
+  height: 63.1,
 } as const;
 
 interface ComputerScreenshotProps {
@@ -23,6 +23,70 @@ const ComputerScreenshot = ({ screenshotUrl, calibrate = false }: ComputerScreen
   const [leftPct, setLeftPct] = useState<number>(SCREEN_CALIBRATION.left);
   const [widthPct, setWidthPct] = useState<number>(SCREEN_CALIBRATION.width);
   const [heightPct, setHeightPct] = useState<number>(SCREEN_CALIBRATION.height);
+
+  // Auto-detect transparent area of the frame image
+  useEffect(() => {
+    if (!calibrate) return;
+    const img = new Image();
+    img.src = "/images/computer-frame.png";
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext("2d")!;
+      ctx.drawImage(img, 0, 0);
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      const w = canvas.width, h = canvas.height;
+      const isOpaque = (x: number, y: number) => data[(y * w + x) * 4 + 3] > 128;
+      
+      // Strategy: scan the center row/column to find the inner transparent gap
+      // Center row: background(trans) -> bezel(opaque) -> screen(trans) -> bezel(opaque) -> background(trans)
+      const midY = Math.floor(h * 0.45); // scan slightly above center (screen area)
+      const midX = Math.floor(w * 0.5);
+      
+      // Find screen left/right by scanning horizontal center
+      let screenLeft = 0, screenRight = w;
+      // From left: skip transparent bg, skip opaque bezel, find transparent screen start
+      let x = 0;
+      while (x < w && !isOpaque(x, midY)) x++; // skip transparent background
+      while (x < w && isOpaque(x, midY)) x++;  // skip opaque left bezel
+      screenLeft = x;
+      // Continue to find where screen ends (opaque right bezel starts)
+      while (x < w && !isOpaque(x, midY)) x++;
+      screenRight = x;
+      
+      // Find screen top/bottom by scanning vertical center
+      let screenTop = 0, screenBottom = h;
+      let y = 0;
+      while (y < h && !isOpaque(midX, y)) y++; // skip transparent background
+      while (y < h && isOpaque(midX, y)) y++;  // skip opaque top bezel
+      screenTop = y;
+      while (y < h && !isOpaque(midX, y)) y++;
+      screenBottom = y;
+      
+      if (screenRight > screenLeft && screenBottom > screenTop) {
+        // Add a small 1% inset to avoid bezel edge artifacts
+        const inset = 0.3;
+        const detectedTop = (screenTop / h) * 100 + inset;
+        const detectedLeft = (screenLeft / w) * 100 + inset;
+        const detectedWidth = ((screenRight - screenLeft) / w) * 100 - inset * 2;
+        const detectedHeight = ((screenBottom - screenTop) / h) * 100 - inset * 2;
+        
+        console.log("Auto-detected screen cutout:", {
+          top: detectedTop.toFixed(1),
+          left: detectedLeft.toFixed(1),
+          width: detectedWidth.toFixed(1),
+          height: detectedHeight.toFixed(1),
+          raw: { screenLeft, screenRight, screenTop, screenBottom, imgW: w, imgH: h }
+        });
+        
+        setTopPct(parseFloat(detectedTop.toFixed(1)));
+        setLeftPct(parseFloat(detectedLeft.toFixed(1)));
+        setWidthPct(parseFloat(detectedWidth.toFixed(1)));
+        setHeightPct(parseFloat(detectedHeight.toFixed(1)));
+      }
+    };
+  }, [calibrate]);
 
   const screen = calibrate
     ? { top: topPct, left: leftPct, width: widthPct, height: heightPct }
