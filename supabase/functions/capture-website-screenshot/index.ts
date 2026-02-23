@@ -70,11 +70,16 @@ Deno.serve(async (req) => {
       url: targetUrl,
       viewport_width: '1280',
       viewport_height: '720',
-      full_page: 'false',
+      full_page: 'true',
+      full_page_scroll: 'true',
+      full_page_scroll_delay: '400',
       format: 'jpg',
+      image_quality: '80',
       device_scale_factor: '1',
       block_ads: 'true',
       block_cookie_banners: 'true',
+      block_chats: 'true',
+      block_banners_by_heuristics: 'true',
       cache: 'true',
     });
 
