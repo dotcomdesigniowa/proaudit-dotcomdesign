@@ -1,6 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import AppLayout from "@/components/AppLayout";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
 import { Copy } from "lucide-react";
@@ -281,23 +283,42 @@ const AuditReport = () => {
   // Overall grade matrix
   useMatrixGrade(overallGradeRef, audit?.overall_grade || "F");
 
+  const copyShareBtn = shareToken ? (
+    <Button
+      variant="outline"
+      size="sm"
+      className="gap-1.5"
+      onClick={() => {
+        navigator.clipboard.writeText(`${window.location.origin}/shared/audit/${shareToken}`);
+        toast.success("Share link copied");
+      }}
+    >
+      <Copy size={13} /> Copy Share Link
+    </Button>
+  ) : null;
+
   if (loading)
     return (
-      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", color: "#666" }}>
-        Loading…
-      </div>
+      <AppLayout>
+        <div style={{ display: "flex", minHeight: "60vh", alignItems: "center", justifyContent: "center", color: "#666" }}>
+          Loading…
+        </div>
+      </AppLayout>
     );
   if (error || !audit)
     return (
-      <div style={{ display: "flex", minHeight: "100vh", alignItems: "center", justifyContent: "center", color: "#dc2626" }}>
-        {error || "Audit not found"}
-      </div>
+      <AppLayout>
+        <div style={{ display: "flex", minHeight: "60vh", alignItems: "center", justifyContent: "center", color: "#dc2626" }}>
+          {error || "Audit not found"}
+        </div>
+      </AppLayout>
     );
 
   const og = audit.overall_grade || "F";
   const normalizedLogo = normalizeLogoUrl(audit.company_logo_url, audit.website_url);
 
   return (
+    <AppLayout navActions={copyShareBtn}>
     <div className="audit-page">
       {/* ===== HERO ===== */}
       <section className="hero">
@@ -358,24 +379,6 @@ const AuditReport = () => {
         </div>
       </section>
 
-      {/* ===== COPY SHARE LINK (small) ===== */}
-      {shareToken && (
-        <div style={{ padding: "0 0 8px" }}>
-          <div className="wrap" style={{ display: "flex", justifyContent: "flex-end" }}>
-            <button
-              type="button"
-              className="pillBtn"
-              style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}
-              onClick={() => {
-                navigator.clipboard.writeText(`${window.location.origin}/shared/audit/${shareToken}`);
-                toast.success("Share link copied");
-              }}
-            >
-              <Copy size={13} /> Copy Share Link
-            </button>
-          </div>
-        </div>
-      )}
       <section>
         <div className="wrap">
           <SectionHeading text="OVERALL SCORE BREAKDOWN" />
@@ -588,6 +591,7 @@ const AuditReport = () => {
         </div>
       </section>
     </div>
+    </AppLayout>
   );
 };
 

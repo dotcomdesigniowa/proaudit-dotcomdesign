@@ -59,7 +59,7 @@ const App = () => (
               path="/audit/:id"
               element={
                 <ProtectedRoute>
-                  <AppLayout><AuditReport /></AppLayout>
+                  <AuditReport />
                 </ProtectedRoute>
               }
             />
