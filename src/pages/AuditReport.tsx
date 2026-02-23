@@ -538,9 +538,9 @@ const AuditReport = () => {
       {/* ===== UNDER THE HOOD ===== */}
       <section className="overview">
         <div className="wrap">
-          <SectionHeading text="UNDER THE HOOD" />
           <div className="overviewGrid">
             <div className="story">
+              <SectionHeading text="UNDER THE HOOD" />
               <p>
                 {audit.company_name || "This company"} appears to be a well-established, reputable and trustworthy
                 business with real credibility in the marketplace. However, the website, online presence, and overall
