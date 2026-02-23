@@ -7,7 +7,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, FileText, ChevronDown } from "lucide-react";
+import { User, LogOut, ChevronDown } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -32,7 +33,7 @@ const AppLayout = ({ children, navActions }: AppLayoutProps) => {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <div className="flex items-center gap-6">
             <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-foreground">
-              <FileText className="h-5 w-5" />
+              <img src={logo} alt="ProAudit" className="h-6 w-6 rounded" />
               ProAudit
             </Link>
             <nav className="hidden sm:flex items-center gap-1">
