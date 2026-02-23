@@ -557,18 +557,8 @@ const AuditReport = () => {
                 consistently find you.
               </p>
             </div>
-            <div className="card" style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <div className="card" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
               <ComputerScreenshot screenshotUrl={(audit as any).website_screenshot_url} calibrate={isCalibrating} />
-              <Button
-                variant="ghost"
-                size="sm"
-                className="mt-2 gap-1.5 text-xs"
-                onClick={refreshScreenshot}
-                disabled={refreshingScreenshot}
-              >
-                <RefreshCw size={12} className={refreshingScreenshot ? "animate-spin" : ""} />
-                {refreshingScreenshot ? "Refreshing…" : "Refresh Website Screenshot"}
-              </Button>
             </div>
           </div>
         </div>
