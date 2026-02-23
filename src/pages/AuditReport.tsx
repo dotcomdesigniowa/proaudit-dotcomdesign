@@ -2,7 +2,9 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
-import AuditSharePanel from "@/components/AuditSharePanel";
+import { Copy } from "lucide-react";
+import { toast } from "sonner";
+import { supabase as sbClient } from "@/integrations/supabase/client";
 import "./AuditReport.css";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
@@ -232,6 +234,7 @@ const AuditReport = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logoError, setLogoError] = useState(false);
+  const [shareToken, setShareToken] = useState<string | null>(null);
 
   const summaryListRef = useRef<HTMLUListElement>(null);
   const heroHeadingRef = useRef<HTMLSpanElement>(null);
@@ -245,6 +248,14 @@ const AuditReport = () => {
       const { data, error } = await supabase.from("audit").select("*").eq("id", id).single();
       if (error) setError(error.message);
       else setAudit(data as Audit);
+      // Fetch share token
+      const { data: shareData } = await sbClient
+        .from("audit_shares")
+        .select("share_token")
+        .eq("audit_id", id)
+        .eq("is_active", true)
+        .limit(1);
+      if (shareData?.[0]) setShareToken(shareData[0].share_token);
       setLoading(false);
     })();
   }, [id]);
@@ -345,14 +356,24 @@ const AuditReport = () => {
         </div>
       </section>
 
-      {/* ===== SHARE & ENGAGEMENT ===== */}
-      <section style={{ paddingTop: 0, paddingBottom: 0 }}>
-        <div className="wrap">
-          <AuditSharePanel auditId={audit.id} />
+      {/* ===== COPY SHARE LINK (small) ===== */}
+      {shareToken && (
+        <div style={{ padding: "0 0 8px" }}>
+          <div className="wrap" style={{ display: "flex", justifyContent: "flex-end" }}>
+            <button
+              type="button"
+              className="pillBtn"
+              style={{ fontSize: 13, display: "inline-flex", alignItems: "center", gap: 6 }}
+              onClick={() => {
+                navigator.clipboard.writeText(`${window.location.origin}/shared/audit/${shareToken}`);
+                toast.success("Share link copied");
+              }}
+            >
+              <Copy size={13} /> Copy Share Link
+            </button>
+          </div>
         </div>
-      </section>
-
-      {/* ===== OVERALL SCORE BREAKDOWN ===== */}
+      )}
       <section>
         <div className="wrap">
           <SectionHeading text="OVERALL SCORE BREAKDOWN" />
