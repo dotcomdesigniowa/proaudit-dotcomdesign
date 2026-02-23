@@ -7,8 +7,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, ChevronDown } from "lucide-react";
+import { User, LogOut, ChevronDown, Settings } from "lucide-react";
 import logo from "@/assets/logo.png";
+import { useAdmin } from "@/hooks/useAdmin";
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -17,6 +18,7 @@ interface AppLayoutProps {
 
 const AppLayout = ({ children, navActions }: AppLayoutProps) => {
   const { user, signOut } = useAuth();
+  const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -57,6 +59,18 @@ const AppLayout = ({ children, navActions }: AppLayoutProps) => {
               >
                 Create Audit
               </Link>
+              {isAdmin && (
+                <Link
+                  to="/scoring"
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    isActive("/scoring")
+                      ? "bg-muted text-foreground"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  Scoring
+                </Link>
+              )}
             </nav>
           </div>
           <div className="flex items-center gap-2">
