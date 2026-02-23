@@ -167,6 +167,8 @@ export type Database = {
           id: string
           is_active: boolean
           last_viewed_at: string | null
+          notify_on_open: boolean
+          opened_notified_at: string | null
           share_token: string
           view_count: number
         }
@@ -179,6 +181,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_viewed_at?: string | null
+          notify_on_open?: boolean
+          opened_notified_at?: string | null
           share_token: string
           view_count?: number
         }
@@ -191,6 +195,8 @@ export type Database = {
           id?: string
           is_active?: boolean
           last_viewed_at?: string | null
+          notify_on_open?: boolean
+          opened_notified_at?: string | null
           share_token?: string
           view_count?: number
         }
