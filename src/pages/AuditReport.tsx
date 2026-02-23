@@ -194,7 +194,7 @@ function useBulletAnimation(listRef: React.RefObject<HTMLUListElement | null>) {
 const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: string | null }) => (
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
-    <span className="tip tooltipBox" style={{ padding: 14 }}>
+    <span className="tip tooltipBox" style={{ padding: 14, textAlign: "left" }}>
       <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         {avatarUrl && (
           <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 70, height: 70, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.15)" }} />
