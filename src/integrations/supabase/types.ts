@@ -48,6 +48,8 @@ export type Database = {
           w3c_grade: string | null
           w3c_issue_count: number | null
           w3c_score: number | null
+          website_screenshot_updated_at: string | null
+          website_screenshot_url: string | null
           website_url: string | null
         }
         Insert: {
@@ -83,6 +85,8 @@ export type Database = {
           w3c_grade?: string | null
           w3c_issue_count?: number | null
           w3c_score?: number | null
+          website_screenshot_updated_at?: string | null
+          website_screenshot_url?: string | null
           website_url?: string | null
         }
         Update: {
@@ -118,6 +122,8 @@ export type Database = {
           w3c_grade?: string | null
           w3c_issue_count?: number | null
           w3c_score?: number | null
+          website_screenshot_updated_at?: string | null
+          website_screenshot_url?: string | null
           website_url?: string | null
         }
         Relationships: []
