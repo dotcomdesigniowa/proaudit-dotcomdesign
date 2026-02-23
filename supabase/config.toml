@@ -2,3 +2,9 @@ project_id = "cocieziwytadhzcktqhf"
 
 [functions.track-share-view]
 verify_jwt = false
+
+[functions.capture-website-screenshot]
+verify_jwt = false
+
+[functions.discover-logo]
+verify_jwt = false

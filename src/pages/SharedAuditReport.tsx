@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import ComputerScreenshot from "@/components/ComputerScreenshot";
 import "./AuditReport.css";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
@@ -423,7 +424,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               <p><strong>In Plain English:</strong> The website you are currently paying for is likely limiting your online reach.</p>
             </div>
             <div className="card">
-              <img src={DEFAULT_UTH_IMAGE} alt="Under the hood graphic" />
+              <ComputerScreenshot screenshotUrl={(audit as any).website_screenshot_url} />
             </div>
           </div>
         </div>

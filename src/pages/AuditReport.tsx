@@ -5,8 +5,9 @@ import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
-import { Copy } from "lucide-react";
+import { Copy, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import ComputerScreenshot from "@/components/ComputerScreenshot";
 import "./AuditReport.css";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
@@ -240,11 +241,31 @@ const AuditReport = () => {
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [schedulerUrl, setSchedulerUrl] = useState<string | null>(null);
 
+  const [refreshingScreenshot, setRefreshingScreenshot] = useState(false);
+
   const summaryListRef = useRef<HTMLUListElement>(null);
   const heroHeadingRef = useRef<HTMLSpanElement>(null);
   const overallGradeRef = useRef<HTMLParagraphElement>(null);
 
   useBulletAnimation(summaryListRef);
+
+  const refreshScreenshot = useCallback(async () => {
+    if (!auditId) return;
+    setRefreshingScreenshot(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("capture-website-screenshot", {
+        body: { audit_id: auditId },
+      });
+      if (error) throw error;
+      if (data?.website_screenshot_url && audit) {
+        setAudit({ ...audit, website_screenshot_url: data.website_screenshot_url } as Audit);
+        toast.success("Screenshot refreshed");
+      }
+    } catch {
+      toast.error("Failed to refresh screenshot");
+    }
+    setRefreshingScreenshot(false);
+  }, [auditId, audit]);
 
   const { loading: authLoading } = useAuth();
 
@@ -534,8 +555,18 @@ const AuditReport = () => {
                 consistently find you.
               </p>
             </div>
-            <div className="card">
-              <img src={DEFAULT_UTH_IMAGE} alt="Under the hood graphic" />
+            <div className="card" style={{ position: "relative" }}>
+              <ComputerScreenshot screenshotUrl={(audit as any).website_screenshot_url} />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="mt-2 gap-1.5 text-xs"
+                onClick={refreshScreenshot}
+                disabled={refreshingScreenshot}
+              >
+                <RefreshCw size={12} className={refreshingScreenshot ? "animate-spin" : ""} />
+                {refreshingScreenshot ? "Refreshing…" : "Refresh Website Screenshot"}
+              </Button>
             </div>
           </div>
         </div>

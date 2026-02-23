@@ -133,6 +133,11 @@ const CreateAudit = () => {
       return;
     }
 
+    // Fire-and-forget: capture website screenshot
+    supabase.functions.invoke("capture-website-screenshot", {
+      body: { audit_id: data.id },
+    }).catch(() => {});
+
     navigate(`/audit/${data.id}`);
   };
 
