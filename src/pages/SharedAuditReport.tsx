@@ -182,6 +182,7 @@ const SectionHeading = ({ text, className = "" }: { text: string; className?: st
 const SharedAuditReport = () => {
   const { token } = useParams<{ token: string }>();
   const [audit, setAudit] = useState<Audit | null>(null);
+  const [schedulerUrl, setSchedulerUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [logoError, setLogoError] = useState(false);
@@ -209,7 +210,13 @@ const SharedAuditReport = () => {
           return;
         }
 
-        setAudit(res.data.audit as Audit);
+        const auditData = res.data.audit as Audit;
+        setAudit(auditData);
+
+        // Use scheduler_url from the RPC response (profile-based)
+        if (res.data.scheduler_url) {
+          setSchedulerUrl(res.data.scheduler_url);
+        }
       } catch {
         setError("This link is no longer available.");
       }
@@ -444,12 +451,12 @@ const SharedAuditReport = () => {
               A brief call will allow us to walk through these findings in greater detail, show you exactly what
               we're seeing, and answer any questions.
             </p>
-            {audit.scheduler_url ? (
-              <a href={audit.scheduler_url} target="_blank" rel="noopener noreferrer" className="btn">
+            {schedulerUrl ? (
+              <a href={schedulerUrl} target="_blank" rel="noopener noreferrer" className="btn">
                 Schedule a Call <span>→</span>
               </a>
             ) : (
-              <span className="btn" style={{ animation: "none", cursor: "default" }}>
+              <span className="btn" style={{ animation: "none", cursor: "default", opacity: 0.5 }} title="Scheduling link not set">
                 Schedule a Call <span>→</span>
               </span>
             )}
