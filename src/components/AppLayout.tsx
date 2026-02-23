@@ -24,7 +24,7 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => {
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           <Link to="/" className="flex items-center gap-2 text-lg font-semibold text-foreground">
             <FileText className="h-5 w-5" />
-            Audit Tool
+            ProAudit
           </Link>
           {user && (
             <DropdownMenu>
