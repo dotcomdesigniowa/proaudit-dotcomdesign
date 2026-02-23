@@ -271,7 +271,10 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                     The Bad Website Tax
                     <span className="tip tooltipBox">
                       When a website isn't properly constructed, it drags down everything connected to it.
-                      Small businesses end up spending 30–50% more just to get the same results.
+                      Small businesses end up spending 30–50% more just to get the same results. You pay more
+                      to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
+                      should. That's the tax — higher costs, lower performance, constant uphill battle. Every
+                      dollar has to work harder just to overcome what's broken underneath.
                     </span>
                   </span>
                 </div>
@@ -288,6 +291,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 <p className="metricText">
                   Your mobile performance score directly impacts how your business shows up in search results.
                   When your site is slow or underperforms on mobile, users leave… and Google notices.
+                  Over time, this drastically weakens your visibility.
                 </p>
                 {audit.psi_audit_url && (
                   <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
@@ -327,7 +331,8 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 <div className="metricLabel">Design &amp; Visual Score</div>
                 <p className="metricText">
                   Your website design shapes first impressions instantly. When it feels generic or outdated,
-                  it lowers perceived quality and weakens trust.
+                  it lowers perceived quality and weakens trust. And when trust is weak, visitors hesitate —
+                  reducing engagement and conversions.
                 </p>
                 <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Summary ↓</button>
                 <ul className="xList">
@@ -352,8 +357,8 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
           <div className="overviewGrid">
             <div className="story">
               <p>{audit.company_name || "This company"} appears to be a well-established, reputable and trustworthy business with real credibility in the marketplace. However, the website, online presence, and overall digital reputation do not reflect that same level of strength.</p>
-              <p>The drag-and-drop builder ({audit.provider || "platform"}) currently powering the website introduces major structural deficiencies under the hood.</p>
-              <p><strong>In Plain English:</strong> The website you are currently paying for is likely limiting your online reach.</p>
+              <p>The drag-and-drop builder ({audit.provider || "platform"}) currently powering the website introduces major structural deficiencies under the hood. While the site may look functional, the code of the website is creating major problems with visibility and performance.</p>
+              <p><strong>In Plain English:</strong> The website you are currently paying for is likely limiting your online reach, making it harder for potential customers, referrals, and word-of-mouth traffic to consistently find you.</p>
             </div>
             <div className="card">
               <ComputerScreenshot screenshotUrl={(audit as any).website_screenshot_url} />
@@ -372,7 +377,9 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
             <div className="presenceTextCol">
               <SectionHeading text="ONLINE PRESENCE ISSUES" />
               <p className="subtle" style={{ textAlign: "right", marginLeft: "auto" }}>
-                We also ran a comprehensive scan of your business across the internet and found a large list of issues.
+                We also ran a comprehensive scan of your business across the internet and found a large list of issues
+                across multiple platforms. To build trust, rank and get found, your entire digital presence must be
+                structured, aligned, and optimized.
               </p>
               <div className="scannedBusinessInfo">
                 <div className="scanField"><span className="scanLabel">Business Name</span><span className="scanValue">{audit.company_name ?? "—"}</span></div>
