@@ -191,10 +191,15 @@ function useBulletAnimation(listRef: React.RefObject<HTMLUListElement | null>) {
 }
 
 // ── Sub-components ──
-const PreparedByTooltip = ({ audit }: { audit: Audit }) => (
+const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: string | null }) => (
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
     <span className="tip tooltipBox">
+      {avatarUrl && (
+        <div style={{ textAlign: "center", marginBottom: 10 }}>
+          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover", display: "inline-block", border: "2px solid rgba(255,255,255,.15)" }} />
+        </div>
+      )}
       <div className="repLine"><span className="repLabel">Name</span><span className="repVal">{audit.prepared_by_name || "—"}</span></div>
       <div className="repLine"><span className="repLabel">Email</span><span className="repVal">{audit.prepared_by_email || "—"}</span></div>
       <div className="repLine"><span className="repLabel">Phone</span><span className="repVal">{audit.prepared_by_phone || "—"}</span></div>
@@ -240,6 +245,7 @@ const AuditReport = () => {
   const [logoError, setLogoError] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
   const [schedulerUrl, setSchedulerUrl] = useState<string | null>(null);
+  const [preparedByAvatarUrl, setPreparedByAvatarUrl] = useState<string | null>(null);
 
   const [refreshingScreenshot, setRefreshingScreenshot] = useState(false);
 
@@ -283,11 +289,14 @@ const AuditReport = () => {
         if (creatorId) {
           const { data: profileData } = await supabase
             .from("profiles")
-            .select("scheduler_url")
+            .select("scheduler_url, avatar_url")
             .eq("id", creatorId)
             .single();
           if (profileData?.scheduler_url) {
             setSchedulerUrl(profileData.scheduler_url);
+          }
+          if ((profileData as any)?.avatar_url) {
+            setPreparedByAvatarUrl((profileData as any).avatar_url);
           }
         }
       }
@@ -374,7 +383,7 @@ const AuditReport = () => {
               </span>
               <span className="heroBadge" style={{ textTransform: "none", fontWeight: 400 }}>
                 Prepared By:{" "}
-                <PreparedByTooltip audit={audit} />
+                <PreparedByTooltip audit={audit} avatarUrl={preparedByAvatarUrl} />
               </span>
             </div>
           </div>
@@ -625,7 +634,7 @@ const AuditReport = () => {
             )}
             <p className="ctaAlt">
               You can also Call / Text / Email{" "}
-              <PreparedByTooltip audit={audit} />.
+              <PreparedByTooltip audit={audit} avatarUrl={preparedByAvatarUrl} />.
             </p>
           </div>
         </div>
