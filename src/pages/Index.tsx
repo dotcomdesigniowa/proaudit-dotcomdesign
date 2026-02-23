@@ -52,6 +52,8 @@ interface ShareInfo {
   first_viewed_at: string | null;
   last_viewed_at: string | null;
   opened_notified_at: string | null;
+  slug: string | null;
+  short_token: string | null;
 }
 
 interface ViewEvent {
@@ -122,7 +124,7 @@ const Index = () => {
         .order("created_at", { ascending: false }),
       supabase
         .from("audit_shares")
-        .select("id, audit_id, share_token, view_count, is_active, first_viewed_at, last_viewed_at, opened_notified_at"),
+        .select("id, audit_id, share_token, view_count, is_active, first_viewed_at, last_viewed_at, opened_notified_at, slug, short_token"),
     ]).then(([auditRes, shareRes]) => {
       setAudits((auditRes.data as AuditRow[]) || []);
       const shareMap: Record<string, ShareInfo> = {};
@@ -175,8 +177,11 @@ const Index = () => {
     return list;
   }, [audits, shares, search, filter, sort]);
 
-  const copyShareLink = (token: string) => {
-    navigator.clipboard.writeText(`${window.location.origin}/shared/audit/${token}`);
+  const copyShareLink = (share: ShareInfo) => {
+    const link = share.slug && share.short_token
+      ? `${window.location.origin}/audit/${share.slug}-${share.short_token}`
+      : `${window.location.origin}/shared/audit/${share.share_token}`;
+    navigator.clipboard.writeText(link);
     toast.success("Link copied");
   };
 
@@ -346,12 +351,12 @@ const Index = () => {
                     </td>
                     <td className="px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                       <div className="inline-flex items-center gap-1">
-                        {share?.is_active && (
+                         {share?.is_active && (
                           <Button
                             size="icon"
                             variant="ghost"
                             className="h-7 w-7"
-                            onClick={() => copyShareLink(share.share_token)}
+                            onClick={() => copyShareLink(share)}
                             title="Copy share link"
                           >
                             <Copy size={13} />

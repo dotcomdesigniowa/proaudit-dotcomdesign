@@ -170,6 +170,8 @@ export type Database = {
           notify_on_open: boolean
           opened_notified_at: string | null
           share_token: string
+          short_token: string | null
+          slug: string | null
           view_count: number
         }
         Insert: {
@@ -184,6 +186,8 @@ export type Database = {
           notify_on_open?: boolean
           opened_notified_at?: string | null
           share_token: string
+          short_token?: string | null
+          slug?: string | null
           view_count?: number
         }
         Update: {
@@ -198,6 +202,8 @@ export type Database = {
           notify_on_open?: boolean
           opened_notified_at?: string | null
           share_token?: string
+          short_token?: string | null
+          slug?: string | null
           view_count?: number
         }
         Relationships: [

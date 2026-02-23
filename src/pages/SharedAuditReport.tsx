@@ -179,8 +179,14 @@ const SectionHeading = ({ text, className = "" }: { text: string; className?: st
 };
 
 // Main shared component
-const SharedAuditReport = () => {
-  const { token } = useParams<{ token: string }>();
+interface SharedAuditReportProps {
+  tokenOverride?: string;
+  onSlugCheck?: (correctSlug: string) => void;
+}
+
+const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProps = {}) => {
+  const params = useParams<{ token: string }>();
+  const resolvedToken = tokenOverride || params.token;
   const [audit, setAudit] = useState<Audit | null>(null);
   const [schedulerUrl, setSchedulerUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -195,13 +201,13 @@ const SharedAuditReport = () => {
   useBulletAnimation(summaryListRef);
 
   useEffect(() => {
-    if (!token || tracked.current) return;
+    if (!resolvedToken || tracked.current) return;
     tracked.current = true;
 
     (async () => {
       try {
         const res = await supabase.functions.invoke("track-share-view", {
-          body: { token },
+          body: { token: resolvedToken },
         });
 
         if (res.error || res.data?.error) {
@@ -213,16 +219,20 @@ const SharedAuditReport = () => {
         const auditData = res.data.audit as Audit;
         setAudit(auditData);
 
-        // Use scheduler_url from the RPC response (profile-based)
         if (res.data.scheduler_url) {
           setSchedulerUrl(res.data.scheduler_url);
+        }
+
+        // Canonical slug redirect for clean URLs
+        if (onSlugCheck && res.data.slug) {
+          onSlugCheck(res.data.slug);
         }
       } catch {
         setError("This link is no longer available.");
       }
       setLoading(false);
     })();
-  }, [token]);
+  }, [resolvedToken]);
 
   // Hero company name typewriter
   useEffect(() => {
