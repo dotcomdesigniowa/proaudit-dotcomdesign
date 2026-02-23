@@ -27,6 +27,7 @@ export type Database = {
           design_grade: string | null
           design_score: number | null
           id: string
+          is_deleted: boolean
           legal_risk_flag: boolean | null
           location_city: string | null
           location_state: string | null
@@ -61,6 +62,7 @@ export type Database = {
           design_grade?: string | null
           design_score?: number | null
           id?: string
+          is_deleted?: boolean
           legal_risk_flag?: boolean | null
           location_city?: string | null
           location_state?: string | null
@@ -95,6 +97,7 @@ export type Database = {
           design_grade?: string | null
           design_score?: number | null
           id?: string
+          is_deleted?: boolean
           legal_risk_flag?: boolean | null
           location_city?: string | null
           location_state?: string | null
