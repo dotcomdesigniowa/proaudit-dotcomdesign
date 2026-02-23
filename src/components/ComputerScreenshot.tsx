@@ -9,11 +9,11 @@ const ComputerScreenshot = ({ screenshotUrl }: ComputerScreenshotProps) => {
       <div
         style={{
           position: "absolute",
-          top: "4.2%",
-          left: "11.8%",
-          width: "76.4%",
-          height: "71%",
-          borderRadius: "4px 4px 0 0",
+          top: "5.5%",
+          left: "12.5%",
+          width: "75%",
+          height: "68%",
+          borderRadius: "3px 3px 0 0",
           overflow: "hidden",
           background: "#111",
           display: "flex",
