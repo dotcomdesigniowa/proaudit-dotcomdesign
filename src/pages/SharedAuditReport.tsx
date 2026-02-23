@@ -83,15 +83,15 @@ function useMatrixGrade(ref: React.RefObject<HTMLElement | null>, finalChar: str
 const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: string | null }) => (
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
-    <span className="tip tooltipBox" style={{ padding: 12 }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+    <span className="tip tooltipBox" style={{ padding: 14 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
         {avatarUrl && (
-          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.15)" }} />
+          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 70, height: 70, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.15)" }} />
         )}
-        <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-          <span className="repVal">{audit.prepared_by_name || "—"}</span>
-          <span style={{ fontSize: 13, opacity: 0.85 }}>{audit.prepared_by_email || "—"}</span>
-          <span style={{ fontSize: 13, opacity: 0.85 }}>{audit.prepared_by_phone || "—"}</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+          <span className="repVal" style={{ fontSize: 15 }}>{audit.prepared_by_name || "—"}</span>
+          <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_email || "—"}</span>
+          <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_phone || "—"}</span>
         </div>
       </div>
     </span>
