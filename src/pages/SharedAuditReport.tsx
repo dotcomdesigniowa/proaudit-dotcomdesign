@@ -83,15 +83,15 @@ function useMatrixGrade(ref: React.RefObject<HTMLElement | null>, finalChar: str
 const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: string | null }) => (
   <span className="tipHost tipTopRight">
     {audit.prepared_by_name || "—"}
-    <span className="tip tooltipBox">
-      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-        <div style={{ flex: "1 1 auto", minWidth: 0 }}>
+    <span className="tip tooltipBox" style={{ padding: 16 }}>
+      <div style={{ display: "flex", alignItems: "stretch", gap: 14 }}>
+        <div style={{ flex: "1 1 auto", minWidth: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
           <div className="repLine"><span className="repLabel">Name</span><span className="repVal">{audit.prepared_by_name || "—"}</span></div>
           <div className="repLine"><span className="repLabel">Email</span><span className="repVal">{audit.prepared_by_email || "—"}</span></div>
           <div className="repLine"><span className="repLabel">Phone</span><span className="repVal">{audit.prepared_by_phone || "—"}</span></div>
         </div>
         {avatarUrl && (
-          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.15)" }} />
+          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 80, height: 80, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.15)", alignSelf: "center" }} />
         )}
       </div>
     </span>
