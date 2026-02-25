@@ -67,7 +67,7 @@ const CreateAudit = () => {
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  // Auto-generate W3C and Accessibility URLs from website URL
+  // Auto-generate W3C, Accessibility, and PSI URLs from website URL
   useEffect(() => {
     const url = form.website_url.trim();
     if (!url) return;
@@ -81,6 +81,7 @@ const CreateAudit = () => {
       ...f,
       w3c_audit_url: `https://validator.w3.org/nu/?doc=${encoded}`,
       accessibility_audit_url: `https://www.accessibilitychecker.org/audit/?website=${encoded}&flag=us`,
+      psi_audit_url: `https://pagespeed.web.dev/report?url=${encoded}`,
     }));
   }, [form.website_url]);
 
@@ -105,11 +106,17 @@ const CreateAudit = () => {
       if (error || !data?.success) {
         throw new Error(data?.error || error?.message || "PSI fetch failed");
       }
-      setForm((f) => ({
-        ...f,
-        psi_mobile_score: String(data.psi_mobile_score),
-        psi_audit_url: data.psi_audit_url,
-      }));
+      setForm((f) => {
+        let normalized = url;
+        if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
+          normalized = `https://${normalized}`;
+        }
+        return {
+          ...f,
+          psi_mobile_score: String(data.psi_mobile_score),
+          psi_audit_url: `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalized)}`,
+        };
+      });
       setPsiFetched(true);
       toast({ title: "PSI Mobile Score fetched", description: `Score: ${data.psi_mobile_score}` });
     } catch (err: any) {
@@ -156,7 +163,7 @@ const CreateAudit = () => {
       w3c_issue_count: form.w3c_issue_count ? parseInt(form.w3c_issue_count) : null,
       w3c_audit_url: form.w3c_audit_url || null,
       psi_mobile_score: form.psi_mobile_score ? parseInt(form.psi_mobile_score) : null,
-      psi_audit_url: form.psi_audit_url || null,
+      psi_audit_url: form.psi_audit_url || (form.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(form.website_url.trim().startsWith('http') ? form.website_url.trim() : `https://${form.website_url.trim()}`)}` : null),
       accessibility_score: form.accessibility_score ? parseInt(form.accessibility_score) : null,
       accessibility_audit_url: form.accessibility_audit_url || null,
       design_score: form.design_score ? parseInt(form.design_score) : 35,
@@ -264,7 +271,7 @@ const CreateAudit = () => {
                     {psiFailed && <p className="text-xs text-destructive">Auto-fetch failed — enter manually</p>}
                   </div>
 
-                  <Field label="PSI Audit URL" name="psi_audit_url" placeholder="https://..." value={form.psi_audit_url} onChange={set("psi_audit_url")} />
+                  
                   <Field label="Accessibility Score (0-100)" name="accessibility_score" type="number" value={form.accessibility_score} onChange={set("accessibility_score")} />
                   <Field label="Accessibility Audit URL" name="accessibility_audit_url" placeholder="https://..." value={form.accessibility_audit_url} onChange={set("accessibility_audit_url")} />
                   <Field label="Design Score (0-100)" name="design_score" type="number" value={form.design_score} onChange={set("design_score")} />
