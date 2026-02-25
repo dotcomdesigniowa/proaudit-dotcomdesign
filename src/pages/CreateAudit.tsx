@@ -16,14 +16,28 @@ interface FieldProps {
   placeholder?: string;
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: () => void;
 }
 
-const Field = ({ label, name, type = "text", placeholder = "", value, onChange }: FieldProps) => (
+const Field = ({ label, name, type = "text", placeholder = "", value, onChange, onBlur }: FieldProps) => (
   <div className="space-y-1.5">
     <Label htmlFor={name}>{label}</Label>
-    <Input id={name} type={type} placeholder={placeholder} value={value} onChange={onChange} />
+    <Input id={name} type={type} placeholder={placeholder} value={value} onChange={onChange} onBlur={onBlur} />
   </div>
 );
+
+/** Normalize a URL: trim, strip protocol + www, re-add https:// */
+const normalizeUrl = (raw: string): string => {
+  let url = raw.trim();
+  if (!url) return "";
+  // Remove protocol
+  url = url.replace(/^https?:\/\//, "");
+  // Remove www.
+  url = url.replace(/^www\./, "");
+  // Remove trailing slash (only bare domain)
+  url = url.replace(/\/+$/, "");
+  return url ? `https://${url}` : "";
+};
 
 const CreateAudit = () => {
   const navigate = useNavigate();
@@ -97,11 +111,8 @@ const CreateAudit = () => {
       }
     }
 
-    // Normalize website_url
-    let normalizedUrl = form.website_url.trim();
-    if (normalizedUrl && !normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
-      normalizedUrl = `https://${normalizedUrl}`;
-    }
+    // Normalize website_url (safety net)
+    const normalizedUrl = normalizeUrl(form.website_url);
 
     // Build deterministic PSI audit URL
     const psiAuditUrl = normalizedUrl ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalizedUrl)}` : null;
@@ -169,7 +180,7 @@ const CreateAudit = () => {
                 <h3 className="text-lg font-semibold text-foreground">Company Information</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="Company Name" name="company_name" value={form.company_name} onChange={set("company_name")} />
-                  <Field label="Website URL" name="website_url" placeholder="https://..." value={form.website_url} onChange={set("website_url")} />
+                  <Field label="Website URL" name="website_url" placeholder="centralroof.com" value={form.website_url} onChange={set("website_url")} onBlur={() => setForm(f => ({ ...f, website_url: normalizeUrl(f.website_url) }))} />
                   <Field label="City" name="location_city" value={form.location_city} onChange={set("location_city")} />
                   <Field label="State" name="location_state" value={form.location_state} onChange={set("location_state")} />
                   <Field label="Business Phone Number" name="business_phone" placeholder="(313) 555-1234" value={form.business_phone} onChange={set("business_phone")} />
