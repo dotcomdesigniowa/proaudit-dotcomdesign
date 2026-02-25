@@ -99,7 +99,17 @@ function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, du
 }
 
 function useMatrixGrade(ref: React.RefObject<HTMLElement | null>, finalChar: string, duration = 900) {
+  const prevChar = useRef(finalChar);
   const done = useRef(false);
+
+  // Reset when the target character changes so animation re-fires
+  useEffect(() => {
+    if (prevChar.current !== finalChar) {
+      done.current = false;
+      prevChar.current = finalChar;
+    }
+  }, [finalChar]);
+
   useEffect(() => {
     const el = ref.current;
     if (!el || done.current) return;
@@ -422,12 +432,20 @@ const AuditReport = () => {
           <div className="gradeMetaRow">
             <div>
               <div className="scoreLabel">{overallPending ? "Calculating…" : "Overall Score"}</div>
-              <div className="gradeStack">
-                <div className="gradeLetter" data-grade={overallPending ? undefined : og} style={{ position: "relative" }}>
-                  <span className={`gradeGlow ${overallPending ? "" : glowClass(og)}`} />
-                  <span ref={overallGradeRef} style={{ position: "relative", zIndex: 2 }}>{og}</span>
+              {overallPending ? (
+                <div className="gradeStack">
+                  <div className="gradeLetter" style={{ position: "relative", opacity: 0.4 }}>
+                    <span style={{ position: "relative", zIndex: 2, fontSize: "1.2rem" }}>—</span>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="gradeStack">
+                  <div className="gradeLetter" data-grade={og} style={{ position: "relative" }}>
+                    <span className={`gradeGlow ${glowClass(og)}`} />
+                    <span ref={overallGradeRef} style={{ position: "relative", zIndex: 2 }}>{og}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="metaCard">
