@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.discover-logo]
 verify_jwt = false
+
+[functions.run-psi]
+verify_jwt = false
