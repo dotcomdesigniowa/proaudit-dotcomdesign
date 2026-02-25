@@ -481,11 +481,14 @@ const AuditReport = () => {
                   When your site is slow or underperforms on mobile, users leave… and Google notices.
                   Over time, this drastically weakens your visibility.
                 </p>
-                {audit.psi_audit_url && (
-                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                    View Audit <span>→</span>
-                  </a>
-                )}
+                {(() => {
+                  const psiUrl = audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null);
+                  return psiUrl ? (
+                    <a href={psiUrl} target="_blank" rel="noopener noreferrer" className="pillBtn">
+                      View Audit <span>→</span>
+                    </a>
+                  ) : null;
+                })()}
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} />
             </div>
