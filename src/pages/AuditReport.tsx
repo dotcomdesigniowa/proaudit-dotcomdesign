@@ -473,7 +473,13 @@ const AuditReport = () => {
 
             {/* PSI */}
             <div className="metricRow">
-              <MetricNumber value={audit.psi_mobile_score ?? 0} suffix="out of 100" />
+              {audit.psi_mobile_score != null ? (
+                <MetricNumber value={audit.psi_mobile_score} suffix="out of 100" />
+              ) : (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1.2rem", opacity: 0.6 }}>Fetching…</p>
+                </div>
+              )}
               <div>
                 <div className="metricLabel">Mobile Performance Score (Google)</div>
                 <p className="metricText">
@@ -489,6 +495,29 @@ const AuditReport = () => {
                     </a>
                   ) : null;
                 })()}
+                {audit.psi_mobile_score == null && user && (
+                  <button
+                    className="pillBtn"
+                    style={{ marginLeft: 8, opacity: 0.8 }}
+                    onClick={async () => {
+                      if (!audit.website_url) return;
+                      toast.success("Retrying PSI fetch…");
+                      try {
+                        await supabase.functions.invoke("run-psi-and-update", {
+                          body: { audit_id: audit.id, website_url: audit.website_url },
+                        });
+                        // Reload audit data
+                        const { data } = await supabase.from("audit").select("*").eq("id", audit.id).maybeSingle();
+                        if (data) setAudit(data as Audit);
+                        toast.success("PSI score updated");
+                      } catch {
+                        toast.error("PSI retry failed");
+                      }
+                    }}
+                  >
+                    Retry PSI
+                  </button>
+                )}
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} />
             </div>

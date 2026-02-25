@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 interface FieldProps {
   label: string;
@@ -30,9 +29,6 @@ const CreateAudit = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [psiLoading, setPsiLoading] = useState(false);
-  const [psiFetched, setPsiFetched] = useState(false);
-  const [psiFailed, setPsiFailed] = useState(false);
   const [profile, setProfile] = useState<{ full_name: string | null; phone: string | null }>({ full_name: null, phone: null });
 
   const [form, setForm] = useState({
@@ -44,8 +40,6 @@ const CreateAudit = () => {
     business_phone: "",
     w3c_issue_count: "",
     w3c_audit_url: "",
-    psi_mobile_score: "",
-    psi_audit_url: "",
     accessibility_score: "",
     accessibility_audit_url: "",
     design_score: "35",
@@ -67,7 +61,7 @@ const CreateAudit = () => {
   const set = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  // Auto-generate W3C, Accessibility, and PSI URLs from website URL
+  // Auto-generate W3C and Accessibility URLs from website URL
   useEffect(() => {
     const url = form.website_url.trim();
     if (!url) return;
@@ -81,55 +75,8 @@ const CreateAudit = () => {
       ...f,
       w3c_audit_url: `https://validator.w3.org/nu/?doc=${encoded}`,
       accessibility_audit_url: `https://www.accessibilitychecker.org/audit/?website=${encoded}&flag=us`,
-      psi_audit_url: `https://pagespeed.web.dev/report?url=${encoded}`,
     }));
   }, [form.website_url]);
-
-  // Reset PSI state when website URL changes
-  useEffect(() => {
-    setPsiFetched(false);
-    setPsiFailed(false);
-  }, [form.website_url]);
-
-  const handleFetchPsi = async () => {
-    const url = form.website_url.trim();
-    if (!url) {
-      toast({ title: "Enter a website URL first", variant: "destructive" });
-      return;
-    }
-    setPsiLoading(true);
-    setPsiFailed(false);
-    try {
-      const { data, error } = await supabase.functions.invoke("run-psi", {
-        body: { website_url: url },
-      });
-      if (error || !data?.success) {
-        throw new Error(data?.error || error?.message || "PSI fetch failed");
-      }
-      setForm((f) => {
-        let normalized = url;
-        if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
-          normalized = `https://${normalized}`;
-        }
-        return {
-          ...f,
-          psi_mobile_score: String(data.psi_mobile_score),
-          psi_audit_url: `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalized)}`,
-        };
-      });
-      setPsiFetched(true);
-      toast({ title: "PSI Mobile Score fetched", description: `Score: ${data.psi_mobile_score}` });
-    } catch (err: any) {
-      setPsiFailed(true);
-      toast({
-        title: "Could not fetch PSI score",
-        description: `${err.message}. You can enter the score manually.`,
-        variant: "destructive",
-      });
-    } finally {
-      setPsiLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -150,6 +97,11 @@ const CreateAudit = () => {
       }
     }
 
+    // Build deterministic PSI audit URL
+    const trimmedUrl = form.website_url.trim();
+    const normalizedForPsi = trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`;
+    const psiAuditUrl = trimmedUrl ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalizedForPsi)}` : null;
+
     const payload: Record<string, unknown> = {
       company_name: form.company_name || null,
       website_url: form.website_url || null,
@@ -162,8 +114,8 @@ const CreateAudit = () => {
       prepared_by_phone: profile.phone || null,
       w3c_issue_count: form.w3c_issue_count ? parseInt(form.w3c_issue_count) : null,
       w3c_audit_url: form.w3c_audit_url || null,
-      psi_mobile_score: form.psi_mobile_score ? parseInt(form.psi_mobile_score) : null,
-      psi_audit_url: form.psi_audit_url || (form.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(form.website_url.trim().startsWith('http') ? form.website_url.trim() : `https://${form.website_url.trim()}`)}` : null),
+      psi_mobile_score: null,
+      psi_audit_url: psiAuditUrl,
       accessibility_score: form.accessibility_score ? parseInt(form.accessibility_score) : null,
       accessibility_audit_url: form.accessibility_audit_url || null,
       design_score: form.design_score ? parseInt(form.design_score) : 35,
@@ -187,6 +139,13 @@ const CreateAudit = () => {
     supabase.functions.invoke("capture-website-screenshot", {
       body: { audit_id: data.id },
     }).catch(() => {});
+
+    // Fire-and-forget: fetch PSI score automatically
+    if (trimmedUrl) {
+      supabase.functions.invoke("run-psi-and-update", {
+        body: { audit_id: data.id, website_url: trimmedUrl },
+      }).catch(() => {});
+    }
 
     navigate(`/audit/${data.id}`);
   };
@@ -243,35 +202,7 @@ const CreateAudit = () => {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="W3C Issue Count" name="w3c_issue_count" type="number" value={form.w3c_issue_count} onChange={set("w3c_issue_count")} />
                   <Field label="W3C Audit URL" name="w3c_audit_url" placeholder="https://..." value={form.w3c_audit_url} onChange={set("w3c_audit_url")} />
-
-                  {/* PSI Mobile Score — automated */}
-                  <div className="space-y-1.5">
-                    <Label>PSI Mobile Score (0-100)</Label>
-                    <div className="flex gap-2">
-                      <Input
-                        type="number"
-                        value={form.psi_mobile_score}
-                        onChange={set("psi_mobile_score")}
-                        readOnly={psiFetched && !psiFailed}
-                        className={psiFetched && !psiFailed ? "bg-muted" : ""}
-                        placeholder="Auto-fetched"
-                      />
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="shrink-0 self-end"
-                        disabled={psiLoading || !form.website_url.trim()}
-                        onClick={handleFetchPsi}
-                      >
-                        {psiLoading ? <Loader2 className="animate-spin" /> : "Fetch"}
-                      </Button>
-                    </div>
-                    {psiFetched && <p className="text-xs text-primary">Score fetched automatically</p>}
-                    {psiFailed && <p className="text-xs text-destructive">Auto-fetch failed — enter manually</p>}
-                  </div>
-
-                  
+                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score will be fetched automatically after creation.</p>
                   <Field label="Accessibility Score (0-100)" name="accessibility_score" type="number" value={form.accessibility_score} onChange={set("accessibility_score")} />
                   <Field label="Accessibility Audit URL" name="accessibility_audit_url" placeholder="https://..." value={form.accessibility_audit_url} onChange={set("accessibility_audit_url")} />
                   <Field label="Design Score (0-100)" name="design_score" type="number" value={form.design_score} onChange={set("design_score")} />
