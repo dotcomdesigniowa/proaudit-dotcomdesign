@@ -40,8 +40,11 @@ export type Database = {
           presence_scan_image_url: string | null
           provider: string | null
           psi_audit_url: string | null
+          psi_fetched_at: string | null
           psi_grade: string | null
+          psi_last_error: string | null
           psi_mobile_score: number | null
+          psi_status: string
           scheduler_url: string | null
           under_the_hood_graphic_url: string | null
           w3c_audit_url: string | null
@@ -77,8 +80,11 @@ export type Database = {
           presence_scan_image_url?: string | null
           provider?: string | null
           psi_audit_url?: string | null
+          psi_fetched_at?: string | null
           psi_grade?: string | null
+          psi_last_error?: string | null
           psi_mobile_score?: number | null
+          psi_status?: string
           scheduler_url?: string | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
@@ -114,8 +120,11 @@ export type Database = {
           presence_scan_image_url?: string | null
           provider?: string | null
           psi_audit_url?: string | null
+          psi_fetched_at?: string | null
           psi_grade?: string | null
+          psi_last_error?: string | null
           psi_mobile_score?: number | null
+          psi_status?: string
           scheduler_url?: string | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null

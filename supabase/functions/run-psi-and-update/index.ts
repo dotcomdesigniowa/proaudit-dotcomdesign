@@ -13,6 +13,10 @@ Deno.serve(async (req) => {
 
   const jsonHeaders = { ...corsHeaders, "Content-Type": "application/json" };
 
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+
   try {
     const { audit_id, website_url } = await req.json();
     console.log("run-psi-and-update called:", { audit_id, website_url });
@@ -24,13 +28,15 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Mark as fetching
+    await supabase.from("audit").update({ psi_status: "fetching" }).eq("id", audit_id);
+
     const apiKey = Deno.env.get("PSI_API_KEY");
     if (!apiKey) {
-      console.error("PSI_API_KEY not set");
-      return new Response(
-        JSON.stringify({ success: false, error: "PSI_API_KEY not configured" }),
-        { status: 500, headers: jsonHeaders },
-      );
+      const err = "PSI_API_KEY not configured";
+      console.error(err);
+      await supabase.from("audit").update({ psi_status: "error", psi_last_error: err }).eq("id", audit_id);
+      return new Response(JSON.stringify({ success: false, error: err }), { status: 500, headers: jsonHeaders });
     }
 
     // Normalize URL
@@ -53,44 +59,42 @@ Deno.serve(async (req) => {
       response = await fetch(psiUrl.toString(), { signal: controller.signal });
     } catch (err) {
       clearTimeout(timeout);
-      console.error("PSI fetch error:", err.message);
-      return new Response(
-        JSON.stringify({ success: false, error: `PSI fetch failed: ${err.message}` }),
-        { status: 504, headers: jsonHeaders },
-      );
+      const errMsg = `PSI fetch failed: ${err.message}`;
+      console.error(errMsg);
+      await supabase.from("audit").update({ psi_status: "error", psi_last_error: errMsg }).eq("id", audit_id);
+      return new Response(JSON.stringify({ success: false, error: errMsg }), { status: 504, headers: jsonHeaders });
     }
     clearTimeout(timeout);
 
     if (!response.ok) {
       const body = await response.text();
-      console.error("PSI API error:", body.substring(0, 500));
-      return new Response(
-        JSON.stringify({ success: false, error: `PSI API error ${response.status}` }),
-        { status: 502, headers: jsonHeaders },
-      );
+      const errMsg = `PSI API error ${response.status}: ${body.substring(0, 200)}`;
+      console.error(errMsg);
+      await supabase.from("audit").update({ psi_status: "error", psi_last_error: errMsg }).eq("id", audit_id);
+      return new Response(JSON.stringify({ success: false, error: errMsg }), { status: 502, headers: jsonHeaders });
     }
 
     const data = await response.json();
     const rawScore = data?.lighthouseResult?.categories?.performance?.score;
 
     if (rawScore == null) {
-      return new Response(
-        JSON.stringify({ success: false, error: "Could not extract score" }),
-        { status: 502, headers: jsonHeaders },
-      );
+      const errMsg = "Could not extract performance score from PSI response";
+      await supabase.from("audit").update({ psi_status: "error", psi_last_error: errMsg }).eq("id", audit_id);
+      return new Response(JSON.stringify({ success: false, error: errMsg }), { status: 502, headers: jsonHeaders });
     }
 
     const psi_mobile_score = Math.round(rawScore * 100);
     const psi_audit_url = `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalizedUrl)}`;
 
-    // Update the audit record with the score
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
-
     const { error: updateError } = await supabase
       .from("audit")
-      .update({ psi_mobile_score, psi_audit_url })
+      .update({
+        psi_mobile_score,
+        psi_audit_url,
+        psi_status: "success",
+        psi_last_error: null,
+        psi_fetched_at: new Date().toISOString(),
+      })
       .eq("id", audit_id);
 
     if (updateError) {
