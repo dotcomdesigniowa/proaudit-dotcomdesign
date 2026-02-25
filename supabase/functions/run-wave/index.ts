@@ -71,6 +71,7 @@ Deno.serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log("WAVE full statistics:", JSON.stringify(data?.statistics));
     console.log("WAVE response categories:", JSON.stringify(data?.categories));
 
     // Extract counts
@@ -84,13 +85,26 @@ Deno.serve(async (req) => {
     const errors = categories.error?.count ?? 0;
     const alerts = categories.alert?.count ?? 0;
     const contrast = categories.contrast?.count ?? 0;
-    const elements = categories.structure?.count ?? 1; // structure items as proxy for page complexity
 
-    // Compute AIM-like score (1.0 - 10.0, higher is better)
-    const density = errors / Math.max(1, elements);
-    const impact = (errors * 3) + (alerts * 1) + (contrast * 2) + (density * 1000);
-    const raw = 10 - (Math.log1p(impact) / Math.log1p(200)) * 9;
-    const score10 = Math.round(Math.max(1, Math.min(10, raw)) * 10) / 10;
+    // Use official AIM score from statistics.AIMscore if available
+    let score10: number;
+    let aimSource: string;
+    const rawAIM = data?.statistics?.AIMscore;
+
+    if (rawAIM != null && typeof rawAIM === "number" && rawAIM >= 0) {
+      score10 = Math.round(Math.max(1, Math.min(10, rawAIM)) * 10) / 10;
+      aimSource = `statistics.AIMscore = ${rawAIM}`;
+      console.log(`[AIM] Using official AIM score: ${rawAIM} -> clamped: ${score10}`);
+    } else {
+      // Fallback: compute from counts
+      const elements = categories.structure?.count ?? 1;
+      const density = errors / Math.max(1, elements);
+      const impact = (errors * 3) + (alerts * 1) + (contrast * 2) + (density * 1000);
+      const raw = 10 - (Math.log1p(impact) / Math.log1p(200)) * 9;
+      score10 = Math.round(Math.max(1, Math.min(10, raw)) * 10) / 10;
+      aimSource = `FALLBACK computed (AIMscore missing/invalid: ${JSON.stringify(rawAIM)})`;
+      console.warn(`[AIM] FALLBACK: AIMscore not found in response, computed: ${score10}`);
+    }
 
     const accessibilityAuditUrl = `https://wave.webaim.org/report#/${encodeURIComponent(normalizedUrl)}`;
 
@@ -113,10 +127,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log("Success! WAVE score:", score10, "for audit:", audit_id);
+    console.log("Success! WAVE score:", score10, "source:", aimSource, "for audit:", audit_id);
 
     return new Response(
-      JSON.stringify({ success: true, accessibility_score: score10, errors, alerts, contrast }),
+      JSON.stringify({ success: true, accessibility_score: score10, errors, alerts, contrast, aim_source: aimSource }),
       { headers: jsonHeaders },
     );
   } catch (err) {
