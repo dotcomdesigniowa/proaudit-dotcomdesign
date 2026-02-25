@@ -209,13 +209,13 @@ const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: str
   </span>
 );
 
-const MetricGradeBox = ({ grade }: { grade: string }) => {
+const MetricGradeBox = ({ grade, pending }: { grade: string; pending?: boolean }) => {
   const ref = useRef<HTMLParagraphElement>(null);
-  useMatrixGrade(ref, grade);
+  useMatrixGrade(ref, pending ? "—" : grade);
   return (
     <div className="gradeBox">
-      <div className={`bgGlow ${glowClass(grade)}`} />
-      <p className="letter" data-grade={grade} ref={ref}>&nbsp;</p>
+      <div className={`bgGlow ${pending ? "" : glowClass(grade)}`} />
+      <p className="letter" data-grade={pending ? undefined : grade} ref={ref}>&nbsp;</p>
     </div>
   );
 };
@@ -358,7 +358,8 @@ const AuditReport = () => {
   }, [audit]);
 
   // Overall grade matrix
-  useMatrixGrade(overallGradeRef, audit?.overall_grade || "F");
+  const overallGradeForMatrix = (!audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success') ? "—" : (audit?.overall_grade || "F");
+  useMatrixGrade(overallGradeRef, overallGradeForMatrix);
 
   const copyShareBtn = shareToken ? (
     <Button
@@ -391,7 +392,9 @@ const AuditReport = () => {
       </AppLayout>
     );
 
-  const og = audit.overall_grade || "F";
+   const psiPending = !audit.psi_mobile_score && (audit as any).psi_status !== 'success';
+   const overallPending = psiPending; // overall depends on PSI
+   const og = overallPending ? "—" : (audit.overall_grade || "F");
   const normalizedLogo = normalizeLogoUrl(audit.company_logo_url, audit.website_url);
 
   return (
@@ -418,10 +421,10 @@ const AuditReport = () => {
 
           <div className="gradeMetaRow">
             <div>
-              <div className="scoreLabel">Overall Score</div>
+              <div className="scoreLabel">{overallPending ? "Calculating…" : "Overall Score"}</div>
               <div className="gradeStack">
-                <div className="gradeLetter" data-grade={og} style={{ position: "relative" }}>
-                  <span className={`gradeGlow ${glowClass(og)}`} />
+                <div className="gradeLetter" data-grade={overallPending ? undefined : og} style={{ position: "relative" }}>
+                  <span className={`gradeGlow ${overallPending ? "" : glowClass(og)}`} />
                   <span ref={overallGradeRef} style={{ position: "relative", zIndex: 2 }}>{og}</span>
                 </div>
               </div>
@@ -523,6 +526,13 @@ const AuditReport = () => {
                   When your site is slow or underperforms on mobile, users leave… and Google notices.
                   Over time, this drastically weakens your visibility.
                 </p>
+                {(audit as any).psi_status === 'success' && (audit as any).psi_fetched_at && (
+                  <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
+                    Snapshot (auto-fetched {new Date((audit as any).psi_fetched_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })})
+                    <br />
+                    <span style={{ fontStyle: "italic" }}>Live PSI may differ slightly from the snapshot due to re-runs/caching.</span>
+                  </p>
+                )}
                 {(audit as any).psi_status === 'error' && (audit as any).psi_last_error && (
                   <p style={{ fontSize: "0.75rem", color: "#ef4444", marginBottom: 8, wordBreak: "break-word" }}>
                     {(audit as any).psi_last_error}
@@ -543,14 +553,11 @@ const AuditReport = () => {
                     onClick={async () => {
                       if (!audit.website_url) return;
                       toast.success("Retrying PSI fetch…");
+                      setAudit(prev => prev ? { ...prev, psi_status: 'fetching' } as Audit : prev);
                       try {
                         await supabase.functions.invoke("run-psi-and-update", {
                           body: { audit_id: audit.id, website_url: audit.website_url },
                         });
-                        // Reload audit data
-                        const { data } = await supabase.from("audit").select("*").eq("id", audit.id).maybeSingle();
-                        if (data) setAudit(data as Audit);
-                        toast.success("PSI score updated");
                       } catch {
                         toast.error("PSI retry failed");
                       }
@@ -560,7 +567,7 @@ const AuditReport = () => {
                   </button>
                 )}
               </div>
-              <MetricGradeBox grade={audit.psi_grade || "F"} />
+              <MetricGradeBox grade={audit.psi_grade || "F"} pending={psiPending} />
             </div>
 
             {/* Accessibility */}
