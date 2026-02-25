@@ -473,11 +473,21 @@ const AuditReport = () => {
 
             {/* PSI */}
             <div className="metricRow">
-              {audit.psi_mobile_score != null ? (
+              {(audit as any).psi_status === 'success' && audit.psi_mobile_score != null ? (
+                <MetricNumber value={audit.psi_mobile_score} suffix="out of 100" />
+              ) : (audit as any).psi_status === 'error' ? (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.7, color: "#ef4444" }}>Failed</p>
+                </div>
+              ) : (audit as any).psi_status === 'fetching' ? (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
+                </div>
+              ) : audit.psi_mobile_score != null ? (
                 <MetricNumber value={audit.psi_mobile_score} suffix="out of 100" />
               ) : (
                 <div className="metricNumWrap">
-                  <p className="metricNum" style={{ fontSize: "1.2rem", opacity: 0.6 }}>Fetching…</p>
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
                 </div>
               )}
               <div>
@@ -487,6 +497,11 @@ const AuditReport = () => {
                   When your site is slow or underperforms on mobile, users leave… and Google notices.
                   Over time, this drastically weakens your visibility.
                 </p>
+                {(audit as any).psi_status === 'error' && (audit as any).psi_last_error && (
+                  <p style={{ fontSize: "0.75rem", color: "#ef4444", marginBottom: 8, wordBreak: "break-word" }}>
+                    {(audit as any).psi_last_error}
+                  </p>
+                )}
                 {(() => {
                   const psiUrl = audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null);
                   return psiUrl ? (
@@ -495,7 +510,7 @@ const AuditReport = () => {
                     </a>
                   ) : null;
                 })()}
-                {audit.psi_mobile_score == null && user && (
+                {(((audit as any).psi_status === 'error') || ((audit as any).psi_status !== 'fetching' && audit.psi_mobile_score == null)) && user && (
                   <button
                     className="pillBtn"
                     style={{ marginLeft: 8, opacity: 0.8 }}

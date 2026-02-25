@@ -97,14 +97,18 @@ const CreateAudit = () => {
       }
     }
 
+    // Normalize website_url
+    let normalizedUrl = form.website_url.trim();
+    if (normalizedUrl && !normalizedUrl.startsWith('http://') && !normalizedUrl.startsWith('https://')) {
+      normalizedUrl = `https://${normalizedUrl}`;
+    }
+
     // Build deterministic PSI audit URL
-    const trimmedUrl = form.website_url.trim();
-    const normalizedForPsi = trimmedUrl.startsWith('http') ? trimmedUrl : `https://${trimmedUrl}`;
-    const psiAuditUrl = trimmedUrl ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalizedForPsi)}` : null;
+    const psiAuditUrl = normalizedUrl ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalizedUrl)}` : null;
 
     const payload: Record<string, unknown> = {
       company_name: form.company_name || null,
-      website_url: form.website_url || null,
+      website_url: normalizedUrl || null,
       location_city: form.location_city || null,
       location_state: form.location_state || null,
       provider: form.provider || null,
@@ -116,6 +120,7 @@ const CreateAudit = () => {
       w3c_audit_url: form.w3c_audit_url || null,
       psi_mobile_score: null,
       psi_audit_url: psiAuditUrl,
+      psi_status: normalizedUrl ? 'fetching' : 'idle',
       accessibility_score: form.accessibility_score ? parseInt(form.accessibility_score) : null,
       accessibility_audit_url: form.accessibility_audit_url || null,
       design_score: form.design_score ? parseInt(form.design_score) : 35,
@@ -141,9 +146,9 @@ const CreateAudit = () => {
     }).catch(() => {});
 
     // Fire-and-forget: fetch PSI score automatically
-    if (trimmedUrl) {
+    if (normalizedUrl) {
       supabase.functions.invoke("run-psi-and-update", {
-        body: { audit_id: data.id, website_url: trimmedUrl },
+        body: { audit_id: data.id, website_url: normalizedUrl },
       }).catch(() => {});
     }
 
