@@ -341,7 +341,7 @@ const AuditReport = () => {
         setAudit(prev => prev ? { ...prev, psi_status: 'error', psi_last_error: 'Timed out waiting for PSI results. Try Retry PSI.' } as Audit : prev);
         return;
       }
-      const { data } = await supabase.from("audit").select("psi_mobile_score, psi_status, psi_last_error, psi_grade, psi_fetched_at").eq("id", auditId).maybeSingle();
+      const { data } = await supabase.from("audit").select("psi_mobile_score, psi_status, psi_last_error, psi_grade, psi_fetched_at, overall_score, overall_grade").eq("id", auditId).maybeSingle();
       if (data && (data.psi_status === 'success' || data.psi_status === 'error')) {
         clearInterval(timer);
         setAudit(prev => prev ? { ...prev, ...data } as Audit : prev);
@@ -350,6 +350,32 @@ const AuditReport = () => {
 
     return () => clearInterval(timer);
   }, [audit?.psi_mobile_score, (audit as any)?.psi_status, auditId]);
+
+  // ── WAVE polling: auto-refresh when fetching ──
+  useEffect(() => {
+    if (!audit || !auditId) return;
+    const status = (audit as any).wave_status;
+    if (status !== 'fetching') return;
+
+    const startTime = Date.now();
+    const TIMEOUT = 45_000;
+    const INTERVAL = 2_000;
+
+    const timer = setInterval(async () => {
+      if (Date.now() - startTime > TIMEOUT) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, wave_status: 'error', wave_last_error: 'Timed out waiting for WAVE results. Try Retry.' } as Audit : prev);
+        return;
+      }
+      const { data } = await supabase.from("audit").select("accessibility_score, accessibility_grade, accessibility_audit_url, wave_status, wave_last_error, wave_fetched_at, legal_risk_flag, overall_score, overall_grade").eq("id", auditId).maybeSingle();
+      if (data && ((data as any).wave_status === 'success' || (data as any).wave_status === 'error')) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, ...data } as Audit : prev);
+      }
+    }, INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [audit?.accessibility_score, (audit as any)?.wave_status, auditId]);
 
   // Hero company name typewriter
   useEffect(() => {
@@ -368,7 +394,9 @@ const AuditReport = () => {
   }, [audit]);
 
   // Overall grade matrix
-  const overallGradeForMatrix = (!audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success') ? "—" : (audit?.overall_grade || "F");
+  const psiPendingEarly = !audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success';
+  const wavePendingEarly = audit?.accessibility_score == null && (audit as any)?.wave_status !== 'success';
+  const overallGradeForMatrix = (psiPendingEarly || wavePendingEarly) ? "—" : (audit?.overall_grade || "F");
   useMatrixGrade(overallGradeRef, overallGradeForMatrix);
 
   const copyShareBtn = shareToken ? (
@@ -403,7 +431,8 @@ const AuditReport = () => {
     );
 
    const psiPending = !audit.psi_mobile_score && (audit as any).psi_status !== 'success';
-   const overallPending = psiPending; // overall depends on PSI
+   const wavePending = audit.accessibility_score == null && (audit as any).wave_status !== 'success';
+   const overallPending = psiPending || wavePending;
    const og = overallPending ? "—" : (audit.overall_grade || "F");
   const normalizedLogo = normalizeLogoUrl(audit.company_logo_url, audit.website_url);
 
@@ -590,21 +619,50 @@ const AuditReport = () => {
 
             {/* Accessibility */}
             <div className="metricRow">
-              <MetricNumber value={audit.accessibility_score ?? 0} suffix="percent" />
+              {(audit as any).wave_status === 'success' && audit.accessibility_score != null ? (
+                <MetricNumber value={audit.accessibility_score} suffix="out of 10" />
+              ) : (audit as any).wave_status === 'error' ? (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.7, color: "#ef4444" }}>Failed</p>
+                </div>
+              ) : (audit as any).wave_status === 'fetching' ? (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
+                </div>
+              ) : audit.accessibility_score != null ? (
+                <MetricNumber value={audit.accessibility_score} suffix="out of 10" />
+              ) : (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
+                </div>
+              )}
               <div>
                 <div className="metricLabel">Accessibility Score</div>
                 <p className="metricText">
                   Modern standards require websites to be usable by everyone. When your site doesn't meet those standards,
                   it limits access, increases legal exposure, and weakens overall performance.
                 </p>
+                {(audit as any).wave_status === 'success' && (audit as any).wave_fetched_at && (
+                  <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
+                    Snapshot (auto-fetched {new Date((audit as any).wave_fetched_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })})
+                    <br />
+                    <span style={{ fontStyle: "italic" }}>Live results may differ slightly from the snapshot.</span>
+                  </p>
+                )}
+                {(audit as any).wave_status === 'error' && (audit as any).wave_last_error && (
+                  <p style={{ fontSize: "0.75rem", color: "#ef4444", marginBottom: 8, wordBreak: "break-word" }}>
+                    {(audit as any).wave_last_error}
+                  </p>
+                )}
                 {audit.legal_risk_flag && (
                   <div className="alertLine">
-                    🚩 Scored under 90 are NOT compliant under{" "}
+                    🚩 Scores under 9.0 indicate elevated legal exposure under{" "}
                     <span className="tipHost tipTopRight lawTip">
                       United States Law
                       <span className="tip tooltipBox">
                         Every website that operates in the United States must comply with the ADA &amp; Section 508
                         accessibility legislations, or else is subject to fines and accessibility-related lawsuits.
+                        A high score does not guarantee compliance; manual testing is required.
                       </span>
                     </span>
                   </div>
@@ -614,8 +672,28 @@ const AuditReport = () => {
                     View Audit <span>→</span>
                   </a>
                 )}
+                {(((audit as any).wave_status === 'error') || ((audit as any).wave_status !== 'fetching' && audit.accessibility_score == null)) && user && (
+                  <button
+                    className="pillBtn"
+                    style={{ marginLeft: 8, opacity: 0.8 }}
+                    onClick={async () => {
+                      if (!audit.website_url) return;
+                      toast.success("Retrying accessibility fetch…");
+                      setAudit(prev => prev ? { ...prev, wave_status: 'fetching' } as Audit : prev);
+                      try {
+                        await supabase.functions.invoke("run-wave", {
+                          body: { audit_id: audit.id, website_url: audit.website_url },
+                        });
+                      } catch {
+                        toast.error("Accessibility retry failed");
+                      }
+                    }}
+                  >
+                    Retry Accessibility
+                  </button>
+                )}
               </div>
-              <MetricGradeBox grade={audit.accessibility_grade || "F"} />
+              <MetricGradeBox grade={audit.accessibility_grade || "F"} pending={wavePending} />
             </div>
 
             {/* Design */}

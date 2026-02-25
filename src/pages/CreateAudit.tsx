@@ -54,8 +54,6 @@ const CreateAudit = () => {
     business_phone: "",
     w3c_issue_count: "",
     w3c_audit_url: "",
-    accessibility_score: "",
-    accessibility_audit_url: "",
     design_score: "35",
   });
 
@@ -132,8 +130,9 @@ const CreateAudit = () => {
       psi_mobile_score: null,
       psi_audit_url: psiAuditUrl,
       psi_status: normalizedUrl ? 'fetching' : 'idle',
-      accessibility_score: form.accessibility_score ? parseInt(form.accessibility_score) : null,
-      accessibility_audit_url: form.accessibility_audit_url || null,
+      accessibility_score: null,
+      accessibility_audit_url: normalizedUrl ? `https://wave.webaim.org/report#/${encodeURIComponent(normalizedUrl)}` : null,
+      wave_status: normalizedUrl ? 'fetching' : 'idle',
       design_score: form.design_score ? parseInt(form.design_score) : 35,
       company_logo_url: discoveredLogo,
     };
@@ -159,6 +158,11 @@ const CreateAudit = () => {
     // Fire-and-forget: fetch PSI score automatically
     if (normalizedUrl) {
       supabase.functions.invoke("run-psi-and-update", {
+        body: { audit_id: data.id, website_url: normalizedUrl },
+      }).catch(() => {});
+
+      // Fire-and-forget: fetch WAVE accessibility score automatically
+      supabase.functions.invoke("run-wave", {
         body: { audit_id: data.id, website_url: normalizedUrl },
       }).catch(() => {});
     }
@@ -218,9 +222,7 @@ const CreateAudit = () => {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="W3C Issue Count" name="w3c_issue_count" type="number" value={form.w3c_issue_count} onChange={set("w3c_issue_count")} />
                   <Field label="W3C Audit URL" name="w3c_audit_url" placeholder="https://..." value={form.w3c_audit_url} onChange={set("w3c_audit_url")} />
-                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score will be fetched automatically after creation.</p>
-                  <Field label="Accessibility Score (0-100)" name="accessibility_score" type="number" value={form.accessibility_score} onChange={set("accessibility_score")} />
-                  <Field label="Accessibility Audit URL" name="accessibility_audit_url" placeholder="https://..." value={form.accessibility_audit_url} onChange={set("accessibility_audit_url")} />
+                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score and Accessibility Score will be fetched automatically after creation.</p>
                   <Field label="Design Score (0-100)" name="design_score" type="number" value={form.design_score} onChange={set("design_score")} />
                 </div>
               </section>

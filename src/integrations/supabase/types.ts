@@ -51,6 +51,9 @@ export type Database = {
           w3c_grade: string | null
           w3c_issue_count: number | null
           w3c_score: number | null
+          wave_fetched_at: string | null
+          wave_last_error: string | null
+          wave_status: string
           website_screenshot_updated_at: string | null
           website_screenshot_url: string | null
           website_url: string | null
@@ -91,6 +94,9 @@ export type Database = {
           w3c_grade?: string | null
           w3c_issue_count?: number | null
           w3c_score?: number | null
+          wave_fetched_at?: string | null
+          wave_last_error?: string | null
+          wave_status?: string
           website_screenshot_updated_at?: string | null
           website_screenshot_url?: string | null
           website_url?: string | null
@@ -131,6 +137,9 @@ export type Database = {
           w3c_grade?: string | null
           w3c_issue_count?: number | null
           w3c_score?: number | null
+          wave_fetched_at?: string | null
+          wave_last_error?: string | null
+          wave_status?: string
           website_screenshot_updated_at?: string | null
           website_screenshot_url?: string | null
           website_url?: string | null
