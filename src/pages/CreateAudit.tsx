@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface FieldProps {
   label: string;
@@ -29,6 +30,9 @@ const CreateAudit = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [psiLoading, setPsiLoading] = useState(false);
+  const [psiFetched, setPsiFetched] = useState(false);
+  const [psiFailed, setPsiFailed] = useState(false);
   const [profile, setProfile] = useState<{ full_name: string | null; phone: string | null }>({ full_name: null, phone: null });
 
   const [form, setForm] = useState({
@@ -80,6 +84,46 @@ const CreateAudit = () => {
     }));
   }, [form.website_url]);
 
+  // Reset PSI state when website URL changes
+  useEffect(() => {
+    setPsiFetched(false);
+    setPsiFailed(false);
+  }, [form.website_url]);
+
+  const handleFetchPsi = async () => {
+    const url = form.website_url.trim();
+    if (!url) {
+      toast({ title: "Enter a website URL first", variant: "destructive" });
+      return;
+    }
+    setPsiLoading(true);
+    setPsiFailed(false);
+    try {
+      const { data, error } = await supabase.functions.invoke("run-psi", {
+        body: { website_url: url },
+      });
+      if (error || !data?.success) {
+        throw new Error(data?.error || error?.message || "PSI fetch failed");
+      }
+      setForm((f) => ({
+        ...f,
+        psi_mobile_score: String(data.psi_mobile_score),
+        psi_audit_url: data.psi_audit_url,
+      }));
+      setPsiFetched(true);
+      toast({ title: "PSI Mobile Score fetched", description: `Score: ${data.psi_mobile_score}` });
+    } catch (err: any) {
+      setPsiFailed(true);
+      toast({
+        title: "Could not fetch PSI score",
+        description: `${err.message}. You can enter the score manually.`,
+        variant: "destructive",
+      });
+    } finally {
+      setPsiLoading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -116,7 +160,6 @@ const CreateAudit = () => {
       accessibility_score: form.accessibility_score ? parseInt(form.accessibility_score) : null,
       accessibility_audit_url: form.accessibility_audit_url || null,
       design_score: form.design_score ? parseInt(form.design_score) : 35,
-      
       company_logo_url: discoveredLogo,
     };
 
@@ -193,14 +236,40 @@ const CreateAudit = () => {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="W3C Issue Count" name="w3c_issue_count" type="number" value={form.w3c_issue_count} onChange={set("w3c_issue_count")} />
                   <Field label="W3C Audit URL" name="w3c_audit_url" placeholder="https://..." value={form.w3c_audit_url} onChange={set("w3c_audit_url")} />
-                  <Field label="PSI Mobile Score (0-100)" name="psi_mobile_score" type="number" value={form.psi_mobile_score} onChange={set("psi_mobile_score")} />
+
+                  {/* PSI Mobile Score — automated */}
+                  <div className="space-y-1.5">
+                    <Label>PSI Mobile Score (0-100)</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="number"
+                        value={form.psi_mobile_score}
+                        onChange={set("psi_mobile_score")}
+                        readOnly={psiFetched && !psiFailed}
+                        className={psiFetched && !psiFailed ? "bg-muted" : ""}
+                        placeholder="Auto-fetched"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="shrink-0 self-end"
+                        disabled={psiLoading || !form.website_url.trim()}
+                        onClick={handleFetchPsi}
+                      >
+                        {psiLoading ? <Loader2 className="animate-spin" /> : "Fetch"}
+                      </Button>
+                    </div>
+                    {psiFetched && <p className="text-xs text-primary">Score fetched automatically</p>}
+                    {psiFailed && <p className="text-xs text-destructive">Auto-fetch failed — enter manually</p>}
+                  </div>
+
                   <Field label="PSI Audit URL" name="psi_audit_url" placeholder="https://..." value={form.psi_audit_url} onChange={set("psi_audit_url")} />
                   <Field label="Accessibility Score (0-100)" name="accessibility_score" type="number" value={form.accessibility_score} onChange={set("accessibility_score")} />
                   <Field label="Accessibility Audit URL" name="accessibility_audit_url" placeholder="https://..." value={form.accessibility_audit_url} onChange={set("accessibility_audit_url")} />
                   <Field label="Design Score (0-100)" name="design_score" type="number" value={form.design_score} onChange={set("design_score")} />
                 </div>
               </section>
-
 
               <Button type="submit" disabled={loading} className="w-full">
                 {loading ? "Creating…" : "Create Audit"}
