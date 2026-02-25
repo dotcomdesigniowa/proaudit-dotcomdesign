@@ -315,6 +315,32 @@ const AuditReport = () => {
     })();
   }, [auditId, authLoading]);
 
+  // ── PSI polling: auto-refresh when fetching ──
+  useEffect(() => {
+    if (!audit || !auditId) return;
+    const status = (audit as any).psi_status;
+    if (status !== 'fetching') return;
+
+    const startTime = Date.now();
+    const TIMEOUT = 45_000;
+    const INTERVAL = 2_000;
+
+    const timer = setInterval(async () => {
+      if (Date.now() - startTime > TIMEOUT) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, psi_status: 'error', psi_last_error: 'Timed out waiting for PSI results. Try Retry PSI.' } as Audit : prev);
+        return;
+      }
+      const { data } = await supabase.from("audit").select("psi_mobile_score, psi_status, psi_last_error, psi_grade, psi_fetched_at").eq("id", auditId).maybeSingle();
+      if (data && (data.psi_status === 'success' || data.psi_status === 'error')) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, ...data } as Audit : prev);
+      }
+    }, INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [audit?.psi_mobile_score, (audit as any)?.psi_status, auditId]);
+
   // Hero company name typewriter
   useEffect(() => {
     if (!audit || !heroHeadingRef.current) return;
