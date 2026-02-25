@@ -1,0 +1,1 @@
+ALTER TABLE public.audit ALTER COLUMN accessibility_score TYPE numeric USING accessibility_score::numeric;
