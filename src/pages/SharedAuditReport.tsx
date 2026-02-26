@@ -272,7 +272,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
                 </div>
               ) : audit.w3c_issue_count != null ? (
-                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" showPlus />
+                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" showPlus={(audit.w3c_issue_count ?? 0) >= 50} />
               ) : (
                 <div className="metricNumWrap">
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
@@ -285,16 +285,22 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   So when your website is full of errors and warnings… trust declines. And when trust declines,
                   your ability to show up online declines with it.
                 </p>
-                <div className="alertLine">
-                  🚩 Websites full of errors and warnings pay{" "}
-                  <InfoTip label="The Bad Website Tax">
-                    When a website isn't properly constructed, it drags down everything connected to it.
-                    Small businesses end up spending 30–50% more just to get the same results. You pay more
-                    to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
-                    should. That's the tax — higher costs, lower performance, constant uphill battle. Every
-                    dollar has to work harder just to overcome what's broken underneath.
-                  </InfoTip>
-                </div>
+                {(audit.w3c_issue_count != null && audit.w3c_issue_count < 50) ? (
+                  <div className="alertLine">
+                    🎉 Congratulations! Your website is extremely well coded!
+                  </div>
+                ) : (
+                  <div className="alertLine">
+                    🚩 Websites full of errors and warnings pay{" "}
+                    <InfoTip label="The Bad Website Tax">
+                      When a website isn't properly constructed, it drags down everything connected to it.
+                      Small businesses end up spending 30–50% more just to get the same results. You pay more
+                      to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
+                      should. That's the tax — higher costs, lower performance, constant uphill battle. Every
+                      dollar has to work harder just to overcome what's broken underneath.
+                    </InfoTip>
+                  </div>
+                )}
                 {audit.w3c_audit_url && (
                   <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
                 )}
@@ -327,17 +333,30 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   Modern standards require websites to be usable by everyone. When your site doesn't meet those standards,
                   it limits access, increases legal exposure, and weakens overall performance.
                 </p>
-                <div className="alertLine">
-                  🚩 Websites with a score under 9 are at high risk of accessibility lawsuits.
-                </div>
-                {(audit.accessibility_score != null && audit.accessibility_score < 9) && (
-                  <div className="alertLine">
-                    🚩 Website is NOT compliant under{" "}
-                    <InfoTip label="United States Law" className="lawTip">
-                      Every website that operates in the United States must comply with the ADA &amp; Section 508
-                      accessibility legislations, or else is subject to fines and accessibility-related lawsuits.
-                    </InfoTip>
-                  </div>
+                {(audit.accessibility_score != null && audit.accessibility_score >= 9) ? (
+                  <>
+                    <div className="alertLine">
+                      🎉 Congratulations! Your website meets modern accessibility standards.
+                    </div>
+                    <p style={{ fontSize: "0.75rem", fontStyle: "italic", opacity: 0.7, marginTop: 6 }}>
+                      Disclaimer: This score is based on automated testing. While it reflects strong accessibility alignment, full legal compliance requires additional manual review and testing.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="alertLine">
+                      🚩 Websites with a score under 9 are at high risk of accessibility lawsuits.
+                    </div>
+                    {(audit.accessibility_score != null && audit.accessibility_score < 9) && (
+                      <div className="alertLine">
+                        🚩 Website is NOT compliant under{" "}
+                        <InfoTip label="United States Law" className="lawTip">
+                          Every website that operates in the United States must comply with the ADA &amp; Section 508
+                          accessibility legislations, or else is subject to fines and accessibility-related lawsuits.
+                        </InfoTip>
+                      </div>
+                    )}
+                  </>
                 )}
                 {audit.accessibility_audit_url && (
                   <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
@@ -345,6 +364,8 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               </div>
               <MetricGradeBox grade={audit.accessibility_grade || "F"} />
             </div>
+            {/* Design - hidden for "Other" provider */}
+            {audit.provider !== "Other" && (
             <div className="metricRow">
               <MetricNumber value={audit.design_score ?? 0} suffix="out of 100" />
               <div>
@@ -364,6 +385,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               </div>
               <MetricGradeBox grade={audit.design_grade || "F"} />
             </div>
+            )}
           </div>
         </div>
       </section>
