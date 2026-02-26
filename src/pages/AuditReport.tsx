@@ -846,9 +846,9 @@ const AuditReport = () => {
             <div className="presenceTextCol">
               <SectionHeading text="ONLINE PRESENCE ISSUES" />
               <p className="subtle" style={{ textAlign: "right", marginLeft: "auto" }}>
-                We also ran a comprehensive scan of your business across the internet and found a large list of issues
-                across multiple platforms. To build trust, rank and get found, your entire digital presence must be
-                structured, aligned, and optimized.
+                {audit.provider === "Other"
+                  ? "Is your overall online presence congruent, cohesive & consistent? Let us run a comprehensive scan of your business across the internet and we can find out! To build trust, rank and get found, your entire digital presence must be structured, aligned, and optimized."
+                  : "We also ran a comprehensive scan of your business across the internet and found a large list of issues across multiple platforms. To build trust, rank and get found, your entire digital presence must be structured, aligned, and optimized."}
               </p>
               <div className="scannedBusinessInfo">
                 <div className="scanField">
