@@ -19,6 +19,7 @@ import ResetPassword from "./pages/ResetPassword";
 import SharedAuditReport from "./pages/SharedAuditReport";
 import ErrorLogs from "./pages/ErrorLogs";
 import TeamManagement from "./pages/TeamManagement";
+import ProfileSetup from "./pages/ProfileSetup";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/signup" element={<Signup />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/profile-setup" element={<ProfileSetup />} />
             <Route
               path="/"
               element={
