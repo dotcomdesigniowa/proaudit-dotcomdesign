@@ -1,3 +1,5 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version',
@@ -7,6 +9,20 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+  const logError = async (action: string, message: string, metadata?: Record<string, unknown>) => {
+    try {
+      await supabase.from("error_logs").insert({
+        severity: "error",
+        page: "edge-function",
+        action,
+        message,
+        metadata: metadata ?? null,
+      });
+    } catch (_) { /* fire-and-forget */ }
+  };
 
   try {
     const { website_url } = await req.json();
@@ -31,8 +47,10 @@ Deno.serve(async (req) => {
     });
 
     if (!resp.ok) {
+      const err = `Failed to fetch: ${resp.status}`;
+      await logError("discover-logo", err, { website_url: url, status: resp.status });
       return new Response(
-        JSON.stringify({ success: false, error: `Failed to fetch: ${resp.status}` }),
+        JSON.stringify({ success: false, error: err }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -48,18 +66,13 @@ Deno.serve(async (req) => {
       return baseUrl.origin + '/' + src;
     }
 
-    // Strategy 1: Find <img> with logo in class/id/alt/src
     const imgRegex = /<img\s[^>]*?>/gi;
     let match: RegExpExecArray | null;
     let logoUrl = '';
 
     while ((match = imgRegex.exec(html)) !== null) {
       const tag = match[0].toLowerCase();
-      if (
-        tag.includes('logo') &&
-        !tag.includes('logo-placeholder') &&
-        !tag.includes('data:image')
-      ) {
+      if (tag.includes('logo') && !tag.includes('logo-placeholder') && !tag.includes('data:image')) {
         const srcMatch = match[0].match(/src\s*=\s*["']([^"']+)["']/i);
         if (srcMatch?.[1]) {
           logoUrl = resolveUrl(srcMatch[1]);
@@ -68,7 +81,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Strategy 2: og:image fallback
     if (!logoUrl) {
       const ogMatch = html.match(/<meta\s[^>]*property\s*=\s*["']og:image["'][^>]*content\s*=\s*["']([^"']+)["']/i)
         || html.match(/<meta\s[^>]*content\s*=\s*["']([^"']+)["'][^>]*property\s*=\s*["']og:image["']/i);
@@ -85,6 +97,7 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     console.error('Error discovering logo:', error);
+    await logError("discover-logo", `Unexpected: ${error instanceof Error ? error.message : String(error)}`);
     return new Response(
       JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

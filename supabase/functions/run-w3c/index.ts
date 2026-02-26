@@ -10,7 +10,6 @@ const TIMEOUT_MS = 15_000;
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
-/** Count errors + warnings from W3C Nu validator JSON output */
 function countIssues(messages: Array<{ type?: string; subType?: string }>): { total: number; errors: number; warnings: number; info: number } {
   let errors = 0;
   let warnings = 0;
@@ -33,29 +32,19 @@ const BROWSER_HEADERS = {
   Pragma: "no-cache",
 };
 
-/** Attempt with a given validator base URL (direct doc= check) */
 async function attemptDirect(validatorBase: string, websiteUrl: string): Promise<{ total: number; errors: number; warnings: number; info: number }> {
   const url = `${validatorBase}?doc=${encodeURIComponent(websiteUrl)}&out=json`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
   try {
-    const res = await fetch(url, {
-      headers: BROWSER_HEADERS,
-      signal: controller.signal,
-    });
+    const res = await fetch(url, { headers: BROWSER_HEADERS, signal: controller.signal });
     clearTimeout(timer);
-
     if (!res.ok) {
       const body = await res.text();
       throw new Error(`Validator returned ${res.status}: ${body.slice(0, 200)}`);
     }
-
     const data = await res.json();
-    if (!data.messages || !Array.isArray(data.messages)) {
-      throw new Error("Unexpected validator response format");
-    }
-
+    if (!data.messages || !Array.isArray(data.messages)) throw new Error("Unexpected validator response format");
     return countIssues(data.messages);
   } catch (e) {
     clearTimeout(timer);
@@ -63,18 +52,12 @@ async function attemptDirect(validatorBase: string, websiteUrl: string): Promise
   }
 }
 
-/** Attempt POST: Fetch HTML server-side, POST to a validator */
 async function attemptPost(validatorBase: string, websiteUrl: string): Promise<{ total: number; errors: number; warnings: number; info: number }> {
   const controller1 = new AbortController();
   const timer1 = setTimeout(() => controller1.abort(), TIMEOUT_MS);
   let html: string;
-
   try {
-    const res = await fetch(websiteUrl, {
-      headers: { "User-Agent": USER_AGENT },
-      signal: controller1.signal,
-      redirect: "follow",
-    });
+    const res = await fetch(websiteUrl, { headers: { "User-Agent": USER_AGENT }, signal: controller1.signal, redirect: "follow" });
     clearTimeout(timer1);
     html = await res.text();
   } catch (e) {
@@ -84,29 +67,20 @@ async function attemptPost(validatorBase: string, websiteUrl: string): Promise<{
 
   const controller2 = new AbortController();
   const timer2 = setTimeout(() => controller2.abort(), TIMEOUT_MS);
-
   try {
     const res = await fetch(`${validatorBase}?out=json`, {
       method: "POST",
-      headers: {
-        "Content-Type": "text/html; charset=utf-8",
-        ...BROWSER_HEADERS,
-      },
+      headers: { "Content-Type": "text/html; charset=utf-8", ...BROWSER_HEADERS },
       body: html,
       signal: controller2.signal,
     });
     clearTimeout(timer2);
-
     if (!res.ok) {
       const body = await res.text();
       throw new Error(`Validator POST returned ${res.status}: ${body.slice(0, 200)}`);
     }
-
     const data = await res.json();
-    if (!data.messages || !Array.isArray(data.messages)) {
-      throw new Error("Unexpected validator POST response format");
-    }
-
+    if (!data.messages || !Array.isArray(data.messages)) throw new Error("Unexpected validator POST response format");
     return countIssues(data.messages);
   } catch (e) {
     clearTimeout(timer2);
@@ -119,6 +93,20 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+
+  const logError = async (action: string, message: string, metadata?: Record<string, unknown>) => {
+    try {
+      await supabase.from("error_logs").insert({
+        severity: "error",
+        page: "edge-function",
+        action,
+        message,
+        metadata: metadata ?? null,
+      });
+    } catch (_) { /* fire-and-forget */ }
+  };
+
   try {
     const { audit_id, website_url } = await req.json();
     if (!audit_id || !website_url) {
@@ -128,26 +116,13 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
-    );
-
-    // Mark as fetching
-    await supabase
-      .from("audit")
-      .update({ w3c_status: "fetching", w3c_last_error: null })
-      .eq("id", audit_id);
+    await supabase.from("audit").update({ w3c_status: "fetching", w3c_last_error: null }).eq("id", audit_id);
 
     let result: { total: number; errors: number; warnings: number; info: number } | undefined;
     const errors: string[] = [];
 
-    const VALIDATORS = [
-      "https://validator.w3.org/nu/",
-      "https://html5.validator.nu/",
-    ];
+    const VALIDATORS = ["https://validator.w3.org/nu/", "https://html5.validator.nu/"];
 
-    // Try direct doc= check on each validator
     for (const base of VALIDATORS) {
       if (result !== undefined) break;
       try {
@@ -160,7 +135,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Try POST with fetched HTML on each validator
     for (const base of VALIDATORS) {
       if (result !== undefined) break;
       try {
@@ -175,21 +149,16 @@ Deno.serve(async (req) => {
 
     if (result === undefined) {
       const errorMsg = errors.join(" | ").slice(0, 500);
-      await supabase
-        .from("audit")
-        .update({ w3c_status: "error", w3c_last_error: errorMsg })
-        .eq("id", audit_id);
-
+      await logError("run-w3c", errorMsg, { audit_id, website_url });
+      await supabase.from("audit").update({ w3c_status: "error", w3c_last_error: errorMsg }).eq("id", audit_id);
       return new Response(
         JSON.stringify({ success: false, error: errorMsg }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Round down to nearest 50 so the displayed number is always conservative
     const roundedCount = Math.floor(result.total / 50) * 50;
 
-    // Success: update audit
     const { error: updateError } = await supabase
       .from("audit")
       .update({
@@ -201,19 +170,20 @@ Deno.serve(async (req) => {
       .eq("id", audit_id);
 
     if (updateError) {
+      await logError("run-w3c", `DB update failed: ${updateError.message}`, { audit_id });
       return new Response(
         JSON.stringify({ success: false, error: updateError.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    console.log(`[W3C] Success for ${website_url}: raw=${result.total} (${result.errors} errors, ${result.warnings} warnings, ${result.info} info), stored=${roundedCount}+`);
-
+    console.log(`[W3C] Success for ${website_url}: raw=${result.total}, stored=${roundedCount}+`);
     return new Response(
       JSON.stringify({ success: true, issue_count: roundedCount, raw_total: result.total, errors: result.errors, warnings: result.warnings, info: result.info }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
+    await logError("run-w3c", `Unexpected: ${String(e)}`);
     return new Response(
       JSON.stringify({ error: String(e) }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
