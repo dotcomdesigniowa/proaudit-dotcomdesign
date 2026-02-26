@@ -113,8 +113,7 @@ const MetricNumber = ({ value, suffix, decimals = 0, showPlus = false }: { value
   useCountUp(ref, value, 1200, decimals);
   return (
     <div className="metricNumWrap">
-      <p className="metricNum" ref={ref}>0</p>
-      {showPlus && <span className="metricNum" style={{ marginLeft: 0 }}>+</span>}
+      <p className="metricNum"><span ref={ref}>0</span>{showPlus && '+'}</p>
       <p className="metricSuffix">{suffix}</p>
     </div>
   );
