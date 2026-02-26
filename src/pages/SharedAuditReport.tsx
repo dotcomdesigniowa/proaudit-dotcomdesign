@@ -97,9 +97,9 @@ const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: str
   </InfoTip>
 );
 
-const MetricGradeBox = ({ grade }: { grade: string }) => {
+const MetricGradeBox = ({ grade, pending }: { grade: string; pending?: boolean }) => {
   const ref = useRef<HTMLParagraphElement>(null);
-  useMatrixGrade(ref, grade);
+  useMatrixGrade(ref, pending ? "—" : grade);
   return (
     <div className="gradeBox">
       <div className={`bgGlow ${glowClass(grade)}`} />
@@ -267,7 +267,17 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
           </p>
           <div className="metrics">
             <div className="metricRow">
-              <MetricNumber value={audit.w3c_issue_count ?? 0} suffix="Total #" />
+              {(audit as any).w3c_status === 'fetching' ? (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
+                </div>
+              ) : audit.w3c_issue_count != null ? (
+                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" />
+              ) : (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
+                </div>
+              )}
               <div>
                 <div className="metricLabel">Website Errors &amp; Warnings</div>
                 <p className="metricText">
@@ -289,7 +299,10 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
                 )}
               </div>
-              <MetricGradeBox grade={audit.w3c_grade || "F"} />
+              {(() => {
+                const w3cPending = (audit as any).w3c_status === 'fetching' || (audit.w3c_issue_count == null && (audit as any).w3c_status !== 'success');
+                return <MetricGradeBox grade={audit.w3c_grade || "F"} pending={w3cPending} />;
+              })()}
             </div>
             <div className="metricRow">
               <MetricNumber value={audit.psi_mobile_score ?? 0} suffix="out of 100" />

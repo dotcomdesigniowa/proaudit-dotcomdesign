@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.run-wave]
 verify_jwt = false
+
+[functions.run-w3c]
+verify_jwt = false

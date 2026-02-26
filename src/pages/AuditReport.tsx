@@ -376,7 +376,32 @@ const AuditReport = () => {
     return () => clearInterval(timer);
   }, [audit?.accessibility_score, (audit as any)?.wave_status, auditId]);
 
-  // Hero company name typewriter
+  // ── W3C polling: auto-refresh when fetching ──
+  useEffect(() => {
+    if (!audit || !auditId) return;
+    const status = (audit as any).w3c_status;
+    if (status !== 'fetching') return;
+
+    const startTime = Date.now();
+    const TIMEOUT = 45_000;
+    const INTERVAL = 2_000;
+
+    const timer = setInterval(async () => {
+      if (Date.now() - startTime > TIMEOUT) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, w3c_status: 'error', w3c_last_error: 'Timed out waiting for W3C results. Try Retry.' } as Audit : prev);
+        return;
+      }
+      const { data } = await supabase.from("audit").select("w3c_issue_count, w3c_score, w3c_grade, w3c_status, w3c_last_error, w3c_fetched_at, overall_score, overall_grade").eq("id", auditId).maybeSingle();
+      if (data && ((data as any).w3c_status === 'success' || (data as any).w3c_status === 'error')) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, ...data } as Audit : prev);
+      }
+    }, INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [audit?.w3c_issue_count, (audit as any)?.w3c_status, auditId]);
+
   useEffect(() => {
     if (!audit || !heroHeadingRef.current) return;
     const el = heroHeadingRef.current;
@@ -395,7 +420,8 @@ const AuditReport = () => {
   // Overall grade matrix
   const psiPendingEarly = !audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success';
   const wavePendingEarly = audit?.accessibility_score == null && (audit as any)?.wave_status !== 'success';
-  const overallGradeForMatrix = (psiPendingEarly || wavePendingEarly) ? "—" : (audit?.overall_grade || "F");
+  const w3cPendingEarly = audit?.w3c_issue_count == null && (audit as any)?.w3c_status !== 'success';
+  const overallGradeForMatrix = (psiPendingEarly || wavePendingEarly || w3cPendingEarly) ? "—" : (audit?.overall_grade || "F");
   useMatrixGrade(overallGradeRef, overallGradeForMatrix);
 
   const copyShareBtn = shareToken ? (
@@ -516,7 +542,23 @@ const AuditReport = () => {
           <div className="metrics">
             {/* W3C */}
             <div className="metricRow">
-              <MetricNumber value={audit.w3c_issue_count ?? 0} suffix="Total #" />
+              {(audit as any).w3c_status === 'success' && audit.w3c_issue_count != null ? (
+                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" />
+              ) : (audit as any).w3c_status === 'error' ? (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.7, color: "#ef4444" }}>Failed</p>
+                </div>
+              ) : (audit as any).w3c_status === 'fetching' ? (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
+                </div>
+              ) : audit.w3c_issue_count != null ? (
+                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" />
+              ) : (
+                <div className="metricNumWrap">
+                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
+                </div>
+              )}
               <div>
                 <div className="metricLabel">Website Errors &amp; Warnings</div>
                 <p className="metricText">
@@ -524,6 +566,16 @@ const AuditReport = () => {
                   So when your website is full of errors and warnings… trust declines. And when trust declines,
                   your ability to show up online declines with it.
                 </p>
+                {(audit as any).w3c_status === 'success' && (audit as any).w3c_fetched_at && (
+                  <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
+                    Snapshot (auto-fetched {new Date((audit as any).w3c_fetched_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })})
+                  </p>
+                )}
+                {(audit as any).w3c_status === 'error' && (audit as any).w3c_last_error && (
+                  <p style={{ fontSize: "0.75rem", color: "#ef4444", marginBottom: 8, wordBreak: "break-word" }}>
+                    {(audit as any).w3c_last_error}
+                  </p>
+                )}
                 <div className="alertLine">
                   🚩 Websites full of errors and warnings pay{" "}
                   <InfoTip label="The Bad Website Tax">
@@ -539,8 +591,31 @@ const AuditReport = () => {
                     View Audit <span>→</span>
                   </a>
                 )}
+                {(((audit as any).w3c_status === 'error') || ((audit as any).w3c_status !== 'fetching' && audit.w3c_issue_count == null)) && user && (
+                  <button
+                    className="pillBtn"
+                    style={{ marginLeft: 8, opacity: 0.8 }}
+                    onClick={async () => {
+                      if (!audit.website_url) return;
+                      toast.success("Retrying W3C fetch…");
+                      setAudit(prev => prev ? { ...prev, w3c_status: 'fetching' } as Audit : prev);
+                      try {
+                        await supabase.functions.invoke("run-w3c", {
+                          body: { audit_id: audit.id, website_url: audit.website_url },
+                        });
+                      } catch {
+                        toast.error("W3C retry failed");
+                      }
+                    }}
+                  >
+                    Retry W3C
+                  </button>
+                )}
               </div>
-              <MetricGradeBox grade={audit.w3c_grade || "F"} />
+              {(() => {
+                const w3cPending = (audit as any).w3c_status === 'fetching' || (audit.w3c_issue_count == null && (audit as any).w3c_status !== 'success' && (audit as any).w3c_status !== 'error');
+                return <MetricGradeBox grade={audit.w3c_grade || "F"} pending={w3cPending} />;
+              })()}
             </div>
 
             {/* PSI */}

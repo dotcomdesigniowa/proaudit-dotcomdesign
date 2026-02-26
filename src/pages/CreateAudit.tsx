@@ -128,6 +128,7 @@ const CreateAudit = () => {
       prepared_by_phone: profile.phone || null,
       w3c_issue_count: form.w3c_issue_count ? parseInt(form.w3c_issue_count) : null,
       w3c_audit_url: form.w3c_audit_url || null,
+      w3c_status: normalizedUrl && !form.w3c_issue_count ? 'fetching' : (form.w3c_issue_count ? 'success' : 'idle'),
       psi_mobile_score: null,
       psi_audit_url: psiAuditUrl,
       psi_status: normalizedUrl ? 'fetching' : 'idle',
@@ -166,6 +167,13 @@ const CreateAudit = () => {
       supabase.functions.invoke("run-wave", {
         body: { audit_id: data.id, website_url: normalizedUrl },
       }).catch(() => {});
+
+      // Fire-and-forget: fetch W3C issue count automatically (only if not manually entered)
+      if (!form.w3c_issue_count) {
+        supabase.functions.invoke("run-w3c", {
+          body: { audit_id: data.id, website_url: normalizedUrl },
+        }).catch(() => {});
+      }
     }
 
     navigate(`/${data.id}`);
@@ -222,9 +230,22 @@ const CreateAudit = () => {
               <section className="space-y-4">
                 <h3 className="text-lg font-semibold text-foreground">Audit Scores</h3>
                 <div className="grid gap-4 sm:grid-cols-2">
-                  <Field label="W3C Issue Count" name="w3c_issue_count" type="number" value={form.w3c_issue_count} onChange={set("w3c_issue_count")} />
-                  <Field label="W3C Audit URL" name="w3c_audit_url" placeholder="https://..." value={form.w3c_audit_url} onChange={set("w3c_audit_url")} />
-                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score, Accessibility Score, and Design Score are set automatically.</p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="w3c_issue_count">W3C Issue Count (optional)</Label>
+                    <Input id="w3c_issue_count" type="number" value={form.w3c_issue_count} onChange={set("w3c_issue_count")} placeholder="Auto-fetched if left blank" />
+                    <p className="text-xs text-muted-foreground">Will auto-fetch after creation if left blank.</p>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label>W3C Validator</Label>
+                    {form.website_url ? (
+                      <a href={`https://validator.w3.org/nu/?doc=${encodeURIComponent(form.w3c_audit_url || form.website_url)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-primary underline">
+                        Open W3C Validator →
+                      </a>
+                    ) : (
+                      <p className="text-xs text-muted-foreground">Enter a website URL first.</p>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score, Accessibility Score, W3C count, and Design Score are set automatically.</p>
                 </div>
               </section>
 
