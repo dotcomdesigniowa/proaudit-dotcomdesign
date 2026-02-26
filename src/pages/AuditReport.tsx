@@ -390,7 +390,7 @@ const AuditReport = () => {
       if (i >= text.length) clearInterval(interval);
     }, 50);
     return () => clearInterval(interval);
-  }, [audit]);
+  }, [audit, loading]);
 
   // Overall grade matrix
   const psiPendingEarly = !audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success';
