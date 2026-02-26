@@ -196,8 +196,9 @@ const CreateAudit = () => {
                         <SelectValue placeholder="Select provider" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="Hibu (Duda)">Hibu (Duda)</SelectItem>
-                        <SelectItem value="Thryv (Duda)">Thryv (Duda)</SelectItem>
+                        <SelectItem value="Hibu">Hibu</SelectItem>
+                        <SelectItem value="Thryv">Thryv</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
