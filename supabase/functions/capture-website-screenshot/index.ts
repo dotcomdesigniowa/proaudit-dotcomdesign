@@ -10,6 +10,22 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+  const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+  const logError = async (action: string, message: string, metadata?: Record<string, unknown>) => {
+    try {
+      await supabase.from("error_logs").insert({
+        severity: "error",
+        page: "edge-function",
+        action,
+        message,
+        metadata: metadata ?? null,
+      });
+    } catch (_) { /* fire-and-forget */ }
+  };
+
   try {
     const { audit_id } = await req.json();
 
@@ -22,17 +38,14 @@ Deno.serve(async (req) => {
 
     const SCREENSHOTONE_API_KEY = Deno.env.get('SCREENSHOTONE_API_KEY');
     if (!SCREENSHOTONE_API_KEY) {
+      const err = 'SCREENSHOTONE_API_KEY is not configured';
+      await logError("capture-website-screenshot", err, { audit_id });
       return new Response(
-        JSON.stringify({ success: false, error: 'SCREENSHOTONE_API_KEY is not configured' }),
+        JSON.stringify({ success: false, error: err }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    // Load audit
     const { data: audit, error: auditError } = await supabase
       .from('audit')
       .select('website_url')
@@ -40,14 +53,15 @@ Deno.serve(async (req) => {
       .single();
 
     if (auditError || !audit) {
+      const err = 'Audit not found';
+      await logError("capture-website-screenshot", err, { audit_id, dbError: auditError?.message });
       return new Response(
-        JSON.stringify({ success: false, error: 'Audit not found' }),
+        JSON.stringify({ success: false, error: err }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     if (!audit.website_url) {
-      // No website URL, clear screenshot
       await supabase
         .from('audit')
         .update({ website_screenshot_url: null, website_screenshot_updated_at: new Date().toISOString() })
@@ -59,7 +73,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Build ScreenshotOne URL
     let targetUrl = audit.website_url.trim();
     if (!targetUrl.startsWith('http://') && !targetUrl.startsWith('https://')) {
       targetUrl = `https://${targetUrl}`;
@@ -85,7 +98,6 @@ Deno.serve(async (req) => {
 
     const screenshotUrl = `https://api.screenshotone.com/take?${params.toString()}`;
 
-    // Store the URL (not downloading the image)
     const { error: updateError } = await supabase
       .from('audit')
       .update({
@@ -96,6 +108,7 @@ Deno.serve(async (req) => {
 
     if (updateError) {
       console.error('Update error:', updateError);
+      await logError("capture-website-screenshot", `DB update failed: ${updateError.message}`, { audit_id });
       return new Response(
         JSON.stringify({ success: false, error: 'Failed to update audit' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -103,13 +116,13 @@ Deno.serve(async (req) => {
     }
 
     console.log('Screenshot URL generated for audit:', audit_id);
-
     return new Response(
       JSON.stringify({ success: true, website_screenshot_url: screenshotUrl }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error capturing screenshot:', error);
+    await logError("capture-website-screenshot", `Unexpected: ${error instanceof Error ? error.message : String(error)}`);
     return new Response(
       JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
