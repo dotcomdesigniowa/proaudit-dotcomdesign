@@ -5,6 +5,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import ComputerScreenshot from "@/components/ComputerScreenshot";
 import InfoTip from "@/components/InfoTip";
 import "./AuditReport.css";
+import { formatPhone } from "@/lib/formatPhone";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
 
@@ -90,7 +91,7 @@ const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: str
       <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
         <span className="repVal" style={{ fontSize: 15 }}>{audit.prepared_by_name || "—"}</span>
         <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_email || "—"}</span>
-        <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_phone || "—"}</span>
+        <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_phone ? formatPhone(audit.prepared_by_phone) : "—"}</span>
       </div>
     </div>
   </InfoTip>
@@ -390,7 +391,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               <div className="scannedBusinessInfo">
                 <div className="scanField"><span className="scanLabel">Business Name</span><span className="scanValue">{audit.company_name ?? "—"}</span></div>
                 <div className="scanField"><span className="scanLabel">City, State</span><span className="scanValue">{`${audit.location_city ?? "—"}, ${audit.location_state ?? "—"}`}</span></div>
-                <div className="scanField"><span className="scanLabel">Phone Number</span><span className="scanValue">{audit.business_phone ?? "—"}</span></div>
+                <div className="scanField"><span className="scanLabel">Phone Number</span><span className="scanValue">{audit.business_phone ? formatPhone(audit.business_phone) : "—"}</span></div>
                 <div className="scanField"><span className="scanLabel">Website Address</span><span className="scanValue">{audit.website_url ? audit.website_url.replace(/^https?:\/\//, "").replace(/\/$/, "") : "—"}</span></div>
               </div>
             </div>
