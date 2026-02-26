@@ -574,7 +574,7 @@
   90% { transform: scale(1.02); }
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE — TABLET */
 @media (max-width: 1020px) {
   .audit-page .gradeMetaRow { grid-template-columns: 1fr; }
   .audit-page .metricRow { grid-template-columns: 1fr; }
@@ -587,10 +587,120 @@
   .audit-page .gradeLetter { font-size: 132px; }
   .audit-page .metricNumWrap { text-align: left; }
   .audit-page .metricTopLabel, .audit-page .metricSuffix { text-align: left; }
-  
 }
+
 @media (max-width: 980px) {
   .audit-page .ctaText { white-space: normal; }
+}
+
+/* RESPONSIVE — MOBILE */
+@media (max-width: 640px) {
+  .audit-page .wrap { padding: 0 16px; }
+  .audit-page section { padding: 36px 0; }
+
+  /* Hero */
+  .audit-page .hero { padding: 32px 0 28px; }
+  .audit-page .heroTop {
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .audit-page .heroTitle { font-size: 18px; }
+  .audit-page .heroTitleSub {
+    white-space: normal;
+    font-size: 18px;
+  }
+  .audit-page .heroHeading { font-size: 14px; }
+  .audit-page .heroBadges {
+    justify-content: flex-start;
+    gap: 6px;
+  }
+  .audit-page .heroBadge {
+    font-size: 12px;
+    padding: 7px 10px;
+  }
+
+  /* Grade + Meta */
+  .audit-page .gradeLetter { font-size: 88px; }
+  .audit-page .gradeGlow { inset: -20px; }
+  .audit-page .scoreLabel { font-size: 11px; margin-bottom: 6px; }
+  .audit-page .metaCard { font-size: 14px; }
+  .audit-page .metaInner { padding: 16px 14px; }
+  .audit-page .metaRow { flex-direction: column; gap: 14px; }
+  .audit-page .metaGrid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .audit-page .metaLabel { font-size: 11px; margin-bottom: 2px; }
+  .audit-page .logoBox {
+    width: 100%;
+    height: 80px;
+    font-size: 24px;
+    border-radius: 14px;
+  }
+
+  /* Metrics */
+  .audit-page .metricNum { font-size: 44px; }
+  .audit-page .metricLabel { font-size: 14px; }
+  .audit-page .metricRow { gap: 12px; padding: 20px 0; }
+  .audit-page .gradeBox {
+    min-height: 80px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+  .audit-page .gradeBox .letter { font-size: 48px; }
+  .audit-page .gradeBox .bgGlow { inset: -24px; }
+
+  /* Pill buttons */
+  .audit-page .pillBtn { font-size: 13px; padding: 9px 13px; }
+
+  /* Alert lines */
+  .audit-page .alertLine { font-size: 13px; }
+
+  /* Overview / Under the Hood */
+  .audit-page .overviewGrid { gap: 24px; }
+  .audit-page .story { font-size: 14px; }
+
+  /* Presence */
+  .audit-page .presenceGrid { gap: 24px; }
+  .audit-page .presenceImgCol { padding-top: 0; }
+  .audit-page .scannedBusinessInfo { gap: 4px; }
+  .audit-page .scanField { padding: 5px 10px !important; }
+  .audit-page .scanLabel { font-size: 11px !important; }
+  .audit-page .scanValue { font-size: 13px !important; }
+
+  /* Share & Engagement panels */
+  .audit-page .shareEngagementRow { gap: 12px; margin: 16px 0 6px; }
+  .audit-page .sharePanel,
+  .audit-page .engagementPanel { padding: 12px 14px; border-radius: 12px; }
+  .audit-page .panelHeader { font-size: 11px; margin-bottom: 8px; }
+  .audit-page .shareLinkInput { font-size: 11px; padding: 5px 8px; }
+
+  /* CTA */
+  .audit-page .cta { padding: 42px 0; }
+  .audit-page .ctaBox { padding: 20px 16px; border-radius: 16px; }
+  .audit-page .ctaTitle { font-size: 18px; }
+  .audit-page .ctaText { font-size: 14px; }
+  .audit-page .btn { font-size: 13px; padding: 10px 16px; }
+
+  /* Section titles */
+  .audit-page .sectionTitle { font-size: 16px; }
+  .audit-page .subtle { font-size: 13px; margin-bottom: 16px; }
+
+  /* X-list */
+  .audit-page .xList li { font-size: 13px; }
+}
+
+/* RESPONSIVE — VERY SMALL */
+@media (max-width: 400px) {
+  .audit-page .wrap { padding: 0 12px; }
+  .audit-page .gradeLetter { font-size: 68px; }
+  .audit-page .metricNum { font-size: 36px; }
+  .audit-page .gradeBox .letter { font-size: 40px; }
+  .audit-page .heroTitleSub { font-size: 16px; }
+  .audit-page .heroHeading { font-size: 12px; }
+  .audit-page .metaGrid { gap: 8px; }
+  .audit-page .logoBox { height: 64px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
