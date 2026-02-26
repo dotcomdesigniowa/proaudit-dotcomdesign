@@ -698,9 +698,7 @@ const AuditReport = () => {
               <div>
                 <div className="metricLabel">Design &amp; Visual Score</div>
                 <p className="metricText">
-                  Your website design shapes first impressions instantly. When it feels generic or outdated,
-                  it lowers perceived quality and weakens trust. And when trust is weak, visitors hesitate —
-                  reducing engagement and conversions.
+                  Your website sets the first impression of your company. If it looks outdated, generic, or low quality, people assume your work is too. When trust drops, revenue follows.
                 </p>
                 <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Key Findings ↓</button>
                 <ul className="xList" ref={summaryListRef}>
