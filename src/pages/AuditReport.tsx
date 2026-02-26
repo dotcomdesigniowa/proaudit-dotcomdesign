@@ -510,7 +510,7 @@ const AuditReport = () => {
           <SectionHeading text="OVERALL SCORE BREAKDOWN" />
           <p className="subtle">
             These metrics represent objective scores and signals that directly influence visibility, trust, reach and more.
-            Scores were generated using neutral, reputable auditing platforms like W3C, Google PageSpeed Insights &amp; Accessibility Checker.
+            Scores were generated using neutral, reputable auditing platforms like <a href="https://www.w3.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>W3C</a>, <a href="https://pagespeed.web.dev/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>Google PageSpeed Insights</a> &amp; <a href="https://wave.webaim.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>WebAIM</a>.
           </p>
 
           <div className="metrics">
