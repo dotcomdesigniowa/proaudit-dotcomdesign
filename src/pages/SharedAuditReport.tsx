@@ -287,7 +287,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   your ability to show up online declines with it.
                 </p>
                 {(audit.w3c_issue_count != null && audit.w3c_issue_count < 50) ? (
-                  <div className="alertLine">
+                  <div className="alertLine success">
                     🎉 Congratulations! Your website is extremely well coded!
                   </div>
                 ) : (
@@ -336,7 +336,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 </p>
                 {(audit.accessibility_score != null && audit.accessibility_score >= 9) ? (
                   <>
-                    <div className="alertLine">
+                    <div className="alertLine success">
                       🎉 Congratulations! Your website meets modern accessibility standards.
                     </div>
                     <p style={{ fontSize: "0.75rem", fontStyle: "italic", opacity: 0.7, marginTop: 6 }}>
