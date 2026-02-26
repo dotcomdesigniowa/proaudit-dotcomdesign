@@ -1,5 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,7 +9,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { User, LogOut, ChevronDown, Settings } from "lucide-react";
+import { LogOut, ChevronDown, Settings } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useAdmin } from "@/hooks/useAdmin";
 
@@ -21,6 +23,19 @@ const AppLayout = ({ children, navActions }: AppLayoutProps) => {
   const { isAdmin } = useAdmin();
   const navigate = useNavigate();
   const location = useLocation();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+      });
+  }, [user]);
 
   const handleLogout = async () => {
     await signOut();
@@ -79,7 +94,13 @@ const AppLayout = ({ children, navActions }: AppLayoutProps) => {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="sm" className="gap-2">
-                    <User className="h-4 w-4" />
+                    {avatarUrl ? (
+                      <img src={avatarUrl} alt="" className="h-6 w-6 rounded-full object-cover" />
+                    ) : (
+                      <span className="flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-semibold text-muted-foreground">
+                        {user.email?.[0]?.toUpperCase() || "?"}
+                      </span>
+                    )}
                     <span className="hidden sm:inline">{user.email}</span>
                     <ChevronDown className="h-3 w-3 text-muted-foreground" />
                   </Button>
