@@ -20,30 +20,36 @@ function countIssues(messages: Array<{ type?: string; subType?: string }>): numb
   return count;
 }
 
-/** Attempt 1: Direct URL check via W3C Nu validator */
-async function attempt1(websiteUrl: string): Promise<number> {
-  const url = `https://validator.w3.org/nu/?doc=${encodeURIComponent(websiteUrl)}&out=json`;
+const BROWSER_HEADERS = {
+  "User-Agent": USER_AGENT,
+  Accept: "application/json, text/html, */*",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Accept-Encoding": "gzip, deflate, br",
+  "Cache-Control": "no-cache",
+  Pragma: "no-cache",
+};
+
+/** Attempt with a given validator base URL (direct doc= check) */
+async function attemptDirect(validatorBase: string, websiteUrl: string): Promise<number> {
+  const url = `${validatorBase}?doc=${encodeURIComponent(websiteUrl)}&out=json`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
     const res = await fetch(url, {
-      headers: {
-        "User-Agent": USER_AGENT,
-        Accept: "application/json",
-      },
+      headers: BROWSER_HEADERS,
       signal: controller.signal,
     });
     clearTimeout(timer);
 
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(`W3C API returned ${res.status}: ${body.slice(0, 200)}`);
+      throw new Error(`Validator returned ${res.status}: ${body.slice(0, 200)}`);
     }
 
     const data = await res.json();
     if (!data.messages || !Array.isArray(data.messages)) {
-      throw new Error("Unexpected W3C response format");
+      throw new Error("Unexpected validator response format");
     }
 
     return countIssues(data.messages);
@@ -53,9 +59,8 @@ async function attempt1(websiteUrl: string): Promise<number> {
   }
 }
 
-/** Attempt 2: Fetch HTML server-side, POST to W3C validator */
-async function attempt2(websiteUrl: string): Promise<number> {
-  // Step 1: Fetch the HTML
+/** Attempt POST: Fetch HTML server-side, POST to a validator */
+async function attemptPost(validatorBase: string, websiteUrl: string): Promise<number> {
   const controller1 = new AbortController();
   const timer1 = setTimeout(() => controller1.abort(), TIMEOUT_MS);
   let html: string;
@@ -73,16 +78,15 @@ async function attempt2(websiteUrl: string): Promise<number> {
     throw new Error(`Failed to fetch website HTML: ${e}`);
   }
 
-  // Step 2: POST HTML to W3C validator
   const controller2 = new AbortController();
   const timer2 = setTimeout(() => controller2.abort(), TIMEOUT_MS);
 
   try {
-    const res = await fetch("https://validator.w3.org/nu/?out=json", {
+    const res = await fetch(`${validatorBase}?out=json`, {
       method: "POST",
       headers: {
         "Content-Type": "text/html; charset=utf-8",
-        "User-Agent": USER_AGENT,
+        ...BROWSER_HEADERS,
       },
       body: html,
       signal: controller2.signal,
@@ -91,12 +95,12 @@ async function attempt2(websiteUrl: string): Promise<number> {
 
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(`W3C POST returned ${res.status}: ${body.slice(0, 200)}`);
+      throw new Error(`Validator POST returned ${res.status}: ${body.slice(0, 200)}`);
     }
 
     const data = await res.json();
     if (!data.messages || !Array.isArray(data.messages)) {
-      throw new Error("Unexpected W3C POST response format");
+      throw new Error("Unexpected validator POST response format");
     }
 
     return countIssues(data.messages);
@@ -131,36 +135,51 @@ Deno.serve(async (req) => {
       .update({ w3c_status: "fetching", w3c_last_error: null })
       .eq("id", audit_id);
 
-    let issueCount: number;
-    let errorMsg: string | null = null;
+    let issueCount: number | undefined;
+    const errors: string[] = [];
 
-    // Attempt 1: Direct URL check
-    try {
-      issueCount = await attempt1(website_url);
-    } catch (e1) {
-      console.log(`[W3C] Attempt 1 failed for ${website_url}: ${e1}`);
+    const VALIDATORS = [
+      "https://validator.w3.org/nu/",
+      "https://html5.validator.nu/",
+    ];
 
-      // Attempt 2: Fetch HTML + POST
+    // Try direct doc= check on each validator
+    for (const base of VALIDATORS) {
+      if (issueCount !== undefined) break;
       try {
-        issueCount = await attempt2(website_url);
-      } catch (e2) {
-        console.log(`[W3C] Attempt 2 failed for ${website_url}: ${e2}`);
-        errorMsg = `Attempt 1: ${String(e1).slice(0, 120)}. Attempt 2: ${String(e2).slice(0, 120)}`;
-
-        // Update as error
-        await supabase
-          .from("audit")
-          .update({
-            w3c_status: "error",
-            w3c_last_error: errorMsg,
-          })
-          .eq("id", audit_id);
-
-        return new Response(
-          JSON.stringify({ success: false, error: errorMsg }),
-          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        issueCount = await attemptDirect(base, website_url);
+        console.log(`[W3C] Direct success via ${base}`);
+      } catch (e) {
+        const msg = `Direct ${base}: ${String(e).slice(0, 100)}`;
+        console.log(`[W3C] ${msg}`);
+        errors.push(msg);
       }
+    }
+
+    // Try POST with fetched HTML on each validator
+    for (const base of VALIDATORS) {
+      if (issueCount !== undefined) break;
+      try {
+        issueCount = await attemptPost(base, website_url);
+        console.log(`[W3C] POST success via ${base}`);
+      } catch (e) {
+        const msg = `POST ${base}: ${String(e).slice(0, 100)}`;
+        console.log(`[W3C] ${msg}`);
+        errors.push(msg);
+      }
+    }
+
+    if (issueCount === undefined) {
+      const errorMsg = errors.join(" | ").slice(0, 500);
+      await supabase
+        .from("audit")
+        .update({ w3c_status: "error", w3c_last_error: errorMsg })
+        .eq("id", audit_id);
+
+      return new Response(
+        JSON.stringify({ success: false, error: errorMsg }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     // Success: update audit
