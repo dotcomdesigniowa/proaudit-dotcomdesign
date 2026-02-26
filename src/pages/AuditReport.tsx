@@ -577,21 +577,23 @@ const AuditReport = () => {
                     {(audit as any).w3c_last_error}
                   </p>
                 )}
-                {(audit.w3c_issue_count != null && audit.w3c_issue_count < 50) ? (
-                  <div className="alertLine success">
-                    🎉 Congratulations! Your website is extremely well coded!
-                  </div>
-                ) : (
-                  <div className="alertLine">
-                    🚩 Websites full of errors and warnings pay{" "}
-                    <InfoTip label="The Bad Website Tax">
-                      When a website isn't properly constructed, it drags down everything connected to it.
-                      Small businesses end up spending 30–50% more just to get the same results. You pay more
-                      to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
-                      should. That's the tax — higher costs, lower performance, constant uphill battle. Every
-                      dollar has to work harder just to overcome what's broken underneath.
-                    </InfoTip>
-                  </div>
+                {audit.w3c_issue_count != null && (
+                  (audit.w3c_issue_count < 50) ? (
+                    <div className="alertLine success">
+                      🎉 Congratulations! Your website is extremely well coded!
+                    </div>
+                  ) : (
+                    <div className="alertLine">
+                      🚩 Websites full of errors and warnings pay{" "}
+                      <InfoTip label="The Bad Website Tax">
+                        When a website isn't properly constructed, it drags down everything connected to it.
+                        Small businesses end up spending 30–50% more just to get the same results. You pay more
+                        to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
+                        should. That's the tax — higher costs, lower performance, constant uphill battle. Every
+                        dollar has to work harder just to overcome what's broken underneath.
+                      </InfoTip>
+                    </div>
+                  )
                 )}
                 {audit.w3c_audit_url && (
                   <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
