@@ -374,6 +374,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
       recalculate_all_audits: { Args: { since_days?: number }; Returns: number }
       record_share_view: {
         Args: {

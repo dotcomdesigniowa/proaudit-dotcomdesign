@@ -18,6 +18,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import SharedAuditReport from "./pages/SharedAuditReport";
 import ErrorLogs from "./pages/ErrorLogs";
+import TeamManagement from "./pages/TeamManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +72,14 @@ const App = () => (
               element={
                 <AdminRoute>
                   <AppLayout><ErrorLogs /></AppLayout>
+                </AdminRoute>
+              }
+            />
+            <Route
+              path="/team"
+              element={
+                <AdminRoute>
+                  <AppLayout><TeamManagement /></AppLayout>
                 </AdminRoute>
               }
             />

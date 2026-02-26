@@ -96,6 +96,16 @@ const AppLayout = ({ children, navActions }: AppLayoutProps) => {
                   >
                     Error Logs
                   </Link>
+                  <Link
+                    to="/team"
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                      isActive("/team")
+                        ? "bg-muted text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    Team
+                  </Link>
                 </>
               )}
             </nav>
