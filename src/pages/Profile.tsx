@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/hooks/use-toast";
 import { Camera } from "lucide-react";
+import { formatPhone } from "@/lib/formatPhone";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -155,7 +156,7 @@ const Profile = () => {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="555-123-4567" />
+              <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => setPhone(formatPhone(phone))} placeholder="(555) 123-4567" />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="scheduler_url">My Scheduling Link</Label>

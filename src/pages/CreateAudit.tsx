@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+import { formatPhone } from "@/lib/formatPhone";
 
 interface FieldProps {
   label: string;
@@ -187,7 +188,7 @@ const CreateAudit = () => {
                   <Field label="Website URL" name="website_url" placeholder="centralroof.com" value={form.website_url} onChange={set("website_url")} onBlur={() => setForm(f => ({ ...f, website_url: normalizeUrl(f.website_url) }))} />
                   <Field label="City" name="location_city" value={form.location_city} onChange={set("location_city")} />
                   <Field label="State" name="location_state" value={form.location_state} onChange={set("location_state")} />
-                  <Field label="Business Phone Number" name="business_phone" placeholder="(313) 555-1234" value={form.business_phone} onChange={set("business_phone")} />
+                  <Field label="Business Phone Number" name="business_phone" placeholder="(313) 555-1234" value={form.business_phone} onChange={set("business_phone")} onBlur={() => setForm(f => ({ ...f, business_phone: formatPhone(f.business_phone) }))} />
                   <div className="space-y-1.5">
                     <Label htmlFor="provider">Provider</Label>
                     <Select value={form.provider} onValueChange={(val) => setForm((f) => ({ ...f, provider: val }))}>
