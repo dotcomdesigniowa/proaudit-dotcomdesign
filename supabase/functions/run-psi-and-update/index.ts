@@ -51,20 +51,32 @@ Deno.serve(async (req) => {
     psiUrl.searchParams.set("category", "performance");
     psiUrl.searchParams.set("key", apiKey);
 
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25000);
+    const fetchPsi = async (attempt: number): Promise<Response> => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 55000);
+      try {
+        const res = await fetch(psiUrl.toString(), { signal: controller.signal });
+        clearTimeout(timeout);
+        return res;
+      } catch (err) {
+        clearTimeout(timeout);
+        if (attempt < 2) {
+          console.log(`PSI attempt ${attempt} failed, retrying...`);
+          return fetchPsi(attempt + 1);
+        }
+        throw err;
+      }
+    };
 
     let response: Response;
     try {
-      response = await fetch(psiUrl.toString(), { signal: controller.signal });
+      response = await fetchPsi(1);
     } catch (err) {
-      clearTimeout(timeout);
       const errMsg = `PSI fetch failed: ${err.message}`;
       console.error(errMsg);
       await supabase.from("audit").update({ psi_status: "error", psi_last_error: errMsg }).eq("id", audit_id);
       return new Response(JSON.stringify({ success: false, error: errMsg }), { status: 504, headers: jsonHeaders });
     }
-    clearTimeout(timeout);
 
     if (!response.ok) {
       const body = await response.text();
