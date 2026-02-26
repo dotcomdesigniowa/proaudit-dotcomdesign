@@ -279,16 +279,16 @@
   text-underline-offset: 3px;
 }
 
-/* Backdrop overlay */
-.audit-page .tipBackdrop {
+/* Backdrop overlay - portaled to body, no .audit-page prefix */
+.tipBackdrop {
   position: fixed;
   inset: 0;
   z-index: 99998;
   background: rgba(0,0,0,.45);
 }
 
-/* Tooltip content box */
-.audit-page .tipModal {
+/* Tooltip content box - portaled to body */
+.tipModal {
   position: fixed;
   left: 50%;
   top: 50%;
@@ -300,7 +300,7 @@
   border-radius: 16px;
   box-shadow: 0 22px 60px rgba(0,0,0,.5);
   z-index: 99999;
-  font-size: var(--base);
+  font-size: 15px;
   line-height: 1.55;
   background: #0b0c10;
   color: rgba(233,236,241,.96);
