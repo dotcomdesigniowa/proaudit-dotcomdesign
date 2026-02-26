@@ -318,8 +318,8 @@ const AuditReport = () => {
         .eq("audit_id", auditId)
         .eq("is_active", true)
         .limit(1);
-      if (shareData?.[0]) setShareToken(shareData[0].share_token);
-      if (shareData?.[0]) setShareToken(shareData[0].share_token);
+      if (shareData?.[0]?.slug) setShareToken(shareData[0].slug);
+      else if (shareData?.[0]) setShareToken(shareData[0].share_token);
       setLoading(false);
     })();
   }, [auditId, authLoading]);
@@ -404,7 +404,7 @@ const AuditReport = () => {
       size="sm"
       className="gap-1.5"
       onClick={() => {
-        navigator.clipboard.writeText(`${window.location.origin}/shared/audit/${shareToken}`);
+        navigator.clipboard.writeText(`${window.location.origin}/audit/${shareToken}`);
         toast.success("Share link copied");
       }}
     >

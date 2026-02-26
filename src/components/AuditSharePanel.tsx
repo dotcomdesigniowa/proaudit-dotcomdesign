@@ -15,6 +15,7 @@ import {
 interface ShareData {
   id: string;
   share_token: string;
+  slug: string | null;
   is_active: boolean;
   view_count: number;
   first_viewed_at: string | null;
@@ -57,14 +58,14 @@ export default function AuditSharePanel({ auditId }: { auditId: string }) {
   const [views, setViews] = useState<ViewEvent[]>([]);
 
   const shareUrl = share
-    ? `${window.location.origin}/shared/audit/${share.share_token}`
+    ? `${window.location.origin}/audit/${share.slug || share.share_token}`
     : "";
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from("audit_shares")
-      .select("id, share_token, is_active, view_count, first_viewed_at, last_viewed_at, created_at")
+      .select("id, share_token, slug, is_active, view_count, first_viewed_at, last_viewed_at, created_at")
       .eq("audit_id", auditId)
       .eq("is_active", true)
       .limit(1)
@@ -81,7 +82,7 @@ export default function AuditSharePanel({ auditId }: { auditId: string }) {
     const { data, error } = await supabase
       .from("audit_shares")
       .insert({ audit_id: auditId, share_token: token, created_by: user.id })
-      .select("id, share_token, is_active, view_count, first_viewed_at, last_viewed_at, created_at")
+      .select("id, share_token, slug, is_active, view_count, first_viewed_at, last_viewed_at, created_at")
       .single();
     if (error) {
       toast.error("Failed to generate link");
