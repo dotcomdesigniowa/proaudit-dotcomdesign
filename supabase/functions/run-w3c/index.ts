@@ -11,13 +11,17 @@ const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 /** Count errors + warnings from W3C Nu validator JSON output */
-function countIssues(messages: Array<{ type?: string; subType?: string }>): number {
-  let count = 0;
+function countIssues(messages: Array<{ type?: string; subType?: string }>): { total: number; errors: number; warnings: number; info: number } {
+  let errors = 0;
+  let warnings = 0;
+  let info = 0;
   for (const m of messages) {
-    if (m.type === "error") count++;
-    else if (m.type === "info" && m.subType === "warning") count++;
+    if (m.type === "error") errors++;
+    else if (m.type === "info" && m.subType === "warning") warnings++;
+    else if (m.type === "info") info++;
   }
-  return count;
+  console.log(`[W3C] Breakdown: ${errors} errors, ${warnings} warnings, ${info} info (total counted: ${errors + warnings})`);
+  return { total: errors + warnings, errors, warnings, info };
 }
 
 const BROWSER_HEADERS = {
@@ -30,7 +34,7 @@ const BROWSER_HEADERS = {
 };
 
 /** Attempt with a given validator base URL (direct doc= check) */
-async function attemptDirect(validatorBase: string, websiteUrl: string): Promise<number> {
+async function attemptDirect(validatorBase: string, websiteUrl: string): Promise<{ total: number; errors: number; warnings: number; info: number }> {
   const url = `${validatorBase}?doc=${encodeURIComponent(websiteUrl)}&out=json`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -60,7 +64,7 @@ async function attemptDirect(validatorBase: string, websiteUrl: string): Promise
 }
 
 /** Attempt POST: Fetch HTML server-side, POST to a validator */
-async function attemptPost(validatorBase: string, websiteUrl: string): Promise<number> {
+async function attemptPost(validatorBase: string, websiteUrl: string): Promise<{ total: number; errors: number; warnings: number; info: number }> {
   const controller1 = new AbortController();
   const timer1 = setTimeout(() => controller1.abort(), TIMEOUT_MS);
   let html: string;
@@ -135,7 +139,7 @@ Deno.serve(async (req) => {
       .update({ w3c_status: "fetching", w3c_last_error: null })
       .eq("id", audit_id);
 
-    let issueCount: number | undefined;
+    let result: { total: number; errors: number; warnings: number; info: number } | undefined;
     const errors: string[] = [];
 
     const VALIDATORS = [
@@ -145,9 +149,9 @@ Deno.serve(async (req) => {
 
     // Try direct doc= check on each validator
     for (const base of VALIDATORS) {
-      if (issueCount !== undefined) break;
+      if (result !== undefined) break;
       try {
-        issueCount = await attemptDirect(base, website_url);
+        result = await attemptDirect(base, website_url);
         console.log(`[W3C] Direct success via ${base}`);
       } catch (e) {
         const msg = `Direct ${base}: ${String(e).slice(0, 100)}`;
@@ -158,9 +162,9 @@ Deno.serve(async (req) => {
 
     // Try POST with fetched HTML on each validator
     for (const base of VALIDATORS) {
-      if (issueCount !== undefined) break;
+      if (result !== undefined) break;
       try {
-        issueCount = await attemptPost(base, website_url);
+        result = await attemptPost(base, website_url);
         console.log(`[W3C] POST success via ${base}`);
       } catch (e) {
         const msg = `POST ${base}: ${String(e).slice(0, 100)}`;
@@ -169,7 +173,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (issueCount === undefined) {
+    if (result === undefined) {
       const errorMsg = errors.join(" | ").slice(0, 500);
       await supabase
         .from("audit")
@@ -186,7 +190,7 @@ Deno.serve(async (req) => {
     const { error: updateError } = await supabase
       .from("audit")
       .update({
-        w3c_issue_count: issueCount,
+        w3c_issue_count: result.total,
         w3c_status: "success",
         w3c_last_error: null,
         w3c_fetched_at: new Date().toISOString(),
@@ -200,10 +204,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`[W3C] Success for ${website_url}: ${issueCount} issues`);
+    console.log(`[W3C] Success for ${website_url}: ${result.total} issues (${result.errors} errors, ${result.warnings} warnings, ${result.info} info skipped)`);
 
     return new Response(
-      JSON.stringify({ success: true, issue_count: issueCount }),
+      JSON.stringify({ success: true, issue_count: result.total, errors: result.errors, warnings: result.warnings, info: result.info }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {
