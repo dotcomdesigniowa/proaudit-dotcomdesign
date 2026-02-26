@@ -53,17 +53,17 @@ const prefersReduced = typeof window !== "undefined" && window.matchMedia?.("(pr
 
 
 // Simple count-up animation (no hidden text issues)
-function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, duration = 1200) {
+function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, duration = 1200, decimals = 0) {
   const done = useRef(false);
   useEffect(() => {
     const el = ref.current;
     if (!el || done.current) return;
     done.current = true;
-    if (prefersReduced) { el.textContent = String(target); return; }
+    if (prefersReduced) { el.textContent = target.toFixed(decimals); return; }
     const start = performance.now();
-    const tick = (t: number) => { const p = Math.min((t - start) / duration, 1); el.textContent = String(Math.round(p * target)); if (p < 1) requestAnimationFrame(tick); };
+    const tick = (t: number) => { const p = Math.min((t - start) / duration, 1); el.textContent = (p * target).toFixed(decimals); if (p < 1) requestAnimationFrame(tick); };
     requestAnimationFrame(tick);
-  }, [target, duration]);
+  }, [target, duration, decimals]);
 }
 
 function useMatrixGrade(ref: React.RefObject<HTMLElement | null>, finalChar: string, duration = 900) {
@@ -109,9 +109,9 @@ const MetricGradeBox = ({ grade }: { grade: string }) => {
   );
 };
 
-const MetricNumber = ({ value, suffix }: { value: number; suffix: string }) => {
+const MetricNumber = ({ value, suffix, decimals = 0 }: { value: number; suffix: string; decimals?: number }) => {
   const ref = useRef<HTMLParagraphElement>(null);
-  useCountUp(ref, value);
+  useCountUp(ref, value, 1200, decimals);
   return (
     <div className="metricNumWrap">
       <p className="metricNum" ref={ref}>0</p>
@@ -311,7 +311,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               <MetricGradeBox grade={audit.psi_grade || "F"} />
             </div>
             <div className="metricRow">
-              <MetricNumber value={audit.accessibility_score ?? 0} suffix="percent" />
+              <MetricNumber value={audit.accessibility_score ?? 0} suffix="out of 10" decimals={1} />
               <div>
                 <div className="metricLabel">Accessibility Score</div>
                 <p className="metricText">
