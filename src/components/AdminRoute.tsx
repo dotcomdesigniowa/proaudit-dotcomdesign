@@ -1,15 +1,17 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
+import { useProfileComplete } from "@/hooks/useProfileComplete";
 import { toast } from "@/hooks/use-toast";
 import { useEffect, useRef } from "react";
 
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading } = useAuth();
   const { isAdmin, loading: adminLoading } = useAdmin();
+  const { complete, loading: profileLoading } = useProfileComplete();
   const toasted = useRef(false);
 
-  const loading = authLoading || adminLoading;
+  const loading = authLoading || adminLoading || profileLoading;
 
   useEffect(() => {
     if (!loading && user && !isAdmin && !toasted.current) {
@@ -27,6 +29,7 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) return <Navigate to="/login" replace />;
+  if (!complete) return <Navigate to="/profile-setup" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
 
   return <>{children}</>;
