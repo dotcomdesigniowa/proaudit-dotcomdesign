@@ -596,111 +596,147 @@
 /* RESPONSIVE — MOBILE */
 @media (max-width: 640px) {
   .audit-page .wrap { padding: 0 16px; }
-  .audit-page section { padding: 36px 0; }
+  .audit-page section { padding: 28px 0; }
 
   /* Hero */
-  .audit-page .hero { padding: 32px 0 28px; }
+  .audit-page .hero { padding: 24px 0 22px; }
   .audit-page .heroTop {
     flex-direction: column;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 16px;
   }
-  .audit-page .heroTitle { font-size: 18px; }
+  .audit-page .heroTitle { font-size: 16px; gap: 4px; }
   .audit-page .heroTitleSub {
     white-space: normal;
-    font-size: 18px;
+    font-size: 20px;
+    line-height: 1.15;
   }
-  .audit-page .heroHeading { font-size: 14px; }
+  .audit-page .heroHeading { font-size: 12px; letter-spacing: .08em; }
   .audit-page .heroBadges {
     justify-content: flex-start;
     gap: 6px;
   }
   .audit-page .heroBadge {
-    font-size: 12px;
-    padding: 7px 10px;
+    font-size: 11px;
+    padding: 5px 10px;
   }
 
   /* Grade + Meta */
-  .audit-page .gradeLetter { font-size: 88px; }
-  .audit-page .gradeGlow { inset: -20px; }
-  .audit-page .scoreLabel { font-size: 11px; margin-bottom: 6px; }
-  .audit-page .metaCard { font-size: 14px; }
-  .audit-page .metaInner { padding: 16px 14px; }
-  .audit-page .metaRow { flex-direction: column; gap: 14px; }
+  .audit-page .gradeMetaRow { gap: 14px; }
+  .audit-page .gradeLetter { font-size: 80px; letter-spacing: -2px; }
+  .audit-page .gradeGlow { inset: -16px; filter: blur(10px); }
+  .audit-page .scoreLabel { font-size: 10px; margin-bottom: 4px; letter-spacing: .12em; }
+  .audit-page .metaCard { font-size: 13px; border-radius: 16px; }
+  .audit-page .metaInner { padding: 14px 12px; }
+  .audit-page .metaRow { flex-direction: column; gap: 12px; }
   .audit-page .metaGrid {
-    grid-template-columns: 1fr;
-    gap: 10px;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 12px;
+    font-size: 13px;
   }
-  .audit-page .metaLabel { font-size: 11px; margin-bottom: 2px; }
+  .audit-page .metaLabel { font-size: 9px; margin-bottom: 1px; letter-spacing: .12em; }
   .audit-page .logoBox {
     width: 100%;
-    height: 80px;
-    font-size: 24px;
-    border-radius: 14px;
+    height: 72px;
+    font-size: 22px;
+    border-radius: 12px;
   }
 
-  /* Metrics */
-  .audit-page .metricNum { font-size: 44px; }
-  .audit-page .metricLabel { font-size: 14px; }
-  .audit-page .metricRow { gap: 12px; padding: 20px 0; }
-  .audit-page .gradeBox {
-    min-height: 80px;
-    padding: 14px;
-    border-radius: 14px;
+  /* Metrics — compact layout: number + grade on same row, text below */
+  .audit-page .metricRow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 0;
   }
-  .audit-page .gradeBox .letter { font-size: 48px; }
-  .audit-page .gradeBox .bgGlow { inset: -24px; }
+  /* Number block */
+  .audit-page .metricRow > .metricNumWrap {
+    flex: 0 0 auto;
+    text-align: left;
+  }
+  /* Grade box inline next to number */
+  .audit-page .metricRow > .gradeBox {
+    flex: 0 0 auto;
+    order: 0;
+    min-height: auto;
+    padding: 8px 14px;
+    border-radius: 10px;
+  }
+  /* Text block takes full width below */
+  .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) {
+    flex: 1 1 100%;
+    order: 3;
+  }
+  .audit-page .metricNum { font-size: 38px; letter-spacing: -1px; }
+  .audit-page .metricSuffix { font-size: 10px; margin-top: 2px; }
+  .audit-page .metricLabel { font-size: 14px; margin: 2px 0 4px; }
+  .audit-page .metricText { font-size: 13px; margin-bottom: 8px; line-height: 1.45; }
+  .audit-page .gradeBox .letter { font-size: 36px; }
+  .audit-page .gradeBox .bgGlow { inset: -16px; filter: blur(12px); }
 
   /* Pill buttons */
-  .audit-page .pillBtn { font-size: 13px; padding: 9px 13px; }
+  .audit-page .pillBtn { font-size: 12px; padding: 8px 12px; margin-top: 8px; }
 
   /* Alert lines */
-  .audit-page .alertLine { font-size: 13px; }
+  .audit-page .alertLine { font-size: 12px; gap: 6px; margin-top: 6px; }
 
   /* Overview / Under the Hood */
-  .audit-page .overviewGrid { gap: 24px; }
-  .audit-page .story { font-size: 14px; }
+  .audit-page .overviewGrid { gap: 20px; }
+  .audit-page .story { font-size: 13px; }
+  .audit-page .story p { margin-bottom: 10px; }
+  .audit-page .overview { padding: 24px 0; }
 
   /* Presence */
-  .audit-page .presenceGrid { gap: 24px; }
+  .audit-page .presenceGrid { gap: 20px; }
   .audit-page .presenceImgCol { padding-top: 0; }
-  .audit-page .scannedBusinessInfo { gap: 4px; }
-  .audit-page .scanField { padding: 5px 10px !important; }
-  .audit-page .scanLabel { font-size: 11px !important; }
+  .audit-page .scannedBusinessInfo { gap: 4px; margin-top: 10px; }
+  .audit-page .scanField { padding: 5px 10px !important; border-radius: 6px !important; }
+  .audit-page .scanLabel { font-size: 10px !important; }
   .audit-page .scanValue { font-size: 13px !important; }
 
   /* Share & Engagement panels */
-  .audit-page .shareEngagementRow { gap: 12px; margin: 16px 0 6px; }
+  .audit-page .shareEngagementRow { gap: 10px; margin: 12px 0 4px; }
   .audit-page .sharePanel,
-  .audit-page .engagementPanel { padding: 12px 14px; border-radius: 12px; }
-  .audit-page .panelHeader { font-size: 11px; margin-bottom: 8px; }
-  .audit-page .shareLinkInput { font-size: 11px; padding: 5px 8px; }
+  .audit-page .engagementPanel { padding: 10px 12px; border-radius: 10px; }
+  .audit-page .panelHeader { font-size: 10px; margin-bottom: 6px; gap: 6px; }
+  .audit-page .shareLinkInput { font-size: 10px; padding: 4px 8px; border-radius: 6px; }
+  .audit-page .engStat { font-size: 12px; }
 
   /* CTA */
-  .audit-page .cta { padding: 42px 0; }
-  .audit-page .ctaBox { padding: 20px 16px; border-radius: 16px; }
-  .audit-page .ctaTitle { font-size: 18px; }
-  .audit-page .ctaText { font-size: 14px; }
-  .audit-page .btn { font-size: 13px; padding: 10px 16px; }
+  .audit-page .cta { padding: 32px 0; }
+  .audit-page .ctaBox { padding: 18px 14px; border-radius: 14px; }
+  .audit-page .ctaTitle { font-size: 17px; margin-bottom: 8px; }
+  .audit-page .ctaText { font-size: 13px; margin-bottom: 14px; }
+  .audit-page .ctaAlt { font-size: 13px; margin-top: 10px; }
+  .audit-page .btn { font-size: 12px; padding: 10px 16px; letter-spacing: .04em; }
 
   /* Section titles */
-  .audit-page .sectionTitle { font-size: 16px; }
-  .audit-page .subtle { font-size: 13px; margin-bottom: 16px; }
+  .audit-page .sectionTitle { font-size: 15px; margin-bottom: 8px; letter-spacing: .08em; }
+  .audit-page .subtle { font-size: 12px; margin-bottom: 12px; line-height: 1.5; }
 
   /* X-list */
-  .audit-page .xList li { font-size: 13px; }
+  .audit-page .xList { gap: 8px; margin-top: 10px; }
+  .audit-page .xList li { font-size: 12px; gap: 8px; }
+  .audit-page .xIcon { font-size: 14px; }
 }
 
 /* RESPONSIVE — VERY SMALL */
 @media (max-width: 400px) {
   .audit-page .wrap { padding: 0 12px; }
-  .audit-page .gradeLetter { font-size: 68px; }
-  .audit-page .metricNum { font-size: 36px; }
-  .audit-page .gradeBox .letter { font-size: 40px; }
-  .audit-page .heroTitleSub { font-size: 16px; }
-  .audit-page .heroHeading { font-size: 12px; }
-  .audit-page .metaGrid { gap: 8px; }
-  .audit-page .logoBox { height: 64px; }
+  .audit-page .hero { padding: 20px 0 18px; }
+  .audit-page .gradeLetter { font-size: 64px; }
+  .audit-page .metricNum { font-size: 32px; }
+  .audit-page .gradeBox .letter { font-size: 30px; }
+  .audit-page .heroTitleSub { font-size: 17px; }
+  .audit-page .heroHeading { font-size: 11px; }
+  .audit-page .metaGrid { gap: 6px 10px; font-size: 12px; }
+  .audit-page .logoBox { height: 56px; font-size: 18px; }
+  .audit-page .metricLabel { font-size: 13px; }
+  .audit-page .metricText { font-size: 12px; }
+  .audit-page .story { font-size: 12px; }
+  .audit-page .sectionTitle { font-size: 14px; }
+  .audit-page .ctaTitle { font-size: 15px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
