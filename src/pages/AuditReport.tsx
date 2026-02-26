@@ -72,7 +72,7 @@ const MATRIX = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
 const randChar = () => MATRIX[(Math.random() * MATRIX.length) | 0];
 const prefersReduced = typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, duration = 1200) {
+function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, duration = 1200, decimals = 0) {
   const done = useRef(false);
   useEffect(() => {
     const el = ref.current;
@@ -82,11 +82,11 @@ function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, du
         if (!entries[0]?.isIntersecting || done.current) return;
         done.current = true;
         io.disconnect();
-        if (prefersReduced) { el.textContent = String(target); return; }
+        if (prefersReduced) { el.textContent = target.toFixed(decimals); return; }
         const start = performance.now();
         const tick = (t: number) => {
           const p = Math.min((t - start) / duration, 1);
-          el.textContent = String(Math.round(p * target));
+          el.textContent = (p * target).toFixed(decimals);
           if (p < 1) requestAnimationFrame(tick);
         };
         requestAnimationFrame(tick);
@@ -95,7 +95,7 @@ function useCountUp(ref: React.RefObject<HTMLElement | null>, target: number, du
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [target, duration]);
+  }, [target, duration, decimals]);
 }
 
 function useMatrixGrade(ref: React.RefObject<HTMLElement | null>, finalChar: string, duration = 900) {
@@ -230,9 +230,9 @@ const MetricGradeBox = ({ grade, pending }: { grade: string; pending?: boolean }
   );
 };
 
-const MetricNumber = ({ value, suffix }: { value: number; suffix: string }) => {
+const MetricNumber = ({ value, suffix, decimals = 0 }: { value: number; suffix: string; decimals?: number }) => {
   const ref = useRef<HTMLParagraphElement>(null);
-  useCountUp(ref, value);
+  useCountUp(ref, value, 1200, decimals);
   return (
     <div className="metricNumWrap">
       <p className="metricNum" ref={ref}>0</p>
@@ -620,7 +620,7 @@ const AuditReport = () => {
             {/* Accessibility */}
             <div className="metricRow">
               {(audit as any).wave_status === 'success' && audit.accessibility_score != null ? (
-                <MetricNumber value={audit.accessibility_score} suffix="out of 10" />
+                <MetricNumber value={audit.accessibility_score} suffix="out of 10" decimals={1} />
               ) : (audit as any).wave_status === 'error' ? (
                 <div className="metricNumWrap">
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.7, color: "#ef4444" }}>Failed</p>
@@ -630,7 +630,7 @@ const AuditReport = () => {
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
                 </div>
               ) : audit.accessibility_score != null ? (
-                <MetricNumber value={audit.accessibility_score} suffix="out of 10" />
+                <MetricNumber value={audit.accessibility_score} suffix="out of 10" decimals={1} />
               ) : (
                 <div className="metricNumWrap">
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
