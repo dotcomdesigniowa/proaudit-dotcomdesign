@@ -240,11 +240,16 @@ const CreateAudit = () => {
                   <div className="space-y-1.5">
                     <Label>W3C Validator</Label>
                     {form.website_url ? (
-                      <a href={`https://validator.w3.org/nu/?doc=${encodeURIComponent(form.w3c_audit_url || form.website_url)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-primary underline">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => window.open(`https://validator.w3.org/nu/?doc=${encodeURIComponent(form.w3c_audit_url || form.website_url)}`, '_blank')}
+                      >
                         Open W3C Validator →
-                      </a>
+                      </Button>
                     ) : (
-                      <p className="text-xs text-muted-foreground">Enter a website URL first.</p>
+                      <Input disabled placeholder="Enter a website URL first" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score, Accessibility Score, W3C count, and Design Score are set automatically.</p>
