@@ -223,8 +223,7 @@ const CreateAudit = () => {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <Field label="W3C Issue Count" name="w3c_issue_count" type="number" value={form.w3c_issue_count} onChange={set("w3c_issue_count")} />
                   <Field label="W3C Audit URL" name="w3c_audit_url" placeholder="https://..." value={form.w3c_audit_url} onChange={set("w3c_audit_url")} />
-                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score and Accessibility Score will be fetched automatically after creation.</p>
-                  <Field label="Design Score (0-100)" name="design_score" type="number" value={form.design_score} onChange={set("design_score")} />
+                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score, Accessibility Score, and Design Score are set automatically.</p>
                 </div>
               </section>
 
