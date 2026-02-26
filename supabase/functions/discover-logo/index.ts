@@ -12,12 +12,12 @@ Deno.serve(async (req) => {
 
   const supabase = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
-  const logError = async (action: string, message: string, metadata?: Record<string, unknown>) => {
+  const logError = async (severity: string, message: string, metadata?: Record<string, unknown>) => {
     try {
       await supabase.from("error_logs").insert({
-        severity: "error",
+        severity,
         page: "edge-function",
-        action,
+        action: "discover-logo",
         message,
         metadata: metadata ?? null,
       });
@@ -41,14 +41,30 @@ Deno.serve(async (req) => {
 
     console.log('Fetching homepage:', url);
 
-    const resp = await fetch(url, {
-      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LogoBot/1.0)' },
-      redirect: 'follow',
-    });
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+
+    let resp: Response;
+    try {
+      resp = await fetch(url, {
+        headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LogoBot/1.0)' },
+        redirect: 'follow',
+        signal: controller.signal,
+      });
+      clearTimeout(timer);
+    } catch (e) {
+      clearTimeout(timer);
+      const err = `Failed to fetch homepage: ${(e as Error).message}`;
+      await logError("error", err, { website_url: url });
+      return new Response(
+        JSON.stringify({ success: false, error: err }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!resp.ok) {
       const err = `Failed to fetch: ${resp.status}`;
-      await logError("discover-logo", err, { website_url: url, status: resp.status });
+      await logError("error", err, { website_url: url, status: resp.status });
       return new Response(
         JSON.stringify({ success: false, error: err }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -60,27 +76,60 @@ Deno.serve(async (req) => {
 
     function resolveUrl(src: string): string {
       if (!src) return '';
+      if (src.startsWith('data:')) return '';
       if (src.startsWith('http://') || src.startsWith('https://')) return src;
       if (src.startsWith('//')) return baseUrl.protocol + src;
       if (src.startsWith('/')) return baseUrl.origin + src;
       return baseUrl.origin + '/' + src;
     }
 
-    const imgRegex = /<img\s[^>]*?>/gi;
-    let match: RegExpExecArray | null;
+    function extractSrc(tag: string): string {
+      const srcMatch = tag.match(/src\s*=\s*["']([^"']+)["']/i);
+      return srcMatch?.[1] ? resolveUrl(srcMatch[1]) : '';
+    }
+
     let logoUrl = '';
 
+    // Strategy 1: <img> tag itself contains "logo" in any attribute
+    const imgRegex = /<img\s[^>]*?>/gi;
+    let match: RegExpExecArray | null;
     while ((match = imgRegex.exec(html)) !== null) {
       const tag = match[0].toLowerCase();
       if (tag.includes('logo') && !tag.includes('logo-placeholder') && !tag.includes('data:image')) {
-        const srcMatch = match[0].match(/src\s*=\s*["']([^"']+)["']/i);
-        if (srcMatch?.[1]) {
-          logoUrl = resolveUrl(srcMatch[1]);
-          break;
-        }
+        const src = extractSrc(match[0]);
+        if (src) { logoUrl = src; break; }
       }
     }
 
+    // Strategy 2: <img> inside a parent element with "logo" in class/id
+    // Match patterns like <div class="...logo..."><img src="...">
+    if (!logoUrl) {
+      const parentLogoRegex = /<(?:div|a|span|header|figure)[^>]*?(?:class|id)\s*=\s*["'][^"']*logo[^"']*["'][^>]*>[\s\S]*?<img\s[^>]*?>/gi;
+      while ((match = parentLogoRegex.exec(html)) !== null) {
+        const src = extractSrc(match[0]);
+        if (src) { logoUrl = src; break; }
+      }
+    }
+
+    // Strategy 3: <link rel="icon"> or <link rel="apple-touch-icon">
+    if (!logoUrl) {
+      const iconMatch = html.match(/<link\s[^>]*rel\s*=\s*["']apple-touch-icon["'][^>]*href\s*=\s*["']([^"']+)["']/i)
+        || html.match(/<link\s[^>]*href\s*=\s*["']([^"']+)["'][^>]*rel\s*=\s*["']apple-touch-icon["']/i);
+      if (iconMatch?.[1]) {
+        logoUrl = resolveUrl(iconMatch[1]);
+      }
+    }
+
+    // Strategy 4: <a> with "custom-logo-link" class (WordPress standard)
+    if (!logoUrl) {
+      const wpLogoMatch = html.match(/<a[^>]*class\s*=\s*["'][^"']*custom-logo-link[^"']*["'][^>]*>[\s\S]*?<img\s[^>]*?>/i);
+      if (wpLogoMatch) {
+        const src = extractSrc(wpLogoMatch[0]);
+        if (src) logoUrl = src;
+      }
+    }
+
+    // Strategy 5: og:image fallback
     if (!logoUrl) {
       const ogMatch = html.match(/<meta\s[^>]*property\s*=\s*["']og:image["'][^>]*content\s*=\s*["']([^"']+)["']/i)
         || html.match(/<meta\s[^>]*content\s*=\s*["']([^"']+)["'][^>]*property\s*=\s*["']og:image["']/i);
@@ -91,13 +140,18 @@ Deno.serve(async (req) => {
 
     console.log('Discovered logo:', logoUrl || '(none)');
 
+    // Log a warning when no logo is found so it shows in Error Logs
+    if (!logoUrl) {
+      await logError("warning", `No logo discovered for ${url}`, { website_url: url });
+    }
+
     return new Response(
       JSON.stringify({ success: true, logo_url: logoUrl || null }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {
     console.error('Error discovering logo:', error);
-    await logError("discover-logo", `Unexpected: ${error instanceof Error ? error.message : String(error)}`);
+    await logError("error", `Unexpected: ${error instanceof Error ? error.message : String(error)}`);
     return new Response(
       JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
