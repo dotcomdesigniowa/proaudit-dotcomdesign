@@ -58,7 +58,7 @@ export default function AuditSharePanel({ auditId }: { auditId: string }) {
   const [views, setViews] = useState<ViewEvent[]>([]);
 
   const shareUrl = share
-    ? `${window.location.origin}/audit/${share.slug || share.share_token}`
+    ? `${window.location.origin}/${share.slug || share.share_token}`
     : "";
 
   useEffect(() => {
