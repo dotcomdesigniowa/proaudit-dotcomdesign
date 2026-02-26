@@ -18,12 +18,12 @@ const DEFAULT_UTH_IMAGE = "/images/under-the-hood.png";
 const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
 
 const DESIGN_BULLETS = [
-  "Does not reflect the quality of the actual work you do.",
-  "Looks generic. Feels generic.",
-  "Makes the company look small and below average.",
-  "Weak first impression.",
-  "Current site uses same template as restaurants, daycares, and funeral homes.",
-  "Does not build immediate trust.",
+  "Generic template-based design detected.",
+  "Design closely resembles other mass-produced local business sites.",
+  "Top-of-page section lacks strong trust signals.",
+  "Stock imagery and generic content detected.",
+  "Visual hierarchy and layout do not establish authority or credibility.",
+  "Website presentation does not reflect the quality of the company's actual work.",
 ];
 
 const glowClass = (grade: string | null) => {
@@ -702,7 +702,7 @@ const AuditReport = () => {
                   it lowers perceived quality and weakens trust. And when trust is weak, visitors hesitate —
                   reducing engagement and conversions.
                 </p>
-                <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Summary ↓</button>
+                <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Key Findings ↓</button>
                 <ul className="xList" ref={summaryListRef}>
                   {DESIGN_BULLETS.map((b, i) => (
                     <li key={i} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
