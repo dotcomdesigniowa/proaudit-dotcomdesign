@@ -267,6 +267,9 @@
   font-size: var(--base);
   font-weight: 700;
 }
+.audit-page .alertLine.success {
+  color: var(--gradeA);
+}
 
 /* TOOLTIP - click-to-open modal style */
 .audit-page .tipHost {
