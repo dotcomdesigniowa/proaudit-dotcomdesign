@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
   DialogContent,
@@ -40,6 +41,7 @@ interface AuditRow {
   overall_score: number | null;
   prepared_date: string | null;
   prepared_by_name: string | null;
+  created_by: string | null;
   is_deleted: boolean;
 }
 
@@ -107,6 +109,7 @@ const isWithin24h = (dateStr: string | null) => {
 
 const Index = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [audits, setAudits] = useState<AuditRow[]>([]);
   const [shares, setShares] = useState<Record<string, ShareInfo>>({});
   const [loading, setLoading] = useState(true);
@@ -114,12 +117,13 @@ const Index = () => {
   const [views, setViews] = useState<ViewEvent[]>([]);
   const [filter, setFilter] = useState<FilterMode>("all");
   const [sort, setSort] = useState<SortMode>("newest");
+  const [preparedByFilter, setPreparedByFilter] = useState<string>("mine");
 
   const fetchData = () => {
     Promise.all([
       supabase
         .from("audit")
-        .select("id, company_name, overall_grade, overall_score, prepared_date, prepared_by_name, is_deleted")
+        .select("id, company_name, overall_grade, overall_score, prepared_date, prepared_by_name, created_by, is_deleted")
         .eq("is_deleted", false)
         .order("created_at", { ascending: false }),
       supabase
@@ -140,10 +144,28 @@ const Index = () => {
 
   useEffect(() => { fetchData(); }, []);
 
+  // Build unique list of preparers for the dropdown
+  const preparers = useMemo(() => {
+    const map = new Map<string, string>();
+    audits.forEach((a) => {
+      if (a.created_by && a.prepared_by_name) {
+        map.set(a.created_by, a.prepared_by_name);
+      }
+    });
+    return Array.from(map.entries()).sort((a, b) => a[1].localeCompare(b[1]));
+  }, [audits]);
+
   const filtered = useMemo(() => {
     let list = audits.filter((a) =>
       !search || (a.company_name || "").toLowerCase().includes(search.toLowerCase())
     );
+
+    // Prepared By filter
+    if (preparedByFilter === "mine" && user) {
+      list = list.filter((a) => a.created_by === user.id);
+    } else if (preparedByFilter !== "all") {
+      list = list.filter((a) => a.created_by === preparedByFilter);
+    }
 
     if (filter === "not_opened") {
       list = list.filter((a) => {
@@ -175,7 +197,7 @@ const Index = () => {
     });
 
     return list;
-  }, [audits, shares, search, filter, sort]);
+  }, [audits, shares, search, filter, sort, preparedByFilter, user]);
 
   const copyShareLink = (share: ShareInfo) => {
     const link = share.slug
@@ -244,6 +266,18 @@ const Index = () => {
             <SelectItem value="newest">Newest audits</SelectItem>
             <SelectItem value="most_viewed">Most viewed</SelectItem>
             <SelectItem value="recently_opened">Recently opened</SelectItem>
+          </SelectContent>
+        </Select>
+        <Select value={preparedByFilter} onValueChange={setPreparedByFilter}>
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Prepared by" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="mine">My Audits</SelectItem>
+            <SelectItem value="all">View All</SelectItem>
+            {preparers.filter(([id]) => id !== user?.id).map(([id, name]) => (
+              <SelectItem key={id} value={id}>{name}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
