@@ -8,6 +8,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import { Copy, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import ComputerScreenshot from "@/components/ComputerScreenshot";
+import InfoTip from "@/components/InfoTip";
 import "./AuditReport.css";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
@@ -202,21 +203,18 @@ function useBulletAnimation(listRef: React.RefObject<HTMLUListElement | null>) {
 
 // ── Sub-components ──
 const PreparedByTooltip = ({ audit, avatarUrl }: { audit: Audit; avatarUrl?: string | null }) => (
-  <span className="tipHost tipTopRight">
-    {audit.prepared_by_name || "—"}
-    <span className="tip tooltipBox" style={{ padding: 14, textAlign: "left" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-        {avatarUrl && (
-          <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 70, height: 70, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.15)" }} />
-        )}
-        <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-          <span className="repVal" style={{ fontSize: 15 }}>{audit.prepared_by_name || "—"}</span>
-          <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_email || "—"}</span>
-          <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_phone || "—"}</span>
-        </div>
+  <InfoTip label={audit.prepared_by_name || "—"}>
+    <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+      {avatarUrl && (
+        <img src={avatarUrl} alt={audit.prepared_by_name || "Headshot"} style={{ width: 70, height: 70, borderRadius: "50%", objectFit: "cover", flexShrink: 0, border: "2px solid rgba(255,255,255,.15)" }} />
+      )}
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <span className="repVal" style={{ fontSize: 15 }}>{audit.prepared_by_name || "—"}</span>
+        <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_email || "—"}</span>
+        <span style={{ fontSize: 14, opacity: 0.85 }}>{audit.prepared_by_phone || "—"}</span>
       </div>
-    </span>
-  </span>
+    </div>
+  </InfoTip>
 );
 
 const MetricGradeBox = ({ grade, pending }: { grade: string; pending?: boolean }) => {
@@ -527,16 +525,13 @@ const AuditReport = () => {
                 </p>
                 <div className="alertLine">
                   🚩 Websites full of errors and warnings pay{" "}
-                  <span className="tipHost tipTopRight">
-                    The Bad Website Tax
-                    <span className="tip tooltipBox">
-                      When a website isn't properly constructed, it drags down everything connected to it.
-                      Small businesses end up spending 30–50% more just to get the same results. You pay more
-                      to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
-                      should. That's the tax — higher costs, lower performance, constant uphill battle. Every
-                      dollar has to work harder just to overcome what's broken underneath.
-                    </span>
-                  </span>
+                  <InfoTip label="The Bad Website Tax">
+                    When a website isn't properly constructed, it drags down everything connected to it.
+                    Small businesses end up spending 30–50% more just to get the same results. You pay more
+                    to market it. Rankings are harder to earn. Leads cost more. Growth feels slower than it
+                    should. That's the tax — higher costs, lower performance, constant uphill battle. Every
+                    dollar has to work harder just to overcome what's broken underneath.
+                  </InfoTip>
                 </div>
                 {audit.w3c_audit_url && (
                   <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
@@ -660,14 +655,11 @@ const AuditReport = () => {
                 {(audit.accessibility_score != null && audit.accessibility_score < 9) && (
                   <div className="alertLine">
                     🚩 Website is NOT compliant under{" "}
-                    <span className="tipHost tipTopRight lawTip">
-                      United States Law
-                      <span className="tip tooltipBox">
-                        Every website that operates in the United States must comply with the ADA &amp; Section 508
-                        accessibility legislations, or else is subject to fines and accessibility-related lawsuits.
-                        A high score does not guarantee compliance; manual testing is required.
-                      </span>
-                    </span>
+                    <InfoTip label="United States Law" className="lawTip">
+                      Every website that operates in the United States must comply with the ADA &amp; Section 508
+                      accessibility legislations, or else is subject to fines and accessibility-related lawsuits.
+                      A high score does not guarantee compliance; manual testing is required.
+                    </InfoTip>
                   </div>
                 )}
                 {audit.accessibility_audit_url && (

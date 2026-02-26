@@ -268,57 +268,50 @@
   font-weight: 700;
 }
 
-/* TOOLTIP */
+/* TOOLTIP - click-to-open modal style */
 .audit-page .tipHost {
   position: relative;
   display: inline-block;
-  cursor: help;
+  cursor: pointer;
   font-weight: 900;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
-.audit-page .tipHost .tip {
+
+/* Backdrop overlay */
+.audit-page .tipBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99998;
+  background: rgba(0,0,0,.45);
+}
+
+/* Tooltip content box */
+.audit-page .tipModal {
   position: fixed;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -50%) scale(.96);
+  transform: translate(-50%, -50%);
   width: min(420px, 90vw);
-  min-width: 0;
-  max-width: 90vw;
   max-height: 80vh;
   overflow-y: auto;
-  padding: 20px 22px;
+  padding: 22px 24px;
   border-radius: 16px;
   box-shadow: 0 22px 60px rgba(0,0,0,.5);
-  visibility: hidden;
-  opacity: 0;
-  transition: opacity .18s ease, transform .18s ease, visibility 0s linear .18s;
-  pointer-events: none;
   z-index: 99999;
   font-size: var(--base);
   line-height: 1.55;
+  background: #0b0c10;
+  color: rgba(233,236,241,.96);
+  border: 1px solid rgba(255,255,255,.14);
+  animation: tipFadeIn .18s ease;
 }
-.audit-page .tipHost:hover .tip,
-.audit-page .tipHost:focus-within .tip {
-  visibility: visible;
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
-  transition: opacity .18s ease, transform .18s ease, visibility 0s linear 0s;
-  pointer-events: auto;
+@keyframes tipFadeIn {
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.96); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
-/* Shared fully-opaque tooltip box */
-.audit-page .tooltipBox {
-  background: #0b0c10 !important;
-  background-color: #0b0c10 !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  mix-blend-mode: normal !important;
-  isolation: isolate !important;
-  color: rgba(233,236,241,.96) !important;
-  border: 1px solid rgba(255,255,255,.14) !important;
-}
 .audit-page .lawTip { color: #7f1d1d; text-decoration-color: rgba(127,29,29,.35); font-weight: 950; }
 
 .audit-page .repLine { display: flex; gap: 10px; margin: 6px 0; }
