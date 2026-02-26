@@ -249,6 +249,42 @@ export type Database = {
           },
         ]
       }
+      error_logs: {
+        Row: {
+          action: string | null
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          page: string | null
+          severity: string
+          stack: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          page?: string | null
+          severity?: string
+          stack?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          page?: string | null
+          severity?: string
+          stack?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

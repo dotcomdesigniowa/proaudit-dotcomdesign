@@ -75,16 +75,28 @@ const AppLayout = ({ children, navActions }: AppLayoutProps) => {
                 Create Audit
               </Link>
               {isAdmin && (
-                <Link
-                  to="/scoring"
-                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                    isActive("/scoring")
-                      ? "bg-muted text-foreground"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  Scoring
-                </Link>
+                <>
+                  <Link
+                    to="/scoring"
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                      isActive("/scoring")
+                        ? "bg-muted text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    Scoring
+                  </Link>
+                  <Link
+                    to="/error-logs"
+                    className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                      isActive("/error-logs")
+                        ? "bg-muted text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    }`}
+                  >
+                    Error Logs
+                  </Link>
+                </>
               )}
             </nav>
           </div>

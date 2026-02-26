@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { logError } from "@/lib/errorLogger";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -105,8 +106,8 @@ const CreateAudit = () => {
         if (data?.success && data?.logo_url) {
           discoveredLogo = data.logo_url;
         }
-      } catch {
-        // Best-effort
+      } catch (err: any) {
+        logError({ page: "/create-audit", action: "discover-logo", message: err?.message || "Logo discovery failed", stack: err?.stack });
       }
     }
 
@@ -148,6 +149,7 @@ const CreateAudit = () => {
     setLoading(false);
 
     if (error) {
+      logError({ page: "/create-audit", action: "insert-audit", message: error.message, metadata: { code: error.code } });
       toast({ title: "Error creating audit", description: error.message, variant: "destructive" });
       return;
     }
@@ -155,24 +157,24 @@ const CreateAudit = () => {
     // Fire-and-forget: capture website screenshot
     supabase.functions.invoke("capture-website-screenshot", {
       body: { audit_id: data.id },
-    }).catch(() => {});
+    }).catch((err) => logError({ page: "/create-audit", action: "capture-screenshot", message: err?.message || "Screenshot capture failed" }));
 
     // Fire-and-forget: fetch PSI score automatically
     if (normalizedUrl) {
       supabase.functions.invoke("run-psi-and-update", {
         body: { audit_id: data.id, website_url: normalizedUrl },
-      }).catch(() => {});
+      }).catch((err) => logError({ page: "/create-audit", action: "run-psi", message: err?.message || "PSI fetch failed" }));
 
       // Fire-and-forget: fetch WAVE accessibility score automatically
       supabase.functions.invoke("run-wave", {
         body: { audit_id: data.id, website_url: normalizedUrl },
-      }).catch(() => {});
+      }).catch((err) => logError({ page: "/create-audit", action: "run-wave", message: err?.message || "WAVE fetch failed" }));
 
       // Fire-and-forget: fetch W3C issue count automatically (only if not manually entered)
       if (!form.w3c_issue_count) {
         supabase.functions.invoke("run-w3c", {
           body: { audit_id: data.id, website_url: normalizedUrl },
-        }).catch(() => {});
+        }).catch((err) => logError({ page: "/create-audit", action: "run-w3c", message: err?.message || "W3C fetch failed" }));
       }
     }
 
