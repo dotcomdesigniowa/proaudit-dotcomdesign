@@ -186,11 +186,14 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Round down to nearest 50 so the displayed number is always conservative
+    const roundedCount = Math.floor(result.total / 50) * 50;
+
     // Success: update audit
     const { error: updateError } = await supabase
       .from("audit")
       .update({
-        w3c_issue_count: result.total,
+        w3c_issue_count: roundedCount,
         w3c_status: "success",
         w3c_last_error: null,
         w3c_fetched_at: new Date().toISOString(),
@@ -204,10 +207,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    console.log(`[W3C] Success for ${website_url}: ${result.total} issues (${result.errors} errors, ${result.warnings} warnings, ${result.info} info skipped)`);
+    console.log(`[W3C] Success for ${website_url}: raw=${result.total} (${result.errors} errors, ${result.warnings} warnings, ${result.info} info), stored=${roundedCount}+`);
 
     return new Response(
-      JSON.stringify({ success: true, issue_count: result.total, errors: result.errors, warnings: result.warnings, info: result.info }),
+      JSON.stringify({ success: true, issue_count: roundedCount, raw_total: result.total, errors: result.errors, warnings: result.warnings, info: result.info }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (e) {

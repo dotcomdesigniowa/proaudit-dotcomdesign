@@ -229,12 +229,13 @@ const MetricGradeBox = ({ grade, pending }: { grade: string; pending?: boolean }
   );
 };
 
-const MetricNumber = ({ value, suffix, decimals = 0 }: { value: number; suffix: string; decimals?: number }) => {
+const MetricNumber = ({ value, suffix, decimals = 0, showPlus = false }: { value: number; suffix: string; decimals?: number; showPlus?: boolean }) => {
   const ref = useRef<HTMLParagraphElement>(null);
   useCountUp(ref, value, 1200, decimals);
   return (
     <div className="metricNumWrap">
       <p className="metricNum" ref={ref}>0</p>
+      {showPlus && <span className="metricNum" style={{ marginLeft: 0 }}>+</span>}
       <p className="metricSuffix">{suffix}</p>
     </div>
   );
@@ -543,7 +544,7 @@ const AuditReport = () => {
             {/* W3C */}
             <div className="metricRow">
               {(audit as any).w3c_status === 'success' && audit.w3c_issue_count != null ? (
-                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" />
+                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" showPlus />
               ) : (audit as any).w3c_status === 'error' ? (
                 <div className="metricNumWrap">
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.7, color: "#ef4444" }}>Failed</p>
@@ -553,7 +554,7 @@ const AuditReport = () => {
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
                 </div>
               ) : audit.w3c_issue_count != null ? (
-                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" />
+                <MetricNumber value={audit.w3c_issue_count} suffix="Total #" showPlus />
               ) : (
                 <div className="metricNumWrap">
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
