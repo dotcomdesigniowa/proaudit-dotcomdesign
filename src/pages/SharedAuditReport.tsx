@@ -6,6 +6,7 @@ import ComputerScreenshot from "@/components/ComputerScreenshot";
 import InfoTip from "@/components/InfoTip";
 import "./AuditReport.css";
 import { formatPhone } from "@/lib/formatPhone";
+import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
 
@@ -396,12 +397,15 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
           <div className="overviewGrid">
             <div className="story">
               <SectionHeading text="UNDER THE HOOD" />
-              <p>{audit.company_name || "This company"} appears to be a well-established, reputable and trustworthy business with real credibility in the marketplace. However, the website, online presence, and overall digital reputation do not reflect that same level of strength.</p>
-              <p>{audit.provider && audit.provider !== "Other"
-                ? `The drag-and-drop builder (Duda) currently powering the website introduces major structural deficiencies under the hood. While the site may look functional, the code of the website is creating major problems with visibility and performance.`
-                : `The builder and technology currently powering the website introduces major structural deficiencies under the hood. While the site may look functional, the code of the website is creating major problems with visibility and performance.`
-              }</p>
-              <p><strong>In Plain English:</strong> The website you are currently paying for is likely limiting your online reach, making it harder for potential customers, referrals, and word-of-mouth traffic to consistently find you.</p>
+              {(() => {
+                const uth = getUnderTheHoodCopy(audit.company_name, audit.provider, audit.overall_grade);
+                return (
+                  <>
+                    {uth.paragraphs.map((p, i) => <p key={i}>{p}</p>)}
+                    <p><strong>In Plain English:</strong> {uth.plainEnglish}</p>
+                  </>
+                );
+              })()}
             </div>
             <div className="card">
               <ComputerScreenshot screenshotUrl={(audit as any).website_screenshot_url} />
