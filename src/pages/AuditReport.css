@@ -21,7 +21,7 @@
   --h2: 19px;
   --heroBase: calc(var(--base) + 2px);
   --heroSmall: calc(var(--small) + 2px);
-  --heroTitle: 18px;
+  --heroTitle: 22px;
 }
 
 .audit-page { font-family: var(--font); color: var(--body); line-height: 1.45; font-size: var(--base); }
