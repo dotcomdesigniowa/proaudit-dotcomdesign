@@ -318,9 +318,12 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   Modern standards require websites to be usable by everyone. When your site doesn't meet those standards,
                   it limits access, increases legal exposure, and weakens overall performance.
                 </p>
-                {audit.legal_risk_flag && (
+                <div className="alertLine">
+                  🚩 Websites with a score under 9 are at high risk of accessibility lawsuits.
+                </div>
+                {(audit.accessibility_score != null && audit.accessibility_score < 9) && (
                   <div className="alertLine">
-                    🚩 Scored under 90 are NOT compliant under{" "}
+                    🚩 Website is NOT compliant under{" "}
                     <span className="tipHost tipTopRight lawTip">
                       United States Law
                       <span className="tip tooltipBox">
