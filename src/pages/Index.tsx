@@ -179,7 +179,7 @@ const Index = () => {
 
   const copyShareLink = (share: ShareInfo) => {
     const link = share.slug
-      ? `${window.location.origin}/audit/${share.slug}`
+      ? `${window.location.origin}/${share.slug}`
       : `${window.location.origin}/shared/audit/${share.share_token}`;
     navigator.clipboard.writeText(link);
     toast.success("Link copied");
@@ -298,7 +298,7 @@ const Index = () => {
                   <tr
                     key={a.id}
                     className={`border-b border-border last:border-0 hover:bg-muted/30 cursor-pointer ${recentlyOpened ? "bg-green-50 dark:bg-green-950/20" : ""}`}
-                    onClick={() => navigate(`/audit/${a.id}`)}
+                    onClick={() => navigate(`/${a.id}`)}
                   >
                     <td className="px-3 py-3 whitespace-nowrap text-xs">
                       {a.prepared_date

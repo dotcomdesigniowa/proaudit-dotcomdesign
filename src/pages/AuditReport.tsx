@@ -404,7 +404,7 @@ const AuditReport = () => {
       size="sm"
       className="gap-1.5"
       onClick={() => {
-        navigator.clipboard.writeText(`${window.location.origin}/audit/${shareToken}`);
+        navigator.clipboard.writeText(`${window.location.origin}/${shareToken}`);
         toast.success("Share link copied");
       }}
     >

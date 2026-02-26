@@ -168,7 +168,7 @@ const CreateAudit = () => {
       }).catch(() => {});
     }
 
-    navigate(`/audit/${data.id}`);
+    navigate(`/${data.id}`);
   };
 
   return (

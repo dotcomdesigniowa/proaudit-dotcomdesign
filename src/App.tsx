@@ -65,7 +65,7 @@ const App = () => (
                 </AdminRoute>
               }
             />
-            <Route path="/audit/:param" element={<AuditRouteResolver />} />
+            <Route path="/:param" element={<AuditRouteResolver />} />
             <Route path="/shared/audit/:token" element={<SharedAuditReport />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
