@@ -573,7 +573,7 @@ const AuditReport = () => {
                   <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
                     Snapshot (auto-fetched {new Date((audit as any).psi_fetched_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })})
                     <br />
-                    <span style={{ fontStyle: "italic" }}>Live PSI may differ slightly from the snapshot due to re-runs/caching.</span>
+                    <span style={{ fontStyle: "italic" }}>Live Audit may vary 5-15+ points due to server response times, network conditions and other factors.</span>
                   </p>
                 )}
                 {(audit as any).psi_status === 'error' && (audit as any).psi_last_error && (
