@@ -178,8 +178,8 @@ const Index = () => {
   }, [audits, shares, search, filter, sort]);
 
   const copyShareLink = (share: ShareInfo) => {
-    const link = share.slug && share.short_token
-      ? `${window.location.origin}/audit/${share.slug}-${share.short_token}`
+    const link = share.slug
+      ? `${window.location.origin}/audit/${share.slug}`
       : `${window.location.origin}/shared/audit/${share.share_token}`;
     navigator.clipboard.writeText(link);
     toast.success("Link copied");
