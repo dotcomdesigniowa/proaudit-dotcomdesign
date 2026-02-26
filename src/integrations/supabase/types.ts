@@ -48,9 +48,12 @@ export type Database = {
           scheduler_url: string | null
           under_the_hood_graphic_url: string | null
           w3c_audit_url: string | null
+          w3c_fetched_at: string | null
           w3c_grade: string | null
           w3c_issue_count: number | null
+          w3c_last_error: string | null
           w3c_score: number | null
+          w3c_status: string
           wave_fetched_at: string | null
           wave_last_error: string | null
           wave_status: string
@@ -91,9 +94,12 @@ export type Database = {
           scheduler_url?: string | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
+          w3c_fetched_at?: string | null
           w3c_grade?: string | null
           w3c_issue_count?: number | null
+          w3c_last_error?: string | null
           w3c_score?: number | null
+          w3c_status?: string
           wave_fetched_at?: string | null
           wave_last_error?: string | null
           wave_status?: string
@@ -134,9 +140,12 @@ export type Database = {
           scheduler_url?: string | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
+          w3c_fetched_at?: string | null
           w3c_grade?: string | null
           w3c_issue_count?: number | null
+          w3c_last_error?: string | null
           w3c_score?: number | null
+          w3c_status?: string
           wave_fetched_at?: string | null
           wave_last_error?: string | null
           wave_status?: string
