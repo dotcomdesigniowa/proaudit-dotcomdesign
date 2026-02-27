@@ -24,27 +24,27 @@ describe("getUnderTheHoodCopy", () => {
 
   it("returns D-grade Hibu/Thryv copy with builder reference", () => {
     const hibu = getUnderTheHoodCopy(company, "Hibu", "D");
-    expect(hibu.paragraphs[1]).toContain("builder and platform");
+    expect(hibu.paragraphs[0]).toContain("builder and platform");
     const thryv = getUnderTheHoodCopy(company, "Thryv", "D");
-    expect(thryv.paragraphs[1]).toContain("builder and platform");
+    expect(thryv.paragraphs[0]).toContain("builder and platform");
   });
 
   it("returns D-grade Other copy without builder reference", () => {
     const result = getUnderTheHoodCopy(company, "Other", "D");
-    expect(result.paragraphs[1]).toContain("current technical setup");
-    expect(result.paragraphs[1]).not.toContain("builder");
+    expect(result.paragraphs[0]).toContain("current technical setup");
+    expect(result.paragraphs[0]).not.toContain("builder");
   });
 
   it("returns F-grade Hibu/Thryv copy with severe builder reference", () => {
     const result = getUnderTheHoodCopy(company, "Hibu", "F");
-    expect(result.paragraphs[1]).toContain("severe structural limitations");
-    expect(result.paragraphs[1]).toContain("builder and platform");
+    expect(result.paragraphs[0]).toContain("severe structural limitations");
+    expect(result.paragraphs[0]).toContain("builder and platform");
   });
 
   it("returns F-grade Other copy without builder reference", () => {
     const result = getUnderTheHoodCopy(company, "Other", "F");
-    expect(result.paragraphs[1]).toContain("severe structural deficiencies");
-    expect(result.paragraphs[1]).not.toContain("builder");
+    expect(result.paragraphs[0]).toContain("severe structural deficiencies");
+    expect(result.paragraphs[0]).not.toContain("builder");
   });
 
   it("defaults to F when grade is null", () => {

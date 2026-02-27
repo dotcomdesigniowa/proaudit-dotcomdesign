@@ -612,6 +612,7 @@
   .audit-page .metricTopLabel, .audit-page .metricSuffix { text-align: center; }
   .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) { text-align: center; }
   .audit-page .presenceTextCol { text-align: center; }
+  .audit-page .presenceTextCol .subtle { text-align: center; margin-left: auto; margin-right: auto; }
   .audit-page .presenceTextCol .sectionTitle { text-align: center; }
   .audit-page .scannedBusinessInfo { align-items: center; width: 100%; }
   .audit-page .scanField { text-align: center !important; width: 100% !important; }
