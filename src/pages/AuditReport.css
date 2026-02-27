@@ -643,15 +643,26 @@
     padding: 7px 12px;
   }
 
-  /* Grade + Meta — center the overall score */
-  .audit-page .gradeMetaRow { gap: 22px; }
+  /* Grade + Meta — stack vertically, center the overall score */
+  .audit-page .gradeMetaRow {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    justify-items: center;
+  }
   .audit-page .gradeStack { justify-content: center; }
   .audit-page .scoreLabel { font-size: 13px; margin-bottom: 6px; letter-spacing: .12em; text-align: center; }
   .audit-page .gradeLetter { font-size: 160px; letter-spacing: -3px; }
   .audit-page .gradeGlow { inset: -16px; filter: blur(10px); }
 
-  /* Meta card — single column, one item per row, centered */
-  .audit-page .metaCard { font-size: 16px; border-radius: 16px; }
+  /* Meta card — full device width, breaking out of wrap padding */
+  .audit-page .metaCard {
+    font-size: 16px;
+    border-radius: 0;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    border-left: none;
+    border-right: none;
+  }
   .audit-page .metaInner { padding: 18px 16px; }
   .audit-page .metaRow { flex-direction: column; gap: 14px; align-items: center; }
   .audit-page .metaGrid {
