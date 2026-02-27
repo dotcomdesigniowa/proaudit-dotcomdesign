@@ -304,14 +304,14 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                     </div>
                   )
                 )}
-                {audit.w3c_audit_url && (
-                  <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
-                )}
               </div>
               {(() => {
                 const w3cPending = (audit as any).w3c_status === 'fetching' || (audit.w3c_issue_count == null && (audit as any).w3c_status !== 'success');
                 return <MetricGradeBox grade={audit.w3c_grade || "F"} pending={w3cPending} />;
               })()}
+              {audit.w3c_audit_url && (
+                <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn metricBtn">View Audit <span>→</span></a>
+              )}
             </div>
             <div className="metricRow">
               <MetricNumber value={audit.psi_mobile_score ?? 0} suffix="out of 100" />
@@ -322,11 +322,11 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   When your site is slow or underperforms on mobile, users leave… and Google notices.
                   Over time, this drastically weakens your visibility.
                 </p>
-                {audit.psi_audit_url && (
-                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
-                )}
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} />
+              {audit.psi_audit_url && (
+                <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn metricBtn">View Audit <span>→</span></a>
+              )}
             </div>
             <div className="metricRow">
               <MetricNumber value={audit.accessibility_score ?? 0} suffix="out of 10" decimals={1} />
@@ -351,21 +351,21 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                       🚩 Websites with a score under 9 are at high risk of accessibility lawsuits.
                     </div>
                     {(audit.accessibility_score != null && audit.accessibility_score < 9) && (
-                      <div className="alertLine">
+                      <p className="alertLine">
                         🚩 Website is NOT compliant under{" "}
                         <InfoTip label="United States Law" className="lawTip">
                           Every website that operates in the United States must comply with the ADA &amp; Section 508
                           accessibility legislations, or else is subject to fines and accessibility-related lawsuits.
                         </InfoTip>
-                      </div>
+                      </p>
                     )}
                   </>
                 )}
-                {audit.accessibility_audit_url && (
-                  <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
-                )}
               </div>
               <MetricGradeBox grade={audit.accessibility_grade || "F"} />
+              {audit.accessibility_audit_url && (
+                <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn metricBtn">View Audit <span>→</span></a>
+              )}
             </div>
             {/* Design - hidden for "Other" provider */}
             {audit.provider !== "Other" && (
@@ -376,17 +376,17 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 <p className="metricText">
                   Your website sets the first impression of your company. If it looks outdated, generic, or low quality, people assume your work is too. When trust drops, revenue follows.
                 </p>
-                <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Key Findings ↓</button>
-                <ul className="xList">
-                  {DESIGN_BULLETS.map((b, i) => (
-                    <li key={i} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
-                      <span className="xIcon">❌</span>
-                      <span className="liText">{b}</span>
-                    </li>
-                  ))}
-                </ul>
               </div>
               <MetricGradeBox grade={audit.design_grade || "F"} />
+              <button type="button" className="pillBtn metricBtn" style={{ marginTop: 0 }}>Key Findings ↓</button>
+              <ul className="xList metricBtn">
+                {DESIGN_BULLETS.map((b, i) => (
+                  <li key={i} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
+                    <span className="xIcon">❌</span>
+                    <span className="liText">{b}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
             )}
           </div>
