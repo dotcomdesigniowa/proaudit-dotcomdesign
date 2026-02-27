@@ -678,14 +678,18 @@
   }
 
   /* Metrics — text on top, then buttons, then number + grade below */
+  .audit-page .metrics { border-top: none; }
   .audit-page .metricRow {
     display: flex;
     flex-wrap: wrap;
     align-items: stretch;
     justify-content: center;
     gap: 12px;
-    padding: 24px 0;
+    padding: 0;
+    border-bottom: none;
+    margin-bottom: 52px;
   }
+  .audit-page .metricRow:last-child { margin-bottom: 0; }
   /* Text block on top, full width */
   .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) {
     flex: 1 1 100%;
