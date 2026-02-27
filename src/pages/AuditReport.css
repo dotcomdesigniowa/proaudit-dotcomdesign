@@ -621,13 +621,13 @@
   .audit-page .subtle { text-align: center; }
 
   /* Hero */
-  .audit-page .hero { padding: 24px 0 22px; }
+  .audit-page .hero { padding: 32px 0 28px; }
   .audit-page .heroTop {
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 14px;
+    margin-bottom: 22px;
   }
-  .audit-page .heroTitle { font-size: 19px; gap: 4px; }
+  .audit-page .heroTitle { font-size: 19px; gap: 6px; }
   .audit-page .heroTitleSub {
     white-space: normal;
     font-size: 23px;
@@ -635,24 +635,24 @@
   }
   .audit-page .heroHeading { font-size: 15px; letter-spacing: .08em; }
   .audit-page .heroBadges {
-    gap: 6px;
+    gap: 8px;
   }
   .audit-page .heroBadge {
     font-size: 14px;
-    padding: 5px 10px;
+    padding: 7px 12px;
   }
 
   /* Grade + Meta — center the overall score */
-  .audit-page .gradeMetaRow { gap: 14px; }
+  .audit-page .gradeMetaRow { gap: 22px; }
   .audit-page .gradeStack { justify-content: center; }
-  .audit-page .scoreLabel { font-size: 13px; margin-bottom: 4px; letter-spacing: .12em; text-align: center; }
+  .audit-page .scoreLabel { font-size: 13px; margin-bottom: 6px; letter-spacing: .12em; text-align: center; }
   .audit-page .gradeLetter { font-size: 160px; letter-spacing: -3px; }
   .audit-page .gradeGlow { inset: -16px; filter: blur(10px); }
 
   /* Meta card — single column, one item per row, centered */
   .audit-page .metaCard { font-size: 16px; border-radius: 16px; }
-  .audit-page .metaInner { padding: 14px 12px; }
-  .audit-page .metaRow { flex-direction: column; gap: 12px; align-items: center; }
+  .audit-page .metaInner { padding: 18px 16px; }
+  .audit-page .metaRow { flex-direction: column; gap: 14px; align-items: center; }
   .audit-page .metaGrid {
     grid-template-columns: 1fr;
     gap: 18px;
@@ -683,8 +683,8 @@
     flex-wrap: wrap;
     align-items: stretch;
     justify-content: center;
-    gap: 10px;
-    padding: 16px 0;
+    gap: 12px;
+    padding: 24px 0;
   }
   /* Text block on top, full width */
   .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) {
@@ -695,16 +695,17 @@
   .audit-page .metricRow > .metricNumWrap {
     flex: 1 1 0;
     order: 2;
-    display: grid;
-    grid-template-rows: 1fr auto;
-    place-items: center;
-    align-content: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(180deg, #fff, #f3f4f6);
     border: 1px solid rgba(15,18,32,.10);
     border-radius: 18px;
     padding: 18px 14px;
     box-shadow: 0 12px 36px rgba(0,0,0,.10);
     min-height: 132px;
+    text-align: center;
   }
   /* Grade box inline next to number, same height */
   .audit-page .metricRow > .gradeBox {
@@ -713,10 +714,11 @@
     min-height: 132px;
     padding: 18px 14px;
     border-radius: 18px;
-    display: grid;
-    grid-template-rows: 1fr auto;
-    place-items: center;
-    align-content: stretch;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   /* Buttons & xList below scores */
   .audit-page .metricRow > .metricBtn {
@@ -728,13 +730,13 @@
     flex: 1 1 100%;
   }
   .audit-page .metricNum { font-size: 41px; letter-spacing: -1px; line-height: 1; margin: 0; }
-  .audit-page .metricSuffix { font-size: 13px; margin-top: 0; }
+  .audit-page .metricSuffix { font-size: 13px; margin-top: 6px; }
   .audit-page .metricLabel { font-size: 17px; margin: 2px 0 4px; }
   .audit-page .metricText { font-size: 16px; margin-bottom: 8px; line-height: 1.45; }
   .audit-page .gradeBox .letter { font-size: 39px; line-height: 1; margin: 0; }
   .audit-page .gradeBox .bgGlow { inset: -16px; filter: blur(12px); }
 
-  /* "SCORE" label under grade box letter — aligned with metric suffix */
+  /* "SCORE" label under grade box letter */
   .audit-page .metricRow > .gradeBox::after {
     content: "SCORE";
     font-size: 13px;
@@ -742,7 +744,7 @@
     letter-spacing: .06em;
     text-transform: uppercase;
     color: #475569;
-    margin-top: 0;
+    margin-top: 6px;
     position: relative;
     z-index: 2;
   }
@@ -755,19 +757,19 @@
   .audit-page .alertLine .tipHost { margin-left: 0; }
 
   /* Overview / Under the Hood — consistent spacing */
-  .audit-page .overviewGrid { gap: 8px; }
+  .audit-page .overviewGrid { gap: 14px; }
   .audit-page .story { font-size: 16px; }
-  .audit-page .story p { margin-bottom: 8px; }
+  .audit-page .story p { margin-bottom: 12px; }
   .audit-page .story p:last-child { margin-bottom: 0; }
-  .audit-page .overview { padding: 24px 0; }
+  .audit-page .overview { padding: 36px 0; }
   .audit-page .overviewGrid .card { margin-top: 0; }
 
   /* Presence — image below text fields, full width */
-  .audit-page .presenceGrid { gap: 12px; display: flex; flex-direction: column; }
+  .audit-page .presenceGrid { gap: 18px; display: flex; flex-direction: column; }
   .audit-page .presenceImgCol { padding-top: 0; order: 2; }
   .audit-page .presenceTextCol { order: 1; }
-  .audit-page .scannedBusinessInfo { gap: 4px; margin-top: 10px; width: 100%; }
-  .audit-page .scanField { padding: 5px 10px !important; border-radius: 6px !important; width: 100% !important; box-sizing: border-box !important; }
+  .audit-page .scannedBusinessInfo { gap: 6px; margin-top: 14px; width: 100%; }
+  .audit-page .scanField { padding: 8px 12px !important; border-radius: 8px !important; width: 100% !important; box-sizing: border-box !important; }
   .audit-page .scanLabel { font-size: 13px !important; }
   .audit-page .scanValue { font-size: 16px !important; }
 
@@ -780,16 +782,16 @@
   .audit-page .engStat { font-size: 15px; }
 
   /* CTA */
-  .audit-page .cta { padding: 32px 0; }
-  .audit-page .ctaBox { padding: 18px 14px; border-radius: 14px; }
-  .audit-page .ctaTitle { font-size: 20px; margin-bottom: 8px; }
-  .audit-page .ctaText { font-size: 16px; margin-bottom: 14px; }
-  .audit-page .ctaAlt { font-size: 16px; margin-top: 10px; }
-  .audit-page .btn { font-size: 15px; padding: 10px 16px; letter-spacing: .04em; }
+  .audit-page .cta { padding: 44px 0; }
+  .audit-page .ctaBox { padding: 24px 18px; border-radius: 16px; }
+  .audit-page .ctaTitle { font-size: 20px; margin-bottom: 10px; }
+  .audit-page .ctaText { font-size: 16px; margin-bottom: 16px; }
+  .audit-page .ctaAlt { font-size: 16px; margin-top: 12px; }
+  .audit-page .btn { font-size: 15px; padding: 12px 18px; letter-spacing: .04em; }
 
   /* Section titles */
-  .audit-page .sectionTitle { font-size: 18px; margin-bottom: 8px; letter-spacing: .08em; }
-  .audit-page .subtle { font-size: 15px; margin-bottom: 12px; line-height: 1.5; }
+  .audit-page .sectionTitle { font-size: 18px; margin-bottom: 12px; letter-spacing: .08em; }
+  .audit-page .subtle { font-size: 15px; margin-bottom: 16px; line-height: 1.5; }
 
   /* X-list */
   .audit-page .xList { gap: 8px; margin-top: 10px; }
