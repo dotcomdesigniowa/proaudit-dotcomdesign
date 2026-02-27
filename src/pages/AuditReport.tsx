@@ -173,22 +173,22 @@ function useTypewriter(ref: React.RefObject<HTMLElement | null>, text: string, s
 }
 
 // ── Bullet list animation ──
-function useBulletAnimation(listRef: React.RefObject<HTMLUListElement | null>) {
+function useBulletAnimation(listRef: React.RefObject<HTMLElement | null>) {
   const done = useRef(false);
   useEffect(() => {
     const el = listRef.current;
     if (!el || done.current) return;
-    const items = Array.from(el.querySelectorAll("li"));
+    const items = Array.from(el.children) as HTMLElement[];
     const io = new IntersectionObserver(
       async (entries) => {
         if (!entries[0]?.isIntersecting || done.current) return;
         done.current = true;
         io.disconnect();
-        for (const li of items) {
-          (li as HTMLElement).style.opacity = "1";
-          (li as HTMLElement).style.transform = "translateY(0)";
-          const span = li.querySelector(".liText") as HTMLElement;
-          const text = li.getAttribute("data-text") || "";
+        for (const item of items) {
+          item.style.opacity = "1";
+          item.style.transform = "translateY(0)";
+          const span = item.querySelector(".liText") as HTMLElement;
+          const text = item.getAttribute("data-text") || "";
           if (span) {
             if (prefersReduced) { span.textContent = text; continue; }
             span.textContent = "";
@@ -265,7 +265,7 @@ const AuditReport = () => {
 
   const [refreshingScreenshot, setRefreshingScreenshot] = useState(false);
 
-  const summaryListRef = useRef<HTMLUListElement>(null);
+  const summaryListRef = useRef<HTMLDivElement>(null);
   const heroHeadingRef = useRef<HTMLSpanElement>(null);
   const overallGradeRef = useRef<HTMLParagraphElement>(null);
 
@@ -798,17 +798,16 @@ const AuditReport = () => {
                   {getCopy("metric_design_desc", "Your website sets the first impression of your company. If it looks outdated, generic, or low quality, people assume your work is too. When trust drops, revenue follows.")}
                 </p>
                 <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Key Findings ↓</button>
-                <ul className="xList" ref={summaryListRef}>
+                <div className="designFindings" ref={summaryListRef}>
                   {[1,2,3,4,5,6].map((n) => {
                     const b = getCopy(`design_bullet_${n}`, DESIGN_BULLETS_FALLBACK[n-1] || "");
                     return (
-                      <li key={n} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
-                        <span className="xIcon">❌</span>
-                        <span className="liText">{b}</span>
-                      </li>
+                      <div key={n} className="alertLine" data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
+                        🚩 <span className="liText">{b}</span>
+                      </div>
                     );
                   })}
-                </ul>
+                </div>
               </div>
               <MetricGradeBox grade={audit.design_grade || "F"} />
             </div>

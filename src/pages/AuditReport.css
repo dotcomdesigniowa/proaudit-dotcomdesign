@@ -368,7 +368,16 @@
 .audit-page .gradeBox .bgGlow.b { background: radial-gradient(circle at 40% 30%, rgba(34,197,94,.22), transparent 60%); }
 .audit-page .gradeBox .bgGlow.a { background: radial-gradient(circle at 40% 30%, rgba(22,163,74,.22), transparent 60%); }
 
-/* SUMMARY LIST */
+/* DESIGN FINDINGS */
+.audit-page .designFindings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 0;
+  max-width: 760px;
+}
+
+/* SUMMARY LIST (legacy) */
 .audit-page .xList { margin: 14px 0 0; padding: 0; display: grid; gap: 10px; max-width: 760px; }
 .audit-page .xList li {
   list-style: none;
