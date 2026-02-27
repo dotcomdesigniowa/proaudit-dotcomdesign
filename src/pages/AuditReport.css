@@ -679,7 +679,7 @@
   }
 
   /* Metrics — text on top, then buttons, then number + grade below */
-  .audit-page .metrics { border-top: none; }
+  .audit-page .metrics { border-top: none; margin-top: 36px; }
   .audit-page .metricRow {
     display: flex;
     flex-wrap: wrap;
