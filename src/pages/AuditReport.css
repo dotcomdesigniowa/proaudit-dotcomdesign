@@ -372,8 +372,8 @@
 .audit-page .designFindings {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin: 14px 0 0;
+  gap: 0;
+  margin: 4px 0 0;
   max-width: 760px;
 }
 
@@ -757,7 +757,7 @@
   .audit-page .metricNum { font-size: 41px; letter-spacing: -1px; line-height: 1; margin: 0; }
   .audit-page .metricSuffix { font-size: 13px; margin-top: 6px; }
   .audit-page .metricLabel { font-size: 17px; margin: 2px 0 4px; }
-  .audit-page .metricText { font-size: 16px; margin-bottom: 8px; line-height: 1.45; }
+  .audit-page .metricText { font-size: 16px; margin-bottom: 8px; line-height: 1.45; text-align: center; }
   .audit-page .gradeBox .letter { font-size: 39px; line-height: 1; margin: 0; }
   .audit-page .gradeBox .bgGlow { inset: -16px; filter: blur(12px); }
 
