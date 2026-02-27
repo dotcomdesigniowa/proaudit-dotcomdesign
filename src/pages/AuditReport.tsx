@@ -12,13 +12,16 @@ import InfoTip from "@/components/InfoTip";
 import "./AuditReport.css";
 import { formatPhone } from "@/lib/formatPhone";
 import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
+import { useAuditCopy } from "@/hooks/useAuditCopy";
+import { getUthKeys } from "@/lib/copyTemplateKeys";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
 
 const DEFAULT_UTH_IMAGE = "/images/under-the-hood.png";
 const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
 
-const DESIGN_BULLETS = [
+// Design bullets fallback (used if DB copy not loaded yet)
+const DESIGN_BULLETS_FALLBACK = [
   "Generic template-based design detected.",
   "Design closely resembles other mass-produced local business sites.",
   "Top-of-page section lacks strong trust signals.",
@@ -251,6 +254,7 @@ const SectionHeading = ({ text, className = "" }: { text: string; className?: st
 const AuditReport = () => {
   const { id, param } = useParams<{ id?: string; param?: string }>();
   const auditId = id || param;
+  const { getCopy, getCopyWithName } = useAuditCopy();
   const [audit, setAudit] = useState<Audit | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -563,9 +567,7 @@ const AuditReport = () => {
               <div>
                 <div className="metricLabel">Website Errors &amp; Warnings</div>
                 <p className="metricText">
-                  Google doesn't judge your website by how it looks but instead by the quality in which it's built.
-                  So when your website is full of errors and warnings… trust declines. And when trust declines,
-                  your ability to show up online declines with it.
+                  {getCopy("metric_w3c_desc", "Google doesn't judge your website by how it looks but instead by the quality in which it's built. So when your website is full of errors and warnings… trust declines. And when trust declines, your ability to show up online declines with it.")}
                 </p>
                 {(audit as any).w3c_status === 'success' && (audit as any).w3c_fetched_at && (
                   <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
@@ -649,9 +651,7 @@ const AuditReport = () => {
               <div>
                 <div className="metricLabel">Mobile Performance Score (Google)</div>
                 <p className="metricText">
-                  Your mobile performance score directly impacts how your business shows up in search results.
-                  When your site is slow or underperforms on mobile, users leave… and Google notices.
-                  Over time, this drastically weakens your visibility.
+                  {getCopy("metric_psi_desc", "Your mobile performance score directly impacts how your business shows up in search results. When your site is slow or underperforms on mobile, users leave… and Google notices. Over time, this drastically weakens your visibility.")}
                 </p>
                 {(audit as any).psi_status === 'success' && (audit as any).psi_fetched_at && (
                   <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
@@ -719,8 +719,7 @@ const AuditReport = () => {
               <div>
                 <div className="metricLabel">Accessibility Score</div>
                 <p className="metricText">
-                  Modern standards require websites to be usable by everyone. When your site doesn't meet those standards,
-                  it limits access, increases legal exposure, and weakens overall performance.
+                  {getCopy("metric_accessibility_desc", "Modern standards require websites to be usable by everyone. When your site doesn't meet those standards, it limits access, increases legal exposure, and weakens overall performance.")}
                 </p>
                 {(audit as any).wave_status === 'success' && (audit as any).wave_fetched_at && (
                   <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
@@ -796,16 +795,19 @@ const AuditReport = () => {
               <div>
                 <div className="metricLabel">Design &amp; Visual Score</div>
                 <p className="metricText">
-                  Your website sets the first impression of your company. If it looks outdated, generic, or low quality, people assume your work is too. When trust drops, revenue follows.
+                  {getCopy("metric_design_desc", "Your website sets the first impression of your company. If it looks outdated, generic, or low quality, people assume your work is too. When trust drops, revenue follows.")}
                 </p>
                 <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Key Findings ↓</button>
                 <ul className="xList" ref={summaryListRef}>
-                  {DESIGN_BULLETS.map((b, i) => (
-                    <li key={i} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
-                      <span className="xIcon">❌</span>
-                      <span className="liText">{b}</span>
-                    </li>
-                  ))}
+                  {[1,2,3,4,5,6].map((n) => {
+                    const b = getCopy(`design_bullet_${n}`, DESIGN_BULLETS_FALLBACK[n-1] || "");
+                    return (
+                      <li key={n} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
+                        <span className="xIcon">❌</span>
+                        <span className="liText">{b}</span>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
               <MetricGradeBox grade={audit.design_grade || "F"} />
@@ -822,11 +824,14 @@ const AuditReport = () => {
             <div className="story">
               <SectionHeading text="UNDER THE HOOD" />
               {(() => {
-                const uth = getUnderTheHoodCopy(audit.company_name, audit.provider, audit.overall_grade);
+                const uthKeys = getUthKeys(audit.overall_grade, audit.provider);
+                const uthFallback = getUnderTheHoodCopy(audit.company_name, audit.provider, audit.overall_grade);
+                const bodyText = getCopyWithName(uthKeys.bodyKey, audit.company_name, uthFallback.paragraphs[0]);
+                const plainText = getCopy(uthKeys.plainKey, uthFallback.plainEnglish);
                 return (
                   <>
-                    {uth.paragraphs.map((p, i) => <p key={i}>{p}</p>)}
-                    <p><strong>In Plain English:</strong> {uth.plainEnglish}</p>
+                    <p>{bodyText}</p>
+                    <p><strong>In Plain English:</strong> {plainText}</p>
                   </>
                 );
               })()}
@@ -849,8 +854,8 @@ const AuditReport = () => {
               <SectionHeading text="ONLINE PRESENCE ISSUES" />
               <p className="subtle" style={{ textAlign: "right", marginLeft: "auto" }}>
                 {audit.provider === "Other"
-                  ? "Is your overall online presence congruent, cohesive & consistent? Let us run a comprehensive scan of your business across the internet and we can find out! To build trust, rank and get found, your entire digital presence must be structured, aligned, and optimized."
-                  : "We also ran a comprehensive scan of your business across the internet and found a large list of issues across multiple platforms. To build trust, rank and get found, your entire digital presence must be structured, aligned, and optimized."}
+                  ? getCopy("presence_other", "Is your overall online presence congruent, cohesive & consistent? Let us run a comprehensive scan of your business across the internet and we can find out! To build trust, rank and get found, your entire digital presence must be structured, aligned, and optimized.")
+                  : getCopy("presence_default", "We also ran a comprehensive scan of your business across the internet and found a large list of issues across multiple platforms. To build trust, rank and get found, your entire digital presence must be structured, aligned, and optimized.")}
               </p>
               <div className="scannedBusinessInfo">
                 <div className="scanField">
@@ -883,10 +888,9 @@ const AuditReport = () => {
       <section className="cta">
         <div className="wrap">
           <div className="ctaBox">
-            <h2 className="ctaTitle caps">Want More Details?</h2>
+            <h2 className="ctaTitle caps">{getCopy("cta_title", "Want More Details?")}</h2>
             <p className="ctaText">
-              A brief call will allow us to walk through these findings in greater detail, show you exactly what
-              we're seeing, and answer any questions.
+              {getCopy("cta_body", "A brief call will allow us to walk through these findings in greater detail, show you exactly what we're seeing, and answer any questions.")}
             </p>
             {schedulerUrl ? (
               <a href={schedulerUrl} target="_blank" rel="noopener noreferrer" className="btn">
