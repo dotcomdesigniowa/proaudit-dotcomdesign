@@ -155,6 +155,36 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_copy_templates: {
+        Row: {
+          content: string
+          id: string
+          label: string
+          section_key: string
+          sort_order: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string
+          id?: string
+          label: string
+          section_key: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string
+          id?: string
+          label?: string
+          section_key?: string
+          sort_order?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       audit_share_views: {
         Row: {
           id: string

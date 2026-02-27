@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import CopyTemplateEditor from "@/components/CopyTemplateEditor";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -370,6 +371,15 @@ const Scoring = () => {
           </AlertDialog>
         </CardContent>
       </Card>
+
+      <Separator />
+
+      {/* F) Audit Report Copy */}
+      <div>
+        <h2 className="text-xl font-bold text-foreground mb-1">Audit Report Copy</h2>
+        <p className="text-sm text-muted-foreground mb-4">Edit the text that appears in audit reports. Changes take effect immediately for new report views.</p>
+      </div>
+      <CopyTemplateEditor />
     </div>
   );
 };
