@@ -377,17 +377,16 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               </div>
               <MetricGradeBox grade={audit.design_grade || "F"} />
               <button type="button" className="pillBtn metricBtn" style={{ marginTop: 0 }}>Key Findings ↓</button>
-              <ul className="xList metricBtn">
+              <div className="designFindings metricBtn">
                 {[1,2,3,4,5,6].map((n) => {
                   const b = getCopy(`design_bullet_${n}`, DESIGN_BULLETS_FALLBACK[n-1] || "");
                   return (
-                    <li key={n} data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
-                      <span className="xIcon">❌</span>
-                      <span className="liText">{b}</span>
-                    </li>
+                    <div key={n} className="alertLine">
+                      🚩 <span className="liText">{b}</span>
+                    </div>
                   );
                 })}
-              </ul>
+              </div>
             </div>
             )}
           </div>
