@@ -64,15 +64,16 @@ Deno.serve(async (req) => {
 
     const fetchPsi = async (attempt: number): Promise<Response> => {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 55000);
+      const timeout = setTimeout(() => controller.abort(), 90000);
       try {
         const res = await fetch(psiUrl.toString(), { signal: controller.signal });
         clearTimeout(timeout);
         return res;
       } catch (err) {
         clearTimeout(timeout);
-        if (attempt < 2) {
+        if (attempt < 3) {
           console.log(`PSI attempt ${attempt} failed, retrying...`);
+          await new Promise(r => setTimeout(r, 2000));
           return fetchPsi(attempt + 1);
         }
         throw err;
@@ -83,9 +84,12 @@ Deno.serve(async (req) => {
     try {
       response = await fetchPsi(1);
     } catch (err) {
-      const errMsg = `PSI fetch failed: ${err.message}`;
+      const isTimeout = err instanceof DOMException && err.name === "AbortError";
+      const errMsg = isTimeout
+        ? `PSI timed out after 3 attempts for ${normalizedUrl}`
+        : `PSI fetch failed: ${err.message}`;
       console.error(errMsg);
-      await logError("run-psi-and-update", errMsg, { audit_id, website_url: normalizedUrl });
+      await logError("run-psi-and-update", errMsg, { audit_id, website_url: normalizedUrl, isTimeout });
       await supabase.from("audit").update({ psi_status: "error", psi_last_error: errMsg }).eq("id", audit_id);
       return new Response(JSON.stringify({ success: false, error: errMsg }), { status: 504, headers: jsonHeaders });
     }
