@@ -613,8 +613,8 @@
   .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) { text-align: center; }
   .audit-page .presenceTextCol { text-align: center; }
   .audit-page .presenceTextCol .sectionTitle { text-align: center; }
-  .audit-page .scannedBusinessInfo { align-items: center; }
-  .audit-page .scanField { text-align: center !important; }
+  .audit-page .scannedBusinessInfo { align-items: center; width: 100%; }
+  .audit-page .scanField { text-align: center !important; width: 100% !important; }
   .audit-page .story { text-align: center; }
   .audit-page .xList { justify-items: center; }
   .audit-page .xList li { justify-content: center; text-align: center; }
@@ -642,17 +642,20 @@
     padding: 5px 10px;
   }
 
-  /* Grade + Meta */
+  /* Grade + Meta — center the overall score */
   .audit-page .gradeMetaRow { gap: 14px; }
-  .audit-page .gradeLetter { font-size: 80px; letter-spacing: -2px; }
+  .audit-page .gradeStack { justify-content: center; }
+  .audit-page .scoreLabel { font-size: 13px; margin-bottom: 4px; letter-spacing: .12em; text-align: center; }
+  .audit-page .gradeLetter { font-size: 160px; letter-spacing: -3px; }
   .audit-page .gradeGlow { inset: -16px; filter: blur(10px); }
-  .audit-page .scoreLabel { font-size: 13px; margin-bottom: 4px; letter-spacing: .12em; }
+
+  /* Meta card — single column, one item per row */
   .audit-page .metaCard { font-size: 16px; border-radius: 16px; }
   .audit-page .metaInner { padding: 14px 12px; }
   .audit-page .metaRow { flex-direction: column; gap: 12px; }
   .audit-page .metaGrid {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px 12px;
+    grid-template-columns: 1fr;
+    gap: 10px;
     font-size: 16px;
   }
   .audit-page .metaLabel { font-size: 12px; margin-bottom: 1px; letter-spacing: .12em; }
@@ -663,31 +666,42 @@
     border-radius: 12px;
   }
 
-  /* Metrics — compact layout: number + grade on same row, text below */
+  /* Metrics — text on top, number + grade below in a horizontal row */
   .audit-page .metricRow {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
     gap: 10px;
     padding: 16px 0;
   }
-  /* Number block */
-  .audit-page .metricRow > .metricNumWrap {
-    flex: 0 0 auto;
-  }
-  /* Grade box inline next to number */
-  .audit-page .metricRow > .gradeBox {
-    flex: 0 0 auto;
-    order: 0;
-    min-height: auto;
-    padding: 8px 14px;
-    border-radius: 10px;
-  }
-  /* Text block takes full width below */
+  /* Text block on top, full width */
   .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) {
     flex: 1 1 100%;
+    order: 1;
+  }
+  /* Number block below text */
+  .audit-page .metricRow > .metricNumWrap {
+    flex: 1 1 0;
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #fff, #f3f4f6);
+    border: 1px solid rgba(15,18,32,.10);
+    border-radius: 18px;
+    padding: 18px 14px;
+    box-shadow: 0 12px 36px rgba(0,0,0,.10);
+    min-height: 132px;
+  }
+  /* Grade box inline next to number, same height */
+  .audit-page .metricRow > .gradeBox {
+    flex: 1 1 0;
     order: 3;
+    min-height: 132px;
+    padding: 18px 14px;
+    border-radius: 18px;
   }
   .audit-page .metricNum { font-size: 41px; letter-spacing: -1px; }
   .audit-page .metricSuffix { font-size: 13px; margin-top: 2px; }
@@ -696,23 +710,39 @@
   .audit-page .gradeBox .letter { font-size: 39px; }
   .audit-page .gradeBox .bgGlow { inset: -16px; filter: blur(12px); }
 
+  /* "SCORE" label under grade box letter — added via ::after */
+  .audit-page .metricRow > .gradeBox {
+    flex-direction: column;
+  }
+  .audit-page .metricRow > .gradeBox::after {
+    content: "SCORE";
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #475569;
+    margin-top: 6px;
+    position: relative;
+    z-index: 2;
+  }
+
   /* Pill buttons */
   .audit-page .pillBtn { font-size: 15px; padding: 8px 12px; margin-top: 8px; }
 
-  /* Alert lines */
-  .audit-page .alertLine { font-size: 15px; gap: 6px; margin-top: 6px; }
+  /* Alert lines — keep inline */
+  .audit-page .alertLine { font-size: 15px; gap: 6px; margin-top: 6px; flex-wrap: nowrap; justify-content: center; }
 
-  /* Overview / Under the Hood */
-  .audit-page .overviewGrid { gap: 20px; }
+  /* Overview / Under the Hood — halve spacing */
+  .audit-page .overviewGrid { gap: 10px; }
   .audit-page .story { font-size: 16px; }
   .audit-page .story p { margin-bottom: 10px; }
   .audit-page .overview { padding: 24px 0; }
 
-  /* Presence */
-  .audit-page .presenceGrid { gap: 20px; }
-  .audit-page .presenceImgCol { padding-top: 0; }
-  .audit-page .scannedBusinessInfo { gap: 4px; margin-top: 10px; }
-  .audit-page .scanField { padding: 5px 10px !important; border-radius: 6px !important; }
+  /* Presence — image below text, fields full width */
+  .audit-page .presenceGrid { gap: 20px; display: flex; flex-direction: column-reverse; }
+  .audit-page .presenceImgCol { padding-top: 0; order: 2; }
+  .audit-page .scannedBusinessInfo { gap: 4px; margin-top: 10px; width: 100%; }
+  .audit-page .scanField { padding: 5px 10px !important; border-radius: 6px !important; width: 100% !important; box-sizing: border-box !important; }
   .audit-page .scanLabel { font-size: 13px !important; }
   .audit-page .scanValue { font-size: 16px !important; }
 
@@ -746,7 +776,7 @@
 @media (max-width: 400px) {
   .audit-page .wrap { padding: 0 12px; }
   .audit-page .hero { padding: 20px 0 18px; }
-  .audit-page .gradeLetter { font-size: 67px; }
+  .audit-page .gradeLetter { font-size: 130px; }
   .audit-page .metricNum { font-size: 35px; }
   .audit-page .gradeBox .letter { font-size: 33px; }
   .audit-page .heroTitleSub { font-size: 20px; }
