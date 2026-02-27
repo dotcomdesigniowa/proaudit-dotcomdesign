@@ -600,7 +600,7 @@
 /* RESPONSIVE — MOBILE */
 @media (max-width: 640px) {
   .audit-page .wrap { padding: 0 16px; }
-  .audit-page section { padding: 28px 0; }
+  .audit-page section { padding: 52px 0; }
 
   /* Center everything on mobile */
   .audit-page { text-align: center; }
@@ -655,12 +655,21 @@
   .audit-page .metaRow { flex-direction: column; gap: 12px; align-items: center; }
   .audit-page .metaGrid {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 18px;
     font-size: 16px;
     text-align: center;
   }
-  .audit-page .metaGrid > div { text-align: center; }
-  .audit-page .metaLabel { font-size: 11px; margin-bottom: 2px; letter-spacing: .14em; color: rgba(233,236,241,.55); }
+  .audit-page .metaGrid > div {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .audit-page .metaGrid > div:not(:last-child) {
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(233,236,241,.18);
+  }
+  .audit-page .metaLabel { font-size: 13px; margin-bottom: 0; letter-spacing: .12em; color: rgba(233,236,241,.72); font-weight: 800; }
   .audit-page .logoBox {
     width: 100%;
     height: 72px;
@@ -686,10 +695,10 @@
   .audit-page .metricRow > .metricNumWrap {
     flex: 1 1 0;
     order: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    place-items: center;
+    align-content: stretch;
     background: linear-gradient(180deg, #fff, #f3f4f6);
     border: 1px solid rgba(15,18,32,.10);
     border-radius: 18px;
@@ -704,6 +713,10 @@
     min-height: 132px;
     padding: 18px 14px;
     border-radius: 18px;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    place-items: center;
+    align-content: stretch;
   }
   /* Buttons & xList below scores */
   .audit-page .metricRow > .metricBtn {
@@ -714,17 +727,14 @@
     order: 5;
     flex: 1 1 100%;
   }
-  .audit-page .metricNum { font-size: 41px; letter-spacing: -1px; }
-  .audit-page .metricSuffix { font-size: 13px; margin-top: 2px; }
+  .audit-page .metricNum { font-size: 41px; letter-spacing: -1px; line-height: 1; margin: 0; }
+  .audit-page .metricSuffix { font-size: 13px; margin-top: 0; }
   .audit-page .metricLabel { font-size: 17px; margin: 2px 0 4px; }
   .audit-page .metricText { font-size: 16px; margin-bottom: 8px; line-height: 1.45; }
-  .audit-page .gradeBox .letter { font-size: 39px; }
+  .audit-page .gradeBox .letter { font-size: 39px; line-height: 1; margin: 0; }
   .audit-page .gradeBox .bgGlow { inset: -16px; filter: blur(12px); }
 
-  /* "SCORE" label under grade box letter — added via ::after */
-  .audit-page .metricRow > .gradeBox {
-    flex-direction: column;
-  }
+  /* "SCORE" label under grade box letter — aligned with metric suffix */
   .audit-page .metricRow > .gradeBox::after {
     content: "SCORE";
     font-size: 13px;
@@ -732,7 +742,7 @@
     letter-spacing: .06em;
     text-transform: uppercase;
     color: #475569;
-    margin-top: 6px;
+    margin-top: 0;
     position: relative;
     z-index: 2;
   }
@@ -745,9 +755,10 @@
   .audit-page .alertLine .tipHost { margin-left: 0; }
 
   /* Overview / Under the Hood — consistent spacing */
-  .audit-page .overviewGrid { gap: 12px; }
+  .audit-page .overviewGrid { gap: 8px; }
   .audit-page .story { font-size: 16px; }
-  .audit-page .story p { margin-bottom: 10px; }
+  .audit-page .story p { margin-bottom: 8px; }
+  .audit-page .story p:last-child { margin-bottom: 0; }
   .audit-page .overview { padding: 24px 0; }
   .audit-page .overviewGrid .card { margin-top: 0; }
 
