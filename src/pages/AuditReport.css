@@ -663,14 +663,10 @@
   .audit-page .gradeLetter { font-size: 160px; letter-spacing: -3px; }
   .audit-page .gradeGlow { inset: -16px; filter: blur(10px); }
 
-  /* Meta card — full device width, breaking out of wrap padding */
+  /* Meta card — full width within container, rounded corners */
   .audit-page .metaCard {
     font-size: 16px;
-    border-radius: 0;
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
-    border-left: none;
-    border-right: none;
+    width: 100%;
   }
   .audit-page .metaInner { padding: 18px 16px; }
   .audit-page .metaRow { flex-direction: column; gap: 14px; align-items: center; }
