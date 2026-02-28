@@ -7,7 +7,7 @@
   --body: #0f1220;
   --line: rgba(15,18,32,.10);
   --gradeA: #16a34a;
-  --gradeB: #22c55e;
+  --gradeB: #3b82f6;
   --gradeC: #eab308;
   --gradeD: #f97316;
   --gradeF: #dc2626;
@@ -365,7 +365,7 @@
 .audit-page .gradeBox .bgGlow.f { background: radial-gradient(circle at 40% 30%, rgba(220,38,38,.26), transparent 60%); }
 .audit-page .gradeBox .bgGlow.d { background: radial-gradient(circle at 40% 30%, rgba(249,115,22,.24), transparent 60%); }
 .audit-page .gradeBox .bgGlow.c { background: radial-gradient(circle at 40% 30%, rgba(234,179,8,.24), transparent 60%); }
-.audit-page .gradeBox .bgGlow.b { background: radial-gradient(circle at 40% 30%, rgba(34,197,94,.22), transparent 60%); }
+.audit-page .gradeBox .bgGlow.b { background: radial-gradient(circle at 40% 30%, rgba(59,130,246,.22), transparent 60%); }
 .audit-page .gradeBox .bgGlow.a { background: radial-gradient(circle at 40% 30%, rgba(22,163,74,.22), transparent 60%); }
 
 /* DESIGN FINDINGS */
