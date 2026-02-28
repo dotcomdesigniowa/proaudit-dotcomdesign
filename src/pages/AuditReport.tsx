@@ -899,7 +899,7 @@ const AuditReport = () => {
             </div>
             <div className="presenceTextCol">
               <SectionHeading text="ONLINE PRESENCE ISSUES" />
-              <p className="subtle" style={{ textAlign: "right", marginLeft: "auto" }}>
+              <p className="subtle presenceDesc">
                 {audit.provider === "Other"
                   ? getCopy("presence_other", "Is your overall online presence congruent, cohesive & consistent? Let us run a comprehensive scan of your business across the internet and we can find out! To build trust, rank and get found, your entire digital presence must be structured, aligned, and optimized.")
                   : getCopy("presence_default", "We also ran a comprehensive scan of your business across the internet and found a large list of issues across multiple platforms. To build trust, rank and get found, your entire digital presence must be structured, aligned, and optimized.")}
