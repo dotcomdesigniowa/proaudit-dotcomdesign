@@ -381,6 +381,7 @@ export type Database = {
           updated_by: string | null
           w3c_issue_penalty: number
           weight_accessibility: number
+          weight_ai: number
           weight_design: number
           weight_psi_mobile: number
           weight_w3c: number
@@ -396,6 +397,7 @@ export type Database = {
           updated_by?: string | null
           w3c_issue_penalty?: number
           weight_accessibility?: number
+          weight_ai?: number
           weight_design?: number
           weight_psi_mobile?: number
           weight_w3c?: number
@@ -411,6 +413,7 @@ export type Database = {
           updated_by?: string | null
           w3c_issue_penalty?: number
           weight_accessibility?: number
+          weight_ai?: number
           weight_design?: number
           weight_psi_mobile?: number
           weight_w3c?: number
