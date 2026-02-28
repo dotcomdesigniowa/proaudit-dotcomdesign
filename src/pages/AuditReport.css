@@ -389,19 +389,16 @@
   color: #374151;
   line-height: 1.35;
 }
-.audit-page .designFindingDot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #dc2626;
-  flex-shrink: 0;
+/* Icon color in design findings */
+.audit-page .designFinding svg {
+  color: #dc2626;
 }
 
 /* Metric section divider */
 .audit-page .metricDivider {
   border: none;
   border-top: 1px solid rgba(15,18,32,.08);
-  margin: 0;
+  margin: 32px 0;
 }
 
 /* SUMMARY LIST (legacy) */

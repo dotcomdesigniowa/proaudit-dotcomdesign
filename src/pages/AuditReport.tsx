@@ -5,7 +5,7 @@ import AppLayout from "@/components/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import type { Tables } from "@/integrations/supabase/types";
-import { Copy, RefreshCw } from "lucide-react";
+import { Copy, RefreshCw, LayoutTemplate, Files, ShieldAlert, ImageOff, Layers, Award } from "lucide-react";
 import { toast } from "sonner";
 import ComputerScreenshot from "@/components/ComputerScreenshot";
 import InfoTip from "@/components/InfoTip";
@@ -24,12 +24,14 @@ const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
 // Design bullets fallback (used if DB copy not loaded yet)
 const DESIGN_BULLETS_FALLBACK = [
   "Generic template-based design detected.",
-  "Design resembles mass-produced local business sites.",
+  "Design resembles other mass-produced local sites.",
   "Weak trust signals in top-of-page section.",
   "Stock imagery and generic content detected.",
-  "Weak visual hierarchy and authority.",
-  "Website presentation does not reflect work quality.",
+  "Visual layout doesn't establish authority or credibility.",
+  "Website presentation does not reflect actual work quality.",
 ];
+
+const DESIGN_ICONS = [LayoutTemplate, Files, ShieldAlert, ImageOff, Layers, Award];
 
 const glowClass = (grade: string | null) => {
   switch (grade) {
@@ -572,6 +574,7 @@ const AuditReport = () => {
           </p>
 
           <div className="metrics">
+            <hr className="metricDivider" />
             {/* W3C */}
             <div className="metricRow">
               {(audit as any).w3c_status === 'success' && audit.w3c_issue_count != null ? (
@@ -831,13 +834,13 @@ const AuditReport = () => {
                 <p className="metricText">
                   {getCopy("metric_design_desc", "Your website sets the first impression of your company. If it looks outdated, generic, or low quality, people assume your work is too. When trust drops, revenue follows.")}
                 </p>
-                <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Key Findings ↓</button>
                 <div className="designFindings" ref={summaryListRef}>
                   {[1,2,3,4,5,6].map((n) => {
                     const b = getCopy(`design_bullet_${n}`, DESIGN_BULLETS_FALLBACK[n-1] || "");
+                    const Icon = DESIGN_ICONS[n-1];
                     return (
                       <div key={n} className="designFinding" data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
-                        <span className="designFindingDot" />
+                        <Icon size={16} style={{ opacity: 0.55, flexShrink: 0 }} />
                         <span className="liText">{b}</span>
                       </div>
                     );
