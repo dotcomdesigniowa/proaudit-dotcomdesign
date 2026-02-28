@@ -15,21 +15,14 @@ import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
 import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
 import { useAuditCopy } from "@/hooks/useAuditCopy";
 import { getUthKeys } from "@/lib/copyTemplateKeys";
+import { DESIGN_BULLETS_SOURCE } from "@/lib/designBulletDefaults";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
 
 const DEFAULT_UTH_IMAGE = "/images/under-the-hood.png";
 const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
 
-// Design bullets fallback (used if DB copy not loaded yet)
-const DESIGN_BULLETS_FALLBACK = [
-  "Generic template-based design detected.",
-  "Design copies other local business sites.",
-  "Weak trust signals in top-of-page section.",
-  "Stock imagery and generic content detected.",
-  "Website doesn't establish authority or credibility.",
-  "Website does not reflect actual quality of work.",
-];
+const DESIGN_BULLETS_FALLBACK = [...DESIGN_BULLETS_SOURCE];
 
 const DESIGN_ICONS = [LayoutTemplate, Files, ShieldAlert, ImageOff, Layers, Award];
 
@@ -594,6 +587,7 @@ const AuditReport = () => {
                   <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
                 </div>
               )}
+
               <div>
                 <div className="metricLabel">Website Errors &amp; Warnings</div>
                 <p className="metricText">
@@ -627,41 +621,45 @@ const AuditReport = () => {
                     </div>
                   )
                 )}
-                {audit.w3c_audit_url && (
-                  <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                    View Audit <span>→</span>
-                  </a>
-                )}
-                {(((audit as any).w3c_status === 'error') || ((audit as any).w3c_status !== 'fetching' && audit.w3c_issue_count == null)) && user && (
-                  <button
-                    className="pillBtn"
-                    style={{ marginLeft: 8, opacity: 0.8 }}
-                    onClick={async () => {
-                      if (!audit.website_url) return;
-                      toast.success("Retrying W3C fetch…");
-                      setAudit(prev => prev ? { ...prev, w3c_status: 'fetching' } as Audit : prev);
-                      try {
-                        await supabase.functions.invoke("run-w3c", {
-                          body: { audit_id: audit.id, website_url: audit.website_url },
-                        });
-                      } catch {
-                        toast.error("W3C retry failed");
-                      }
-                    }}
-                  >
-                    Retry W3C
-                  </button>
-                )}
               </div>
+
               {(() => {
                 const w3cPending = (audit as any).w3c_status === 'fetching' || (audit.w3c_issue_count == null && (audit as any).w3c_status !== 'success' && (audit as any).w3c_status !== 'error');
                 return <MetricGradeBox grade={audit.w3c_grade || "F"} pending={w3cPending} />;
               })()}
+
+              {(audit.w3c_audit_url || ((((audit as any).w3c_status === 'error') || ((audit as any).w3c_status !== 'fetching' && audit.w3c_issue_count == null)) && !!user)) && (
+                <div className="metricBtn">
+                  {audit.w3c_audit_url && (
+                    <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
+                      View Audit <span>→</span>
+                    </a>
+                  )}
+                  {(((audit as any).w3c_status === 'error') || ((audit as any).w3c_status !== 'fetching' && audit.w3c_issue_count == null)) && user && (
+                    <button
+                      className="pillBtn retryBtn"
+                      onClick={async () => {
+                        if (!audit.website_url) return;
+                        toast.success("Retrying W3C fetch…");
+                        setAudit(prev => prev ? { ...prev, w3c_status: 'fetching' } as Audit : prev);
+                        try {
+                          await supabase.functions.invoke("run-w3c", {
+                            body: { audit_id: audit.id, website_url: audit.website_url },
+                          });
+                        } catch {
+                          toast.error("W3C retry failed");
+                        }
+                      }}
+                    >
+                      Retry W3C
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             <hr className="metricDivider" />
 
-            {/* PSI */}
             <div className="metricRow">
               {(audit as any).psi_status === 'success' && audit.psi_mobile_score != null ? (
                 <MetricNumber value={audit.psi_mobile_score} suffix="out of 100" />
@@ -697,41 +695,44 @@ const AuditReport = () => {
                     {(audit as any).psi_last_error}
                   </p>
                 )}
-                {(() => {
-                  const psiUrl = audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null);
-                  return psiUrl ? (
-                    <a href={psiUrl} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                      View Audit <span>→</span>
-                    </a>
-                  ) : null;
-                })()}
-                {(((audit as any).psi_status === 'error') || ((audit as any).psi_status !== 'fetching' && audit.psi_mobile_score == null)) && user && (
-                  <button
-                    className="pillBtn"
-                    style={{ marginLeft: 8, opacity: 0.8 }}
-                    onClick={async () => {
-                      if (!audit.website_url) return;
-                      toast.success("Retrying PSI fetch…");
-                      setAudit(prev => prev ? { ...prev, psi_status: 'fetching' } as Audit : prev);
-                      try {
-                        await supabase.functions.invoke("run-psi-and-update", {
-                          body: { audit_id: audit.id, website_url: audit.website_url },
-                        });
-                      } catch {
-                        toast.error("PSI retry failed");
-                      }
-                    }}
-                  >
-                    Retry PSI
-                  </button>
-                )}
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} pending={psiPending} />
+
+              {((audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null)) || ((((audit as any).psi_status === 'error') || ((audit as any).psi_status !== 'fetching' && audit.psi_mobile_score == null)) && !!user)) && (
+                <div className="metricBtn">
+                  {(() => {
+                    const psiUrl = audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null);
+                    return psiUrl ? (
+                      <a href={psiUrl} target="_blank" rel="noopener noreferrer" className="pillBtn">
+                        View Audit <span>→</span>
+                      </a>
+                    ) : null;
+                  })()}
+                  {(((audit as any).psi_status === 'error') || ((audit as any).psi_status !== 'fetching' && audit.psi_mobile_score == null)) && user && (
+                    <button
+                      className="pillBtn retryBtn"
+                      onClick={async () => {
+                        if (!audit.website_url) return;
+                        toast.success("Retrying PSI fetch…");
+                        setAudit(prev => prev ? { ...prev, psi_status: 'fetching' } as Audit : prev);
+                        try {
+                          await supabase.functions.invoke("run-psi-and-update", {
+                            body: { audit_id: audit.id, website_url: audit.website_url },
+                          });
+                        } catch {
+                          toast.error("PSI retry failed");
+                        }
+                      }}
+                    >
+                      Retry PSI
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
             <hr className="metricDivider" />
 
-            {/* Accessibility */}
             <div className="metricRow">
               {(audit as any).wave_status === 'success' && audit.accessibility_score != null ? (
                 <MetricNumber value={audit.accessibility_score} suffix="out of 10" decimals={1} />
@@ -793,33 +794,37 @@ const AuditReport = () => {
                     )}
                   </>
                 )}
-                {audit.accessibility_audit_url && (
-                  <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                    View Audit <span>→</span>
-                  </a>
-                )}
-                {(((audit as any).wave_status === 'error') || ((audit as any).wave_status !== 'fetching' && audit.accessibility_score == null)) && user && (
-                  <button
-                    className="pillBtn"
-                    style={{ marginLeft: 8, opacity: 0.8 }}
-                    onClick={async () => {
-                      if (!audit.website_url) return;
-                      toast.success("Retrying accessibility fetch…");
-                      setAudit(prev => prev ? { ...prev, wave_status: 'fetching' } as Audit : prev);
-                      try {
-                        await supabase.functions.invoke("run-wave", {
-                          body: { audit_id: audit.id, website_url: audit.website_url },
-                        });
-                      } catch {
-                        toast.error("Accessibility retry failed");
-                      }
-                    }}
-                  >
-                    Retry Accessibility
-                  </button>
-                )}
               </div>
               <MetricGradeBox grade={audit.accessibility_grade || "F"} pending={wavePending} />
+
+              {(audit.accessibility_audit_url || ((((audit as any).wave_status === 'error') || ((audit as any).wave_status !== 'fetching' && audit.accessibility_score == null)) && !!user)) && (
+                <div className="metricBtn">
+                  {audit.accessibility_audit_url && (
+                    <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">
+                      View Audit <span>→</span>
+                    </a>
+                  )}
+                  {(((audit as any).wave_status === 'error') || ((audit as any).wave_status !== 'fetching' && audit.accessibility_score == null)) && user && (
+                    <button
+                      className="pillBtn retryBtn"
+                      onClick={async () => {
+                        if (!audit.website_url) return;
+                        toast.success("Retrying accessibility fetch…");
+                        setAudit(prev => prev ? { ...prev, wave_status: 'fetching' } as Audit : prev);
+                        try {
+                          await supabase.functions.invoke("run-wave", {
+                            body: { audit_id: audit.id, website_url: audit.website_url },
+                          });
+                        } catch {
+                          toast.error("Accessibility retry failed");
+                        }
+                      }}
+                    >
+                      Retry Accessibility
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
 
 

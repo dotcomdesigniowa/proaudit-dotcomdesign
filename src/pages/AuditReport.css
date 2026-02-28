@@ -256,6 +256,9 @@
 .audit-page .pillBtn.static { cursor: default; }
 .audit-page .pillBtn.static:hover { transform: none; box-shadow: 0 10px 22px rgba(0,0,0,.06); }
 
+.audit-page .metricRow > .metricBtn { grid-column: 2 / 3; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.audit-page .metricRow > .metricBtn .pillBtn { margin-top: 0; }
+
 .audit-page .alertLine {
   margin-top: 10px;
   color: #7f1d1d;
@@ -736,12 +739,8 @@
     margin-bottom: 52px;
   }
   .audit-page .metricRow:last-child { margin-bottom: 0; }
-  /* Text block uses display:contents so children become direct flex items */
-  .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) {
-    display: contents;
-  }
-  /* All text children default to order 1, full width */
-  .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) > * {
+  /* Text block on top, full width */
+  .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox):not(.metricBtn) {
     flex: 1 1 100%;
     order: 1;
   }
@@ -774,10 +773,15 @@
     justify-content: center;
     text-align: center;
   }
-  /* Buttons & xList below scores */
+  /* Buttons below scores */
   .audit-page .metricRow > .metricBtn {
     order: 4;
     flex: 1 1 100%;
+    grid-column: auto;
+    align-items: stretch;
+  }
+  .audit-page .metricRow > .metricBtn .pillBtn {
+    width: 100%;
   }
   .audit-page .metricRow > ul.metricBtn {
     order: 5;
@@ -803,14 +807,13 @@
     z-index: 2;
   }
 
-  /* Pill buttons — full width on mobile, pushed below score boxes */
+  /* Pill buttons — full width on mobile, below score boxes */
   .audit-page .pillBtn {
     font-size: 15px;
     padding: 10px 12px;
     margin-top: 8px;
     width: 100%;
     box-sizing: border-box;
-    order: 4;
   }
 
   /* AI heading center on mobile */
