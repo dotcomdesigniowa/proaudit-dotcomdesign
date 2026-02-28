@@ -94,7 +94,7 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
       {/* Details */}
       <div>
         <div className="metricLabel" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Bot size={18} /> AI Friendliness Score
+          <Bot size={18} /> Ai Friendliness Score
         </div>
         <p className="metricText">
           This measures whether modern Ai systems (like ChatGPT, Gemini &amp; Voice Assistants) can access, read, and understand your website. It does not guarantee visibility in AI-generated results, but it shows whether your website is technically prepared for AI systems.
@@ -129,7 +129,7 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
                   border: "1px solid rgba(15,18,32,.08)",
                 }}>
                   <span style={{ opacity: 0.7 }}>{categoryIcons[key]}</span>
-                  <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{categoryLabels[key] || key}</span>
+                  <span style={{ flex: 1, fontWeight: 700, fontSize: 14, textAlign: "left" }}>{categoryLabels[key] || key}</span>
                   <span style={{ fontWeight: 900, fontSize: 14, fontVariantNumeric: "tabular-nums" }}>
                     {sub.score}/{sub.max}
                   </span>
