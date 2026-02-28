@@ -24,11 +24,11 @@ const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
 // Design bullets fallback (used if DB copy not loaded yet)
 const DESIGN_BULLETS_FALLBACK = [
   "Generic template-based design detected.",
-  "Design resembles other mass-produced local sites.",
+  "Design copies other local business sites.",
   "Weak trust signals in top-of-page section.",
   "Stock imagery and generic content detected.",
-  "Visual layout doesn't establish authority or credibility.",
-  "Website presentation does not reflect actual work quality.",
+  "Website doesn't establish authority or credibility.",
+  "Website does not reflect actual quality of work.",
 ];
 
 const DESIGN_ICONS = [LayoutTemplate, Files, ShieldAlert, ImageOff, Layers, Award];
