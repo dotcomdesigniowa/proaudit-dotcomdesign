@@ -534,6 +534,12 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ success: false, error: updateError.message }), { status: 500, headers: jsonHeaders });
     }
 
+    // Trigger overall score recalculation by doing a no-op update that fires the calculate_audit_scores trigger
+    const { error: recalcError } = await supabase.from("audit").update({ ai_score: totalScore }).eq("id", audit_id);
+    if (recalcError) {
+      console.warn("Recalc trigger update failed:", recalcError.message);
+    }
+
     console.log("AI audit success! Score:", totalScore, "Grade:", grade, "for audit:", audit_id);
     return new Response(JSON.stringify({ success: true, score: totalScore, grade }), { headers: jsonHeaders });
   } catch (err) {

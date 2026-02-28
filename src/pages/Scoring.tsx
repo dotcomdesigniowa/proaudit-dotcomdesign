@@ -27,6 +27,7 @@ interface ScoringSettings {
   weight_psi_mobile: number;
   weight_accessibility: number;
   weight_design: number;
+  weight_ai: number;
   w3c_issue_penalty: number;
   grade_a_min: number;
   grade_b_min: number;
@@ -35,10 +36,11 @@ interface ScoringSettings {
 }
 
 const defaultSettings: Omit<ScoringSettings, "id"> = {
-  weight_w3c: 0.3,
-  weight_psi_mobile: 0.3,
-  weight_accessibility: 0.2,
-  weight_design: 0.2,
+  weight_w3c: 0.27,
+  weight_psi_mobile: 0.27,
+  weight_accessibility: 0.18,
+  weight_design: 0.18,
+  weight_ai: 0.10,
   w3c_issue_penalty: 0.5,
   grade_a_min: 90,
   grade_b_min: 80,
@@ -62,7 +64,7 @@ const Scoring = () => {
   const [recalculating, setRecalculating] = useState(false);
 
   // Preview calculator state
-  const [preview, setPreview] = useState({ w3c_issues: 10, psi: 65, accessibility: 85, design: 35 });
+  const [preview, setPreview] = useState({ w3c_issues: 10, psi: 65, accessibility: 85, design: 35, ai: 80 });
 
   useEffect(() => {
     loadSettings();
@@ -87,7 +89,7 @@ const Scoring = () => {
   const handleSave = async () => {
     if (!settings || !user) return;
 
-    const sum = settings.weight_w3c + settings.weight_psi_mobile + settings.weight_accessibility + settings.weight_design;
+    const sum = settings.weight_w3c + settings.weight_psi_mobile + settings.weight_accessibility + settings.weight_design + settings.weight_ai;
     if (Math.abs(sum - 1) > 0.01) {
       toast({ title: "Weights must sum to 1.00", description: `Current sum: ${sum.toFixed(2)}`, variant: "destructive" });
       return;
@@ -101,6 +103,7 @@ const Scoring = () => {
         weight_psi_mobile: settings.weight_psi_mobile,
         weight_accessibility: settings.weight_accessibility,
         weight_design: settings.weight_design,
+        weight_ai: settings.weight_ai,
         w3c_issue_penalty: settings.w3c_issue_penalty,
         grade_a_min: settings.grade_a_min,
         grade_b_min: settings.grade_b_min,
@@ -152,7 +155,8 @@ const Scoring = () => {
         previewW3cScore * settings.weight_w3c +
         preview.psi * settings.weight_psi_mobile +
         preview.accessibility * settings.weight_accessibility +
-        preview.design * settings.weight_design
+        preview.design * settings.weight_design +
+        preview.ai * settings.weight_ai
       )
     : 0;
   const previewGrade = settings
@@ -160,7 +164,7 @@ const Scoring = () => {
     : "—";
 
   const weightSum = settings
-    ? (settings.weight_w3c + settings.weight_psi_mobile + settings.weight_accessibility + settings.weight_design).toFixed(2)
+    ? (settings.weight_w3c + settings.weight_psi_mobile + settings.weight_accessibility + settings.weight_design + settings.weight_ai).toFixed(2)
     : "0.00";
 
   if (loading) {
@@ -189,12 +193,13 @@ const Scoring = () => {
             </span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           {([
             ["weight_w3c", "W3C"],
             ["weight_psi_mobile", "PSI Mobile"],
             ["weight_accessibility", "Accessibility"],
             ["weight_design", "Design"],
+            ["weight_ai", "AI Friendliness"],
           ] as const).map(([key, label]) => (
             <div key={key} className="space-y-1">
               <Label htmlFor={key}>{label}</Label>
@@ -288,7 +293,7 @@ const Scoring = () => {
           <CardDescription>Test how sample values score with current settings.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
             <div className="space-y-1">
               <Label>W3C Issues</Label>
               <Input type="number" min="0" value={preview.w3c_issues} onChange={(e) => setPreview({ ...preview, w3c_issues: parseInt(e.target.value) || 0 })} />
@@ -304,6 +309,10 @@ const Scoring = () => {
             <div className="space-y-1">
               <Label>Design</Label>
               <Input type="number" min="0" max="100" value={preview.design} onChange={(e) => setPreview({ ...preview, design: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div className="space-y-1">
+              <Label>AI Friendliness</Label>
+              <Input type="number" min="0" max="100" value={preview.ai} onChange={(e) => setPreview({ ...preview, ai: parseInt(e.target.value) || 0 })} />
             </div>
           </div>
           <div className="mt-4 flex items-center gap-6 rounded-md bg-muted p-4">
