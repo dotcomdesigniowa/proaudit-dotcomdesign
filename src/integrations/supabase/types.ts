@@ -19,6 +19,12 @@ export type Database = {
           accessibility_audit_url: string | null
           accessibility_grade: string | null
           accessibility_score: number | null
+          ai_details: Json | null
+          ai_fetched_at: string | null
+          ai_grade: string | null
+          ai_last_error: string | null
+          ai_score: number | null
+          ai_status: string
           business_phone: string | null
           company_logo_url: string | null
           company_name: string | null
@@ -65,6 +71,12 @@ export type Database = {
           accessibility_audit_url?: string | null
           accessibility_grade?: string | null
           accessibility_score?: number | null
+          ai_details?: Json | null
+          ai_fetched_at?: string | null
+          ai_grade?: string | null
+          ai_last_error?: string | null
+          ai_score?: number | null
+          ai_status?: string
           business_phone?: string | null
           company_logo_url?: string | null
           company_name?: string | null
@@ -111,6 +123,12 @@ export type Database = {
           accessibility_audit_url?: string | null
           accessibility_grade?: string | null
           accessibility_score?: number | null
+          ai_details?: Json | null
+          ai_fetched_at?: string | null
+          ai_grade?: string | null
+          ai_last_error?: string | null
+          ai_score?: number | null
+          ai_status?: string
           business_phone?: string | null
           company_logo_url?: string | null
           company_name?: string | null

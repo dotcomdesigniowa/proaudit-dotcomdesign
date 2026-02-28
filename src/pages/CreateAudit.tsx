@@ -138,6 +138,7 @@ const CreateAudit = () => {
       wave_status: normalizedUrl ? 'fetching' : 'idle',
       design_score: form.design_score ? parseInt(form.design_score) : 35,
       company_logo_url: discoveredLogo,
+      ai_status: normalizedUrl ? 'fetching' : 'idle',
     };
 
     const { data, error } = await supabase
@@ -176,6 +177,11 @@ const CreateAudit = () => {
           body: { audit_id: data.id, website_url: normalizedUrl },
         }).catch((err) => logError({ page: "/create-audit", action: "run-w3c", message: err?.message || "W3C fetch failed" }));
       }
+
+      // Fire-and-forget: run AI Friendliness audit
+      supabase.functions.invoke("run-ai-friendly", {
+        body: { audit_id: data.id, website_url: normalizedUrl },
+      }).catch((err) => logError({ page: "/create-audit", action: "run-ai-friendly", message: err?.message || "AI audit failed" }));
     }
 
     navigate(`/${data.id}`);

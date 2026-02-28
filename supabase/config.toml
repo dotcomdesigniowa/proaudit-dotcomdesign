@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.run-w3c]
 verify_jwt = false
+
+[functions.run-ai-friendly]
+verify_jwt = false

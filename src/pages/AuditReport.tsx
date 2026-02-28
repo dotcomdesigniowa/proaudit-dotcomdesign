@@ -12,6 +12,7 @@ import InfoTip from "@/components/InfoTip";
 import "./AuditReport.css";
 import { formatPhone } from "@/lib/formatPhone";
 import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
+import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
 import { useAuditCopy } from "@/hooks/useAuditCopy";
 import { getUthKeys } from "@/lib/copyTemplateKeys";
 
@@ -406,6 +407,32 @@ const AuditReport = () => {
 
     return () => clearInterval(timer);
   }, [audit?.w3c_issue_count, (audit as any)?.w3c_status, auditId]);
+
+  // ── AI Friendliness polling: auto-refresh when fetching ──
+  useEffect(() => {
+    if (!audit || !auditId) return;
+    const status = (audit as any).ai_status;
+    if (status !== 'fetching') return;
+
+    const startTime = Date.now();
+    const TIMEOUT = 120_000;
+    const INTERVAL = 3_000;
+
+    const timer = setInterval(async () => {
+      if (Date.now() - startTime > TIMEOUT) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, ai_status: 'error', ai_last_error: 'Timed out waiting for AI audit results.' } as Audit : prev);
+        return;
+      }
+      const { data } = await supabase.from("audit").select("ai_score, ai_grade, ai_status, ai_last_error, ai_details, ai_fetched_at").eq("id", auditId).maybeSingle();
+      if (data && ((data as any).ai_status === 'success' || (data as any).ai_status === 'error')) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, ...data } as Audit : prev);
+      }
+    }, INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [(audit as any)?.ai_score, (audit as any)?.ai_status, auditId]);
 
   useEffect(() => {
     if (!audit || !heroHeadingRef.current) return;
@@ -812,6 +839,13 @@ const AuditReport = () => {
               <MetricGradeBox grade={audit.design_grade || "F"} />
             </div>
             )}
+
+            {/* AI Friendliness */}
+            <AiFriendlinessPanel
+              audit={audit}
+              onUpdate={(updates) => setAudit(prev => prev ? { ...prev, ...updates } as Audit : prev)}
+              isOwner={!!user}
+            />
           </div>
         </div>
       </section>
