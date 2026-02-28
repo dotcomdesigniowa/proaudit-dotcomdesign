@@ -11,7 +11,15 @@ interface AiFriendlinessPanelProps {
   isOwner?: boolean;
 }
 
-const gradeColor = (grade: string | null) => {
+const gradeFromPct = (pct: number): string => {
+  if (pct >= 90) return "A";
+  if (pct >= 80) return "B";
+  if (pct >= 70) return "C";
+  if (pct >= 60) return "D";
+  return "F";
+};
+
+const gradeColor = (grade: string) => {
   switch (grade) {
     case "A": return "#16a34a";
     case "B": return "#22c55e";
@@ -107,32 +115,36 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
         {/* Subscores */}
         {isSuccess && aiDetails?.subscores && (
           <div style={{ margin: "12px 0", display: "flex", flexDirection: "column", gap: 6 }}>
-            {Object.entries(aiDetails.subscores).map(([key, sub]: [string, any]) => (
-              <div key={key} style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "8px 12px",
-                borderRadius: 10,
-                background: "rgba(15,18,32,.03)",
-                border: "1px solid rgba(15,18,32,.08)",
-              }}>
-                <span style={{ opacity: 0.7 }}>{categoryIcons[key]}</span>
-                <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{categoryLabels[key] || key}</span>
-                <span style={{ fontWeight: 900, fontSize: 14, fontVariantNumeric: "tabular-nums" }}>
-                  {sub.score}/{sub.max}
-                </span>
-                <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(15,18,32,.08)", overflow: "hidden" }}>
-                  <div style={{
-                    height: "100%",
-                    width: `${(sub.score / sub.max) * 100}%`,
-                    borderRadius: 3,
-                    background: gradeColor(aiGrade),
-                    transition: "width .5s ease",
-                  }} />
+            {Object.entries(aiDetails.subscores).map(([key, sub]: [string, any]) => {
+              const pct = sub.max > 0 ? (sub.score / sub.max) * 100 : 0;
+              const barGrade = gradeFromPct(pct);
+              return (
+                <div key={key} style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                  padding: "8px 12px",
+                  borderRadius: 10,
+                  background: "rgba(15,18,32,.03)",
+                  border: "1px solid rgba(15,18,32,.08)",
+                }}>
+                  <span style={{ opacity: 0.7 }}>{categoryIcons[key]}</span>
+                  <span style={{ flex: 1, fontWeight: 700, fontSize: 14 }}>{categoryLabels[key] || key}</span>
+                  <span style={{ fontWeight: 900, fontSize: 14, fontVariantNumeric: "tabular-nums" }}>
+                    {sub.score}/{sub.max}
+                  </span>
+                  <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(15,18,32,.08)", overflow: "hidden" }}>
+                    <div style={{
+                      height: "100%",
+                      width: `${pct}%`,
+                      borderRadius: 3,
+                      background: gradeColor(barGrade),
+                      transition: "width .5s ease",
+                    }} />
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
