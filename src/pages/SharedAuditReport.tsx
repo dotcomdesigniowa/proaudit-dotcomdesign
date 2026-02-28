@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
 import ComputerScreenshot from "@/components/ComputerScreenshot";
 import InfoTip from "@/components/InfoTip";
+import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
 import "./AuditReport.css";
 import { formatPhone } from "@/lib/formatPhone";
 import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
@@ -305,14 +306,14 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                     </div>
                   )
                 )}
+                {audit.w3c_audit_url && (
+                  <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
+                )}
               </div>
               {(() => {
                 const w3cPending = (audit as any).w3c_status === 'fetching' || (audit.w3c_issue_count == null && (audit as any).w3c_status !== 'success');
                 return <MetricGradeBox grade={audit.w3c_grade || "F"} pending={w3cPending} />;
               })()}
-              {audit.w3c_audit_url && (
-                <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn metricBtn">View Audit <span>→</span></a>
-              )}
             </div>
             <div className="metricRow">
               <MetricNumber value={audit.psi_mobile_score ?? 0} suffix="out of 100" />
@@ -321,11 +322,11 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 <p className="metricText">
                   {getCopy("metric_psi_desc", "Your mobile performance score directly impacts how your business shows up in search results. When your site is slow or underperforms on mobile, users leave… and Google notices. Over time, this drastically weakens your visibility.")}
                 </p>
+                {audit.psi_audit_url && (
+                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
+                )}
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} />
-              {audit.psi_audit_url && (
-                <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn metricBtn">View Audit <span>→</span></a>
-              )}
             </div>
             <div className="metricRow">
               <MetricNumber value={audit.accessibility_score ?? 0} suffix="out of 10" decimals={1} />
@@ -359,11 +360,11 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                     )}
                   </>
                 )}
+                {audit.accessibility_audit_url && (
+                  <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
+                )}
               </div>
               <MetricGradeBox grade={audit.accessibility_grade || "F"} />
-              {audit.accessibility_audit_url && (
-                <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn metricBtn">View Audit <span>→</span></a>
-              )}
             </div>
             {/* Design - hidden for "Other" provider */}
             {audit.provider !== "Other" && (
@@ -374,21 +375,28 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 <p className="metricText">
                   {getCopy("metric_design_desc", "Your website sets the first impression of your company. If it looks outdated, generic, or low quality, people assume your work is too. When trust drops, revenue follows.")}
                 </p>
+                <button type="button" className="pillBtn" style={{ marginTop: 12 }}>Key Findings ↓</button>
+                <div className="designFindings">
+                  {[1,2,3,4,5,6].map((n) => {
+                    const b = getCopy(`design_bullet_${n}`, DESIGN_BULLETS_FALLBACK[n-1] || "");
+                    return (
+                      <div key={n} className="alertLine">
+                        🚩 <span className="liText">{b}</span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
               <MetricGradeBox grade={audit.design_grade || "F"} />
-              <button type="button" className="pillBtn metricBtn" style={{ marginTop: 0 }}>Key Findings ↓</button>
-              <div className="designFindings metricBtn">
-                {[1,2,3,4,5,6].map((n) => {
-                  const b = getCopy(`design_bullet_${n}`, DESIGN_BULLETS_FALLBACK[n-1] || "");
-                  return (
-                    <div key={n} className="alertLine">
-                      🚩 <span className="liText">{b}</span>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
             )}
+
+            {/* AI Friendliness */}
+            <AiFriendlinessPanel
+              audit={audit}
+              onUpdate={() => {}}
+              isOwner={false}
+            />
           </div>
         </div>
       </section>
