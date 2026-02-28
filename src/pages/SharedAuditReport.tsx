@@ -46,11 +46,11 @@ const formatDate = (dateStr: string | null) => {
 
 const DESIGN_BULLETS_FALLBACK = [
   "Generic template-based design detected.",
-  "Design closely resembles other mass-produced local business sites.",
-  "Top-of-page section lacks strong trust signals.",
+  "Design resembles mass-produced local business sites.",
+  "Weak trust signals in top-of-page section.",
   "Stock imagery and generic content detected.",
-  "Visual hierarchy and layout do not establish authority or credibility.",
-  "Website presentation does not reflect the quality of the company's actual work.",
+  "Weak visual hierarchy and authority.",
+  "Website presentation does not reflect work quality.",
 ];
 
 const MATRIX = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%&";
@@ -315,6 +315,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 return <MetricGradeBox grade={audit.w3c_grade || "F"} pending={w3cPending} />;
               })()}
             </div>
+            <hr className="metricDivider" />
             <div className="metricRow">
               <MetricNumber value={audit.psi_mobile_score ?? 0} suffix="out of 100" />
               <div>
@@ -328,6 +329,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} />
             </div>
+            <hr className="metricDivider" />
             <div className="metricRow">
               <MetricNumber value={audit.accessibility_score ?? 0} suffix="out of 10" decimals={1} />
               <div>
@@ -366,6 +368,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               </div>
               <MetricGradeBox grade={audit.accessibility_grade || "F"} />
             </div>
+            <hr className="metricDivider" />
             {/* Design - hidden for "Other" provider */}
             {audit.provider !== "Other" && (
             <div className="metricRow">
@@ -380,8 +383,9 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                   {[1,2,3,4,5,6].map((n) => {
                     const b = getCopy(`design_bullet_${n}`, DESIGN_BULLETS_FALLBACK[n-1] || "");
                     return (
-                      <div key={n} className="alertLine">
-                        🚩 <span className="liText">{b}</span>
+                      <div key={n} className="designFinding">
+                        <span className="designFindingDot" />
+                        <span className="liText">{b}</span>
                       </div>
                     );
                   })}
@@ -390,6 +394,8 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               <MetricGradeBox grade={audit.design_grade || "F"} />
             </div>
             )}
+
+            <hr className="metricDivider" />
 
             {/* AI Friendliness */}
             <AiFriendlinessPanel

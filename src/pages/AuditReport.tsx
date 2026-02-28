@@ -24,11 +24,11 @@ const DEFAULT_SCAN_IMAGE = "/images/presence-scan.png";
 // Design bullets fallback (used if DB copy not loaded yet)
 const DESIGN_BULLETS_FALLBACK = [
   "Generic template-based design detected.",
-  "Design closely resembles other mass-produced local business sites.",
-  "Top-of-page section lacks strong trust signals.",
+  "Design resembles mass-produced local business sites.",
+  "Weak trust signals in top-of-page section.",
   "Stock imagery and generic content detected.",
-  "Visual hierarchy and layout do not establish authority or credibility.",
-  "Website presentation does not reflect the quality of the company's actual work.",
+  "Weak visual hierarchy and authority.",
+  "Website presentation does not reflect work quality.",
 ];
 
 const glowClass = (grade: string | null) => {
@@ -656,6 +656,8 @@ const AuditReport = () => {
               })()}
             </div>
 
+            <hr className="metricDivider" />
+
             {/* PSI */}
             <div className="metricRow">
               {(audit as any).psi_status === 'success' && audit.psi_mobile_score != null ? (
@@ -723,6 +725,8 @@ const AuditReport = () => {
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} pending={psiPending} />
             </div>
+
+            <hr className="metricDivider" />
 
             {/* Accessibility */}
             <div className="metricRow">
@@ -815,6 +819,9 @@ const AuditReport = () => {
               <MetricGradeBox grade={audit.accessibility_grade || "F"} pending={wavePending} />
             </div>
 
+
+            <hr className="metricDivider" />
+
             {/* Design - hidden for "Other" provider */}
             {audit.provider !== "Other" && (
             <div className="metricRow">
@@ -829,8 +836,9 @@ const AuditReport = () => {
                   {[1,2,3,4,5,6].map((n) => {
                     const b = getCopy(`design_bullet_${n}`, DESIGN_BULLETS_FALLBACK[n-1] || "");
                     return (
-                      <div key={n} className="alertLine" data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
-                        🚩 <span className="liText">{b}</span>
+                      <div key={n} className="designFinding" data-text={b} style={{ transition: "opacity .3s, transform .3s" }}>
+                        <span className="designFindingDot" />
+                        <span className="liText">{b}</span>
                       </div>
                     );
                   })}
@@ -839,6 +847,9 @@ const AuditReport = () => {
               <MetricGradeBox grade={audit.design_grade || "F"} />
             </div>
             )}
+
+
+            <hr className="metricDivider" />
 
             {/* AI Friendliness */}
             <AiFriendlinessPanel
