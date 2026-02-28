@@ -372,9 +372,36 @@
 .audit-page .designFindings {
   display: flex;
   flex-direction: column;
-  gap: 0;
-  margin: 4px 0 0;
+  gap: 6px;
+  margin: 12px 0 0;
   max-width: 760px;
+}
+.audit-page .designFinding {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(220,38,38,.04);
+  border: 1px solid rgba(220,38,38,.12);
+  font-size: 14px;
+  font-weight: 700;
+  color: #374151;
+  line-height: 1.35;
+}
+.audit-page .designFindingDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #dc2626;
+  flex-shrink: 0;
+}
+
+/* Metric section divider */
+.audit-page .metricDivider {
+  border: none;
+  border-top: 1px solid rgba(15,18,32,.08);
+  margin: 0;
 }
 
 /* SUMMARY LIST (legacy) */
@@ -774,8 +801,25 @@
     z-index: 2;
   }
 
-  /* Pill buttons */
-  .audit-page .pillBtn { font-size: 15px; padding: 8px 12px; margin-top: 8px; }
+  /* Pill buttons — full width on mobile, pushed below boxes */
+  .audit-page .pillBtn {
+    font-size: 15px;
+    padding: 10px 12px;
+    margin-top: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    order: 4;
+  }
+  .audit-page .metricRow > div:not(.metricNumWrap):not(.gradeBox) .pillBtn {
+    order: unset;
+  }
+
+  /* AI heading center on mobile */
+  .audit-page .metricLabel { text-align: center; justify-content: center; }
+
+  /* Design findings mobile */
+  .audit-page .designFindings { align-items: stretch; }
+  .audit-page .designFinding { font-size: 14px; text-align: left; }
 
   /* Alert lines — regular block text, not flex */
   .audit-page .alertLine { font-size: 15px; margin-top: 6px; display: block; text-align: center; line-height: 1.6; }
