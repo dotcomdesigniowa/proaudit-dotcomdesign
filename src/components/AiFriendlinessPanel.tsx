@@ -22,7 +22,7 @@ const gradeFromPct = (pct: number): string => {
 const gradeColor = (grade: string) => {
   switch (grade) {
     case "A": return "#16a34a";
-    case "B": return "#22c55e";
+    case "B": return "#3b82f6";
     case "C": return "#eab308";
     case "D": return "#f97316";
     default: return "#dc2626";
