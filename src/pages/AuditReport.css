@@ -833,6 +833,7 @@
   /* Presence — image below text fields, full width */
   .audit-page .presenceGrid { gap: 18px; display: flex; flex-direction: column; }
   .audit-page .presenceImgCol { padding-top: 0; order: 2; }
+  .audit-page .presenceImgCol img { flex: none; min-height: auto; width: 100%; height: auto; }
   .audit-page .presenceTextCol { order: 1; }
   .audit-page .scannedBusinessInfo { gap: 6px; margin-top: 14px; width: 100%; }
   .audit-page .scanField { padding: 8px 12px !important; border-radius: 8px !important; width: 100% !important; box-sizing: border-box !important; }
