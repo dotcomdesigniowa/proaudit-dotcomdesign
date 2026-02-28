@@ -1,7 +1,6 @@
-import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Bot, ChevronDown, ChevronUp, RefreshCw, Shield, FileText, Search, Sparkles } from "lucide-react";
+import { Bot, RefreshCw, Shield, FileText, Search, Sparkles } from "lucide-react";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Audit = Tables<"audit">;
@@ -22,24 +21,6 @@ const gradeColor = (grade: string | null) => {
   }
 };
 
-const severityBadge = (sev: string) => {
-  const colors: Record<string, string> = { high: "#dc2626", med: "#f97316", low: "#eab308" };
-  return (
-    <span style={{
-      display: "inline-block",
-      padding: "2px 8px",
-      borderRadius: 999,
-      fontSize: 11,
-      fontWeight: 800,
-      textTransform: "uppercase",
-      letterSpacing: ".06em",
-      color: "#fff",
-      background: colors[sev] || "#94a3b8",
-    }}>
-      {sev}
-    </span>
-  );
-};
 
 const categoryIcons: Record<string, React.ReactNode> = {
   access_permission: <Shield size={16} />,
@@ -49,14 +30,13 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 const categoryLabels: Record<string, string> = {
-  access_permission: "Access & Permission",
-  extractability: "Extractability",
-  entity_clarity: "Entity Clarity",
-  ai_affordances: "AI Affordances",
+  access_permission: "AI Can Access Your Website",
+  extractability: "AI Can Understand Your Pages",
+  entity_clarity: "Clear Business Details",
+  ai_affordances: "Technical Setup for AI",
 };
 
 export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFriendlinessPanelProps) {
-  const [expanded, setExpanded] = useState(false);
   const aiStatus = (audit as any).ai_status as string;
   const aiScore = (audit as any).ai_score as number | null;
   const aiGrade = (audit as any).ai_grade as string | null;
@@ -109,7 +89,7 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
           <Bot size={18} /> AI Friendliness Score
         </div>
         <p className="metricText">
-          This measures whether modern AI systems — like ChatGPT, Google AI Overviews, and voice assistants — can access, read, and extract your website's content and business facts. It is <strong>not</strong> an SEO audit.
+          This measures whether modern Ai systems (like ChatGPT, Gemini & Voice Assistants) can access, read, and extract your website's content and business facts. It is <strong>not</strong> an SEO audit.
         </p>
 
         {aiFetchedAt && isSuccess && (
@@ -154,42 +134,6 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
               </div>
             ))}
           </div>
-        )}
-
-        {/* Findings */}
-        {isSuccess && aiDetails?.findings?.length > 0 && (
-          <>
-            <button
-              type="button"
-              className="pillBtn"
-              style={{ marginBottom: 8 }}
-              onClick={() => setExpanded(!expanded)}
-            >
-              {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-              <span style={{ marginLeft: 6 }}>
-                {expanded ? "Hide" : "Show"} {aiDetails.findings.length} Finding{aiDetails.findings.length > 1 ? "s" : ""}
-              </span>
-            </button>
-            {expanded && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 12 }}>
-                {aiDetails.findings.map((f: any, i: number) => (
-                  <div key={i} style={{
-                    padding: "10px 14px",
-                    borderRadius: 10,
-                    border: "1px solid rgba(15,18,32,.10)",
-                    background: "#fff",
-                  }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
-                      {severityBadge(f.severity)}
-                      <strong style={{ fontSize: 14 }}>{f.title}</strong>
-                    </div>
-                    <p style={{ fontSize: 13, color: "#374151", margin: "4px 0" }}>{f.description}</p>
-                    <p style={{ fontSize: 12, color: "#6b7280", margin: 0, fontStyle: "italic" }}>💡 {f.recommendation}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
         )}
 
         {/* Retry */}
