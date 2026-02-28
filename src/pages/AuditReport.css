@@ -724,7 +724,7 @@
   }
 
   /* Metrics — text on top, then buttons, then number + grade below */
-  .audit-page .metrics { border-top: none; margin-top: 36px; }
+  .audit-page .metrics { border-top: none; margin-top: 0; }
   .audit-page .metricRow {
     display: flex;
     flex-wrap: wrap;
@@ -859,7 +859,7 @@
 
   /* Section titles */
   .audit-page .sectionTitle { font-size: 18px; margin-bottom: 12px; letter-spacing: .08em; }
-  .audit-page .subtle { font-size: 15px; margin-bottom: 16px; line-height: 1.5; }
+  .audit-page .subtle { font-size: 15px; margin-bottom: 0; line-height: 1.5; }
 
   /* X-list */
   .audit-page .xList { gap: 8px; margin-top: 10px; }
