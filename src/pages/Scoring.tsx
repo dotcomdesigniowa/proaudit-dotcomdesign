@@ -383,6 +383,101 @@ const Scoring = () => {
 
       <Separator />
 
+      {/* AI Friendliness Guide */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">How to Get a 100 in AI Friendliness</CardTitle>
+          <CardDescription>
+            This checklist shows what a website needs in order to score a perfect AI Friendliness Score. These are technical building blocks that help AI systems access and understand a website. Most businesses don't need a perfect 100 — the goal is to remove blockers and make services and contact details easy to understand.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Subsection 1 */}
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">AI Can Access Your Website</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks whether AI tools can reach your website without being blocked.</p>
+            <p className="text-sm font-medium text-foreground mb-1">Checklist:</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5 mb-2">
+              <li>robots.txt loads successfully (yourwebsite.com/robots.txt)</li>
+              <li>Your site is not blocking all automated visitors site-wide</li>
+              <li>Key pages load normally (no captcha / "verify you are human" / "enable JavaScript" walls)</li>
+              <li>Main pages return normal responses (not 403/429/503) when accessed by automated checks</li>
+            </ul>
+            <p className="text-sm font-medium text-foreground mb-1">Common reasons you lose points:</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>robots.txt missing or unreachable</li>
+              <li>Site-wide bot blocking or firewall challenge pages</li>
+              <li>Important pages returning 403/429/503</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          {/* Subsection 2 */}
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">AI Can Understand Your Pages</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks whether your pages contain real, readable written content that AI systems can interpret.</p>
+            <p className="text-sm font-medium text-foreground mb-1">Checklist:</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5 mb-2">
+              <li>Key pages contain real text (not just images)</li>
+              <li>Important pages have enough written content (aim for strong, descriptive page copy)</li>
+              <li>Each page has a clear page title</li>
+              <li>Each page has a clear main headline and supporting headings</li>
+              <li>Core content is visible without relying entirely on heavy scripts</li>
+            </ul>
+            <p className="text-sm font-medium text-foreground mb-1">Common reasons you lose points:</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Thin pages with very little text</li>
+              <li>Pages built like "blank shells" that only show content after scripts run</li>
+              <li>Missing titles or missing clear headings</li>
+              <li>Pages that are mostly images with little text</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          {/* Subsection 3 */}
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Clear Business Details</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks whether your website clearly communicates who you are, what you do, and how to contact you.</p>
+            <p className="text-sm font-medium text-foreground mb-1">Checklist:</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5 mb-2">
+              <li>Phone number is visible on the site as text</li>
+              <li>Contact method is clear (email and/or contact form)</li>
+              <li>Service area or location details are clear</li>
+              <li>Business hours are listed (if applicable)</li>
+              <li>Website includes structured business info (schema) to define your company</li>
+            </ul>
+            <p className="text-sm font-medium text-foreground mb-1">Common reasons you lose points:</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Contact info only in images or hidden elements</li>
+              <li>No clear service area/location listed</li>
+              <li>No structured data (schema) present</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          {/* Subsection 4 */}
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Technical Setup for AI</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks for behind-the-scenes setup that helps AI systems find and navigate your pages.</p>
+            <p className="text-sm font-medium text-foreground mb-1">Checklist:</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5 mb-2">
+              <li>Sitemap is available and working (yourwebsite.com/sitemap.xml) OR sitemap is listed in robots.txt</li>
+              <li>Optional: llms.txt exists at /llms.txt or /.well-known/llms.txt and contains helpful links</li>
+            </ul>
+            <p className="text-sm font-medium text-foreground mb-1">Common reasons you lose points:</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Missing or broken sitemap</li>
+              <li>No llms.txt present (optional)</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
       {/* F) Audit Report Copy */}
       <div>
         <h2 className="text-xl font-bold text-foreground mb-1">Audit Report Copy</h2>
