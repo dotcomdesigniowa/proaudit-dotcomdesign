@@ -89,7 +89,7 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
           <Bot size={18} /> AI Friendliness Score
         </div>
         <p className="metricText">
-          This measures whether modern Ai systems (like ChatGPT, Gemini & Voice Assistants) can access, read, and extract your website's content and business facts. It is <strong>not</strong> an SEO audit.
+          This measures whether modern Ai systems (like ChatGPT, Gemini &amp; Voice Assistants) can access, read, and understand your website. It does not guarantee visibility in AI-generated results, but it shows whether your website is technically prepared for AI systems.
         </p>
 
         {aiFetchedAt && isSuccess && (
