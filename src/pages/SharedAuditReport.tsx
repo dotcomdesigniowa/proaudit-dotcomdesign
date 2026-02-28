@@ -11,6 +11,7 @@ import { formatPhone } from "@/lib/formatPhone";
 import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
 import { useAuditCopy } from "@/hooks/useAuditCopy";
 import { getUthKeys } from "@/lib/copyTemplateKeys";
+import { DESIGN_BULLETS_SOURCE } from "@/lib/designBulletDefaults";
 
 type Audit = Tables<"audit"> & { business_phone?: string | null };
 
@@ -45,14 +46,7 @@ const formatDate = (dateStr: string | null) => {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
-const DESIGN_BULLETS_FALLBACK = [
-  "Generic template-based design detected.",
-  "Design copies other local business sites.",
-  "Weak trust signals in top-of-page section.",
-  "Stock imagery and generic content detected.",
-  "Website doesn't establish authority or credibility.",
-  "Website does not reflect actual quality of work.",
-];
+const DESIGN_BULLETS_FALLBACK = [...DESIGN_BULLETS_SOURCE];
 
 const DESIGN_ICONS = [LayoutTemplate, Files, ShieldAlert, ImageOff, Layers, Award];
 
@@ -310,14 +304,16 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                     </div>
                   )
                 )}
-                {audit.w3c_audit_url && (
-                  <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
-                )}
               </div>
               {(() => {
                 const w3cPending = (audit as any).w3c_status === 'fetching' || (audit.w3c_issue_count == null && (audit as any).w3c_status !== 'success');
                 return <MetricGradeBox grade={audit.w3c_grade || "F"} pending={w3cPending} />;
               })()}
+              {audit.w3c_audit_url && (
+                <div className="metricBtn">
+                  <a href={audit.w3c_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
+                </div>
+              )}
             </div>
             <hr className="metricDivider" />
             <div className="metricRow">
@@ -327,11 +323,13 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                 <p className="metricText">
                   {getCopy("metric_psi_desc", "Your mobile performance score directly impacts how your business shows up in search results. When your site is slow or underperforms on mobile, users leave… and Google notices. Over time, this drastically weakens your visibility.")}
                 </p>
-                {audit.psi_audit_url && (
-                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
-                )}
               </div>
               <MetricGradeBox grade={audit.psi_grade || "F"} />
+              {audit.psi_audit_url && (
+                <div className="metricBtn">
+                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
+                </div>
+              )}
             </div>
             <hr className="metricDivider" />
             <div className="metricRow">
@@ -366,11 +364,13 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
                     )}
                   </>
                 )}
-                {audit.accessibility_audit_url && (
-                  <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
-                )}
               </div>
               <MetricGradeBox grade={audit.accessibility_grade || "F"} />
+              {audit.accessibility_audit_url && (
+                <div className="metricBtn">
+                  <a href={audit.accessibility_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
+                </div>
+              )}
             </div>
             <hr className="metricDivider" />
             {/* Design - hidden for "Other" provider */}
