@@ -828,10 +828,11 @@ const AuditReport = () => {
             </div>
 
 
-            <hr className="metricDivider" />
 
             {/* Design - hidden for "Other" provider */}
             {audit.provider !== "Other" && (
+            <>
+            <hr className="metricDivider" />
             <div className="metricRow">
               <MetricNumber value={audit.design_score ?? 0} suffix="out of 100" />
               <div>
@@ -854,8 +855,8 @@ const AuditReport = () => {
               </div>
               <MetricGradeBox grade={audit.design_grade || "F"} />
             </div>
+            </>
             )}
-
 
             <hr className="metricDivider" />
 
