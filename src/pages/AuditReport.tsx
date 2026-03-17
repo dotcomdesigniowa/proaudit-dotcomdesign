@@ -451,19 +451,54 @@ const AuditReport = () => {
   const overallGradeForMatrix = (psiPendingEarly || wavePendingEarly || w3cPendingEarly) ? "—" : (audit?.overall_grade || "F");
   useMatrixGrade(overallGradeRef, overallGradeForMatrix);
 
-  const copyShareBtn = shareToken ? (
-    <Button
-      variant="outline"
-      size="sm"
-      className="gap-1.5"
-      onClick={() => {
-        navigator.clipboard.writeText(`${window.location.origin}/${shareToken}`);
-        toast.success("Share link copied");
-      }}
-    >
-      <Copy size={13} /> Copy Share Link
-    </Button>
-  ) : null;
+  const [reRunning, setReRunning] = useState(false);
+
+  const handleReRun = useCallback(async () => {
+    if (!auditId) return;
+    setReRunning(true);
+    const ok = await reRunAudit(auditId);
+    if (ok) {
+      // Reset local state to show fetching spinners
+      setAudit(prev => prev ? {
+        ...prev,
+        psi_status: "fetching", psi_last_error: null,
+        wave_status: "fetching", wave_last_error: null,
+        w3c_status: "fetching", w3c_last_error: null,
+        ai_status: "fetching", ai_last_error: null,
+      } as Audit : prev);
+      toast.success("Re-running all scans…");
+    } else {
+      toast.error("Failed to re-run audit");
+    }
+    setReRunning(false);
+  }, [auditId]);
+
+  const navActions = (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-1.5"
+        onClick={handleReRun}
+        disabled={reRunning}
+      >
+        <RefreshCw size={13} className={reRunning ? "animate-spin" : ""} /> Re-Run
+      </Button>
+      {shareToken && (
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-1.5"
+          onClick={() => {
+            navigator.clipboard.writeText(`${window.location.origin}/${shareToken}`);
+            toast.success("Share link copied");
+          }}
+        >
+          <Copy size={13} /> Copy Share Link
+        </Button>
+      )}
+    </div>
+  );
 
   if (loading)
     return (
