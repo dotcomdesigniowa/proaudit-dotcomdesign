@@ -30,9 +30,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Copy, Eye, Activity, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Search, Copy, Eye, Activity, Trash2, CheckCircle, XCircle, RotateCw } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { reRunAudit } from "@/lib/reRunAudit";
 
 interface AuditRow {
   id: string;
@@ -429,6 +430,19 @@ const Index = () => {
                             </DialogContent>
                           </Dialog>
                         )}
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-7 w-7"
+                          onClick={async () => {
+                            const ok = await reRunAudit(a.id);
+                            if (ok) toast.success("Re-running all scans…");
+                            else toast.error("Failed to re-run audit");
+                          }}
+                          title="Re-run audit"
+                        >
+                          <RotateCw size={13} />
+                        </Button>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button size="icon" variant="ghost" className="h-7 w-7 text-destructive hover:text-destructive" title="Delete audit">
