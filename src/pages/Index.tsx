@@ -30,7 +30,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Plus, Search, Copy, Eye, Activity, Trash2, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Search, Copy, Eye, Activity, Trash2, CheckCircle, XCircle, RotateCw } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
