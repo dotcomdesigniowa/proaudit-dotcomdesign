@@ -525,7 +525,7 @@ const AuditReport = () => {
   const normalizedLogo = normalizeLogoUrl(audit.company_logo_url, audit.website_url);
 
   return (
-    <AppLayout navActions={copyShareBtn}>
+    <AppLayout navActions={navActions}>
     <div className="audit-page">
       {/* ===== HERO ===== */}
       <section className="hero">
