@@ -12,6 +12,7 @@ import InfoTip from "@/components/InfoTip";
 import "./AuditReport.css";
 import { formatPhone } from "@/lib/formatPhone";
 import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
+import { reRunAudit } from "@/lib/reRunAudit";
 import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
 import { useAuditCopy } from "@/hooks/useAuditCopy";
 import { getUthKeys } from "@/lib/copyTemplateKeys";
