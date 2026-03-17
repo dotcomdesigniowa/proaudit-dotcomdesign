@@ -33,6 +33,7 @@ import {
 import { Plus, Search, Copy, Eye, Activity, Trash2, CheckCircle, XCircle, RotateCw } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
+import { reRunAudit } from "@/lib/reRunAudit";
 
 interface AuditRow {
   id: string;
