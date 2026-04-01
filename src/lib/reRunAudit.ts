@@ -65,9 +65,9 @@ export async function reRunAudit(auditId: string): Promise<boolean> {
     );
 
   supabase.functions
-    .invoke("run-ai-friendly", { body: { audit_id: auditId, website_url: websiteUrl } })
+    .invoke("run-ai-audit", { body: { audit_id: auditId, website_url: websiteUrl } })
     .catch((err) =>
-      logError({ page: "re-run-audit", action: "run-ai-friendly", message: err?.message || "AI audit failed" })
+      logError({ page: "re-run-audit", action: "run-ai-audit", message: err?.message || "AI audit failed" })
     );
 
   return true;

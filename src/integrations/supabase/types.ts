@@ -14,6 +14,112 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_audit_factor_results: {
+        Row: {
+          audit_run_id: string
+          check_method: string
+          factor_id: number
+          factor_name: string
+          finding: string | null
+          fix: string | null
+          id: string
+          pillar: number
+          status: string
+        }
+        Insert: {
+          audit_run_id: string
+          check_method: string
+          factor_id: number
+          factor_name: string
+          finding?: string | null
+          fix?: string | null
+          id?: string
+          pillar: number
+          status: string
+        }
+        Update: {
+          audit_run_id?: string
+          check_method?: string
+          factor_id?: number
+          factor_name?: string
+          finding?: string | null
+          fix?: string | null
+          id?: string
+          pillar?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_audit_factor_results_audit_run_id_fkey"
+            columns: ["audit_run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_audit_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ai_audit_runs: {
+        Row: {
+          audit_id: string | null
+          completed_at: string | null
+          created_at: string | null
+          domain: string
+          id: string
+          letter_grade: string | null
+          pillar1_score: number | null
+          pillar2_score: number | null
+          pillar3_score: number | null
+          pillar4_score: number | null
+          score: number | null
+          score_fail: number | null
+          score_pass: number | null
+          score_warn: number | null
+          status: string | null
+        }
+        Insert: {
+          audit_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          domain: string
+          id?: string
+          letter_grade?: string | null
+          pillar1_score?: number | null
+          pillar2_score?: number | null
+          pillar3_score?: number | null
+          pillar4_score?: number | null
+          score?: number | null
+          score_fail?: number | null
+          score_pass?: number | null
+          score_warn?: number | null
+          status?: string | null
+        }
+        Update: {
+          audit_id?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          domain?: string
+          id?: string
+          letter_grade?: string | null
+          pillar1_score?: number | null
+          pillar2_score?: number | null
+          pillar3_score?: number | null
+          pillar4_score?: number | null
+          score?: number | null
+          score_fail?: number | null
+          score_pass?: number | null
+          score_warn?: number | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_audit_runs_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "audit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit: {
         Row: {
           accessibility_audit_url: string | null

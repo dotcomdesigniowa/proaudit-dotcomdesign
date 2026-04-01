@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.run-ai-friendly]
 verify_jwt = false
+
+[functions.run-ai-audit]
+verify_jwt = false
