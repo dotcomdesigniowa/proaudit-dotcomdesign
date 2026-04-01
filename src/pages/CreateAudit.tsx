@@ -179,9 +179,9 @@ const CreateAudit = () => {
       }
 
       // Fire-and-forget: run AI Friendliness audit
-      supabase.functions.invoke("run-ai-friendly", {
+      supabase.functions.invoke("run-ai-audit", {
         body: { audit_id: data.id, website_url: normalizedUrl },
-      }).catch((err) => logError({ page: "/create-audit", action: "run-ai-friendly", message: err?.message || "AI audit failed" }));
+      }).catch((err) => logError({ page: "/create-audit", action: "run-ai-audit", message: err?.message || "AI audit failed" }));
     }
 
     navigate(`/${data.id}`);
