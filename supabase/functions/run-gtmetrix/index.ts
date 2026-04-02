@@ -56,7 +56,6 @@ Deno.serve(async (req) => {
       normalizedUrl = `https://${normalizedUrl}`;
     }
 
-    // GTmetrix uses Basic Auth with email:apikey — but API key alone works as username with empty password
     const authHeader = "Basic " + btoa(apiKey + ":");
 
     // Step 1: Create test
@@ -67,7 +66,7 @@ Deno.serve(async (req) => {
         method: "POST",
         headers: {
           "Authorization": authHeader,
-          "Content-Type": "application/json",
+          "Content-Type": "application/vnd.api+json",
         },
         body: JSON.stringify({ data: { type: "test", attributes: { url: normalizedUrl } } }),
       });
@@ -95,10 +94,12 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ success: false, error: errMsg }), { status: 502, headers: jsonHeaders });
     }
 
-    // Step 2: Poll for results (max ~3 minutes)
-    const MAX_POLLS = 36;
-    const POLL_INTERVAL = 5000;
-    let testData: any = null;
+    // Step 2: Poll for results (max ~2.5 minutes)
+    // When complete, GTmetrix returns 303 redirect to the report.
+    // We disable redirect following to detect completion ourselves.
+    const MAX_POLLS = 50;
+    const POLL_INTERVAL = 3000; // docs recommend 3s
+    let reportData: any = null;
 
     for (let i = 0; i < MAX_POLLS; i++) {
       await new Promise(r => setTimeout(r, POLL_INTERVAL));
@@ -106,7 +107,30 @@ Deno.serve(async (req) => {
       try {
         const pollRes = await fetch(`https://gtmetrix.com/api/2.0/tests/${testId}`, {
           headers: { "Authorization": authHeader },
+          redirect: "manual", // Don't follow 303 redirect
         });
+
+        // 303 = test complete, follow the redirect manually to get report
+        if (pollRes.status === 303) {
+          const reportUrl = pollRes.headers.get("location");
+          console.log(`Poll ${i + 1}: completed, fetching report from ${reportUrl}`);
+          
+          const fullReportUrl = reportUrl?.startsWith("/") 
+            ? `https://gtmetrix.com${reportUrl}` 
+            : reportUrl;
+          
+          const reportRes = await fetch(fullReportUrl!, {
+            headers: { "Authorization": authHeader },
+          });
+          
+          if (reportRes.ok) {
+            const reportJson = await reportRes.json();
+            reportData = reportJson.data;
+          } else {
+            console.error(`Report fetch failed: ${reportRes.status}`);
+          }
+          break;
+        }
 
         if (!pollRes.ok) {
           console.log(`Poll ${i + 1} returned ${pollRes.status}, retrying...`);
@@ -118,7 +142,17 @@ Deno.serve(async (req) => {
         console.log(`Poll ${i + 1}: state=${state}`);
 
         if (state === "completed") {
-          testData = pollData.data;
+          // Shouldn't reach here with redirect:manual, but handle it
+          const reportId = pollData.data?.attributes?.report;
+          if (reportId) {
+            const reportRes = await fetch(`https://gtmetrix.com/api/2.0/reports/${reportId}`, {
+              headers: { "Authorization": authHeader },
+            });
+            if (reportRes.ok) {
+              const reportJson = await reportRes.json();
+              reportData = reportJson.data;
+            }
+          }
           break;
         } else if (state === "error") {
           const errMsg = `GTmetrix test failed: ${pollData.data?.attributes?.error || "Unknown error"}`;
@@ -133,23 +167,25 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (!testData) {
-      const errMsg = "GTmetrix test timed out after 3 minutes";
+    if (!reportData) {
+      const errMsg = "GTmetrix test timed out after 2.5 minutes";
       console.error(errMsg);
       await logError("run-gtmetrix", errMsg, { audit_id, testId });
       await supabase.from("audit").update({ gtmetrix_status: "error", gtmetrix_last_error: errMsg }).eq("id", audit_id);
       return new Response(JSON.stringify({ success: false, error: errMsg }), { status: 504, headers: jsonHeaders });
     }
 
-    // Step 3: Extract results
-    const attrs = testData.attributes;
+    // Step 3: Extract results from the report
+    const attrs = reportData.attributes;
     const gtmetrix_grade = attrs.gtmetrix_grade || null;
-    const gtmetrix_performance = attrs.performance_score != null ? Math.round(attrs.performance_score * 100) : null;
-    const gtmetrix_structure = attrs.structure_score != null ? Math.round(attrs.structure_score * 100) : null;
-    const gtmetrix_lcp = attrs.lcp ?? null; // in ms
-    const gtmetrix_tbt = attrs.tbt ?? null; // in ms
-    const gtmetrix_cls = attrs.cls ?? null;  // decimal
-    const gtmetrix_report_url = attrs.report_url || `https://gtmetrix.com/reports/${testId}`;
+    // Scores are already 0-100 integers
+    const gtmetrix_performance = attrs.performance_score ?? null;
+    const gtmetrix_structure = attrs.structure_score ?? null;
+    // Timings are in ms, CLS is a decimal
+    const gtmetrix_lcp = attrs.largest_contentful_paint ?? null;
+    const gtmetrix_tbt = attrs.total_blocking_time ?? null;
+    const gtmetrix_cls = attrs.cumulative_layout_shift ?? null;
+    const gtmetrix_report_url = reportData.links?.report_url || `https://gtmetrix.com/reports/${testId}`;
 
     console.log("GTmetrix results:", { gtmetrix_grade, gtmetrix_performance, gtmetrix_structure, gtmetrix_lcp, gtmetrix_tbt, gtmetrix_cls });
 
@@ -167,7 +203,6 @@ Deno.serve(async (req) => {
         gtmetrix_status: "success",
         gtmetrix_last_error: null,
         gtmetrix_fetched_at: new Date().toISOString(),
-        // Also sync to psi fields for backward compat with scoring trigger
         psi_mobile_score: gtmetrix_performance,
         psi_audit_url: gtmetrix_report_url,
         psi_status: "success",
