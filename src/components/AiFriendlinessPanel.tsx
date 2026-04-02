@@ -198,7 +198,7 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
                   <span style={{ fontWeight: 900, fontSize: 14, fontVariantNumeric: "tabular-nums" }}>
                     {score}/{pillar.max}
                   </span>
-                  <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(15,18,32,.08)", overflow: "hidden" }}>
+                  <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
                     <div style={{
                       height: "100%",
                       width: `${pct}%`,
