@@ -317,21 +317,12 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               )}
             </div>
             <hr className="metricDivider" />
-            <div className="metricRow">
-              <MetricNumber value={audit.psi_mobile_score ?? 0} suffix="out of 100" />
-              <div>
-                <div className="metricLabel">Mobile Performance Score (Google)</div>
-                <p className="metricText">
-                  {getCopy("metric_psi_desc", "Your mobile performance score directly impacts how your business shows up in search results. When your site is slow or underperforms on mobile, users leave… and Google notices. Over time, this drastically weakens your visibility.")}
-                </p>
-              </div>
-              <MetricGradeBox grade={audit.psi_grade || "F"} />
-              {audit.psi_audit_url && (
-                <div className="metricBtn">
-                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
-                </div>
-              )}
-            </div>
+            {/* Performance Score (GTmetrix) */}
+            <PerformanceScorePanel
+              audit={audit}
+              onUpdate={() => {}}
+              isOwner={false}
+            />
             <hr className="metricDivider" />
             <div className="metricRow">
               <MetricNumber value={audit.accessibility_score ?? 0} suffix="out of 10" decimals={1} />
