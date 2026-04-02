@@ -5,6 +5,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import ComputerScreenshot from "@/components/ComputerScreenshot";
 import InfoTip from "@/components/InfoTip";
 import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
+import PerformanceScorePanel from "@/components/PerformanceScorePanel";
 import "./AuditReport.css";
 import { LayoutTemplate, Files, ShieldAlert, ImageOff, Layers, Award } from "lucide-react";
 import { formatPhone } from "@/lib/formatPhone";
@@ -265,7 +266,7 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
           <SectionHeading text="OVERALL SCORE BREAKDOWN" />
           <p className="subtle">
             These metrics represent objective scores and signals that directly influence visibility, trust, reach and more.
-            Scores were generated using neutral, reputable auditing platforms like <a href="https://www.w3.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>W3C</a>, <a href="https://pagespeed.web.dev/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>Google PageSpeed Insights</a> &amp; <a href="https://wave.webaim.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>WebAIM</a>.
+            Scores were generated using neutral, reputable auditing platforms like <a href="https://www.w3.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>W3C</a>, <a href="https://gtmetrix.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>GTmetrix</a> &amp; <a href="https://wave.webaim.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>WebAIM</a>.
           </p>
           <div className="metrics">
             <hr className="metricDivider" />
@@ -316,21 +317,12 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
               )}
             </div>
             <hr className="metricDivider" />
-            <div className="metricRow">
-              <MetricNumber value={audit.psi_mobile_score ?? 0} suffix="out of 100" />
-              <div>
-                <div className="metricLabel">Mobile Performance Score (Google)</div>
-                <p className="metricText">
-                  {getCopy("metric_psi_desc", "Your mobile performance score directly impacts how your business shows up in search results. When your site is slow or underperforms on mobile, users leave… and Google notices. Over time, this drastically weakens your visibility.")}
-                </p>
-              </div>
-              <MetricGradeBox grade={audit.psi_grade || "F"} />
-              {audit.psi_audit_url && (
-                <div className="metricBtn">
-                  <a href={audit.psi_audit_url} target="_blank" rel="noopener noreferrer" className="pillBtn">View Audit <span>→</span></a>
-                </div>
-              )}
-            </div>
+            {/* Performance Score (GTmetrix) */}
+            <PerformanceScorePanel
+              audit={audit}
+              onUpdate={() => {}}
+              isOwner={false}
+            />
             <hr className="metricDivider" />
             <div className="metricRow">
               <MetricNumber value={audit.accessibility_score ?? 0} suffix="out of 10" decimals={1} />

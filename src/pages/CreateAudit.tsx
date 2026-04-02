@@ -114,9 +114,6 @@ const CreateAudit = () => {
     // Normalize website_url (safety net)
     const normalizedUrl = normalizeUrl(form.website_url);
 
-    // Build deterministic PSI audit URL
-    const psiAuditUrl = normalizedUrl ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(normalizedUrl)}` : null;
-
     const payload: Record<string, unknown> = {
       company_name: form.company_name || null,
       website_url: normalizedUrl || null,
@@ -131,8 +128,8 @@ const CreateAudit = () => {
       w3c_audit_url: form.w3c_audit_url || null,
       w3c_status: normalizedUrl && !form.w3c_issue_count ? 'fetching' : (form.w3c_issue_count ? 'success' : 'idle'),
       psi_mobile_score: null,
-      psi_audit_url: psiAuditUrl,
       psi_status: normalizedUrl ? 'fetching' : 'idle',
+      gtmetrix_status: normalizedUrl ? 'fetching' : 'idle',
       accessibility_score: null,
       accessibility_audit_url: normalizedUrl ? `https://wave.webaim.org/report#/${encodeURIComponent(normalizedUrl)}` : null,
       wave_status: normalizedUrl ? 'fetching' : 'idle',
@@ -160,11 +157,11 @@ const CreateAudit = () => {
       body: { audit_id: data.id },
     }).catch((err) => logError({ page: "/create-audit", action: "capture-screenshot", message: err?.message || "Screenshot capture failed" }));
 
-    // Fire-and-forget: fetch PSI score automatically
+    // Fire-and-forget: fetch GTmetrix performance score
     if (normalizedUrl) {
-      supabase.functions.invoke("run-psi-and-update", {
+      supabase.functions.invoke("run-gtmetrix", {
         body: { audit_id: data.id, website_url: normalizedUrl },
-      }).catch((err) => logError({ page: "/create-audit", action: "run-psi", message: err?.message || "PSI fetch failed" }));
+      }).catch((err) => logError({ page: "/create-audit", action: "run-gtmetrix", message: err?.message || "GTmetrix fetch failed" }));
 
       // Fire-and-forget: fetch WAVE accessibility score automatically
       supabase.functions.invoke("run-wave", {
@@ -258,7 +255,7 @@ const CreateAudit = () => {
                       <Input disabled placeholder="Enter a website URL first" />
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score, Accessibility Score, W3C count, and Design Score are set automatically.</p>
+                  <p className="text-xs text-muted-foreground sm:col-span-2">Performance Score, Accessibility Score, W3C count, and Design Score are set automatically.</p>
                 </div>
               </section>
 

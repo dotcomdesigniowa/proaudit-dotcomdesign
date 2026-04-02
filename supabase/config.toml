@@ -26,3 +26,6 @@ verify_jwt = false
 
 [functions.run-ai-audit]
 verify_jwt = false
+
+[functions.run-gtmetrix]
+verify_jwt = false

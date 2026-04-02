@@ -30,13 +30,15 @@ export async function reRunAudit(auditId: string): Promise<boolean> {
     .update({
       psi_status: "fetching",
       psi_last_error: null,
+      gtmetrix_status: "fetching",
+      gtmetrix_last_error: null,
       wave_status: "fetching",
       wave_last_error: null,
       w3c_status: "fetching",
       w3c_last_error: null,
       ai_status: "fetching",
       ai_last_error: null,
-    })
+    } as any)
     .eq("id", auditId);
 
   // 3. Fire-and-forget: re-run all scans
@@ -47,9 +49,9 @@ export async function reRunAudit(auditId: string): Promise<boolean> {
     );
 
   supabase.functions
-    .invoke("run-psi-and-update", { body: { audit_id: auditId, website_url: websiteUrl } })
+    .invoke("run-gtmetrix", { body: { audit_id: auditId, website_url: websiteUrl } })
     .catch((err) =>
-      logError({ page: "re-run-audit", action: "run-psi", message: err?.message || "PSI fetch failed" })
+      logError({ page: "re-run-audit", action: "run-gtmetrix", message: err?.message || "GTmetrix fetch failed" })
     );
 
   supabase.functions

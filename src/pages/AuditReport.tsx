@@ -14,6 +14,7 @@ import { formatPhone } from "@/lib/formatPhone";
 import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
 import { reRunAudit } from "@/lib/reRunAudit";
 import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
+import PerformanceScorePanel from "@/components/PerformanceScorePanel";
 import { useAuditCopy } from "@/hooks/useAuditCopy";
 import { getUthKeys } from "@/lib/copyTemplateKeys";
 import { DESIGN_BULLETS_SOURCE } from "@/lib/designBulletDefaults";
@@ -326,31 +327,31 @@ const AuditReport = () => {
     })();
   }, [auditId, authLoading]);
 
-  // ── PSI polling: auto-refresh when fetching ──
+  // ── GTmetrix polling: auto-refresh when fetching ──
   useEffect(() => {
     if (!audit || !auditId) return;
-    const status = (audit as any).psi_status;
+    const status = (audit as any).gtmetrix_status;
     if (status !== 'fetching') return;
 
     const startTime = Date.now();
-    const TIMEOUT = 45_000;
-    const INTERVAL = 2_000;
+    const TIMEOUT = 210_000;
+    const INTERVAL = 5_000;
 
     const timer = setInterval(async () => {
       if (Date.now() - startTime > TIMEOUT) {
         clearInterval(timer);
-        setAudit(prev => prev ? { ...prev, psi_status: 'error', psi_last_error: 'Timed out waiting for PSI results. Try Retry PSI.' } as Audit : prev);
+        setAudit(prev => prev ? { ...prev, gtmetrix_status: 'error', gtmetrix_last_error: 'Timed out waiting for GTmetrix results.' } as Audit : prev);
         return;
       }
-      const { data } = await supabase.from("audit").select("psi_mobile_score, psi_status, psi_last_error, psi_grade, psi_fetched_at, overall_score, overall_grade").eq("id", auditId).maybeSingle();
-      if (data && (data.psi_status === 'success' || data.psi_status === 'error')) {
+      const { data } = await supabase.from("audit").select("gtmetrix_grade, gtmetrix_performance, gtmetrix_structure, gtmetrix_lcp, gtmetrix_tbt, gtmetrix_cls, gtmetrix_report_url, gtmetrix_status, gtmetrix_last_error, gtmetrix_fetched_at, psi_mobile_score, psi_status, psi_grade, psi_fetched_at, psi_audit_url, overall_score, overall_grade").eq("id", auditId).maybeSingle();
+      if (data && ((data as any).gtmetrix_status === 'success' || (data as any).gtmetrix_status === 'error')) {
         clearInterval(timer);
         setAudit(prev => prev ? { ...prev, ...data } as Audit : prev);
       }
     }, INTERVAL);
 
     return () => clearInterval(timer);
-  }, [audit?.psi_mobile_score, (audit as any)?.psi_status, auditId]);
+  }, [(audit as any)?.gtmetrix_performance, (audit as any)?.gtmetrix_status, auditId]);
 
   // ── WAVE polling: auto-refresh when fetching ──
   useEffect(() => {
@@ -446,7 +447,8 @@ const AuditReport = () => {
   }, [audit, loading]);
 
   // Overall grade matrix
-  const psiPendingEarly = !audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success';
+  const gtPending = (audit as any)?.gtmetrix_performance == null && (audit as any)?.gtmetrix_status !== 'success';
+  const psiPendingEarly = gtPending && !audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success';
   const wavePendingEarly = audit?.accessibility_score == null && (audit as any)?.wave_status !== 'success';
   const w3cPendingEarly = audit?.w3c_issue_count == null && (audit as any)?.w3c_status !== 'success';
   const overallGradeForMatrix = (psiPendingEarly || wavePendingEarly || w3cPendingEarly) ? "—" : (audit?.overall_grade || "F");
@@ -463,6 +465,7 @@ const AuditReport = () => {
       setAudit(prev => prev ? {
         ...prev,
         psi_status: "fetching", psi_last_error: null,
+        gtmetrix_status: "fetching", gtmetrix_last_error: null,
         wave_status: "fetching", wave_last_error: null,
         w3c_status: "fetching", w3c_last_error: null,
         ai_status: "fetching", ai_last_error: null,
@@ -518,9 +521,9 @@ const AuditReport = () => {
       </AppLayout>
     );
 
-   const psiPending = !audit.psi_mobile_score && (audit as any).psi_status !== 'success';
+   const perfPending = (audit as any).gtmetrix_performance == null && (audit as any).gtmetrix_status !== 'success' && !audit.psi_mobile_score && (audit as any).psi_status !== 'success';
    const wavePending = audit.accessibility_score == null && (audit as any).wave_status !== 'success';
-   const overallPending = psiPending || wavePending;
+   const overallPending = perfPending || wavePending;
    const og = overallPending ? "—" : (audit.overall_grade || "F");
   const normalizedLogo = normalizeLogoUrl(audit.company_logo_url, audit.website_url);
 
@@ -599,7 +602,7 @@ const AuditReport = () => {
           <SectionHeading text="OVERALL SCORE BREAKDOWN" />
           <p className="subtle">
             These metrics represent objective scores and signals that directly influence visibility, trust, reach and more.
-            Scores were generated using neutral, reputable auditing platforms like <a href="https://www.w3.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>W3C</a>, <a href="https://pagespeed.web.dev/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>Google PageSpeed Insights</a> &amp; <a href="https://wave.webaim.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>WebAIM</a>.
+            Scores were generated using neutral, reputable auditing platforms like <a href="https://www.w3.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>W3C</a>, <a href="https://gtmetrix.com/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>GTmetrix</a> &amp; <a href="https://wave.webaim.org/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: "underline" }}>WebAIM</a>.
           </p>
 
           <div className="metrics">
@@ -696,76 +699,12 @@ const AuditReport = () => {
 
             <hr className="metricDivider" />
 
-            <div className="metricRow">
-              {(audit as any).psi_status === 'success' && audit.psi_mobile_score != null ? (
-                <MetricNumber value={audit.psi_mobile_score} suffix="out of 100" />
-              ) : (audit as any).psi_status === 'error' ? (
-                <div className="metricNumWrap">
-                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.7, color: "#ef4444" }}>Failed</p>
-                </div>
-              ) : (audit as any).psi_status === 'fetching' ? (
-                <div className="metricNumWrap">
-                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
-                </div>
-              ) : audit.psi_mobile_score != null ? (
-                <MetricNumber value={audit.psi_mobile_score} suffix="out of 100" />
-              ) : (
-                <div className="metricNumWrap">
-                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
-                </div>
-              )}
-              <div>
-                <div className="metricLabel">Mobile Performance Score (Google)</div>
-                <p className="metricText">
-                  {getCopy("metric_psi_desc", "Your mobile performance score directly impacts how your business shows up in search results. When your site is slow or underperforms on mobile, users leave… and Google notices. Over time, this drastically weakens your visibility.")}
-                </p>
-                {(audit as any).psi_status === 'success' && (audit as any).psi_fetched_at && (
-                  <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
-                    Snapshot (auto-fetched {new Date((audit as any).psi_fetched_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })})
-                    <br />
-                    <span style={{ fontStyle: "italic" }}>Live Audit may vary 5-15+ points due to server response times, network conditions and other factors.</span>
-                  </p>
-                )}
-                {(audit as any).psi_status === 'error' && (audit as any).psi_last_error && (
-                  <p style={{ fontSize: "0.75rem", color: "#ef4444", marginBottom: 8, wordBreak: "break-word" }}>
-                    {(audit as any).psi_last_error}
-                  </p>
-                )}
-              </div>
-              <MetricGradeBox grade={audit.psi_grade || "F"} pending={psiPending} />
-
-              {((audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null)) || ((((audit as any).psi_status === 'error') || ((audit as any).psi_status !== 'fetching' && audit.psi_mobile_score == null)) && !!user)) && (
-                <div className="metricBtn">
-                  {(() => {
-                    const psiUrl = audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null);
-                    return psiUrl ? (
-                      <a href={psiUrl} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                        View Audit <span>→</span>
-                      </a>
-                    ) : null;
-                  })()}
-                  {(((audit as any).psi_status === 'error') || ((audit as any).psi_status !== 'fetching' && audit.psi_mobile_score == null)) && user && (
-                    <button
-                      className="pillBtn retryBtn"
-                      onClick={async () => {
-                        if (!audit.website_url) return;
-                        toast.success("Retrying PSI fetch…");
-                        setAudit(prev => prev ? { ...prev, psi_status: 'fetching' } as Audit : prev);
-                        try {
-                          await supabase.functions.invoke("run-psi-and-update", {
-                            body: { audit_id: audit.id, website_url: audit.website_url },
-                          });
-                        } catch {
-                          toast.error("PSI retry failed");
-                        }
-                      }}
-                    >
-                      Retry PSI
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            {/* Performance Score (GTmetrix) */}
+            <PerformanceScorePanel
+              audit={audit}
+              onUpdate={(updates) => setAudit(prev => prev ? { ...prev, ...updates } as Audit : prev)}
+              isOwner={!!user}
+            />
 
             <hr className="metricDivider" />
 
