@@ -699,76 +699,12 @@ const AuditReport = () => {
 
             <hr className="metricDivider" />
 
-            <div className="metricRow">
-              {(audit as any).psi_status === 'success' && audit.psi_mobile_score != null ? (
-                <MetricNumber value={audit.psi_mobile_score} suffix="out of 100" />
-              ) : (audit as any).psi_status === 'error' ? (
-                <div className="metricNumWrap">
-                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.7, color: "#ef4444" }}>Failed</p>
-                </div>
-              ) : (audit as any).psi_status === 'fetching' ? (
-                <div className="metricNumWrap">
-                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>Fetching…</p>
-                </div>
-              ) : audit.psi_mobile_score != null ? (
-                <MetricNumber value={audit.psi_mobile_score} suffix="out of 100" />
-              ) : (
-                <div className="metricNumWrap">
-                  <p className="metricNum" style={{ fontSize: "1rem", opacity: 0.6 }}>—</p>
-                </div>
-              )}
-              <div>
-                <div className="metricLabel">Mobile Performance Score (Google)</div>
-                <p className="metricText">
-                  {getCopy("metric_psi_desc", "Your mobile performance score directly impacts how your business shows up in search results. When your site is slow or underperforms on mobile, users leave… and Google notices. Over time, this drastically weakens your visibility.")}
-                </p>
-                {(audit as any).psi_status === 'success' && (audit as any).psi_fetched_at && (
-                  <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
-                    Snapshot (auto-fetched {new Date((audit as any).psi_fetched_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })})
-                    <br />
-                    <span style={{ fontStyle: "italic" }}>Live Audit may vary 5-15+ points due to server response times, network conditions and other factors.</span>
-                  </p>
-                )}
-                {(audit as any).psi_status === 'error' && (audit as any).psi_last_error && (
-                  <p style={{ fontSize: "0.75rem", color: "#ef4444", marginBottom: 8, wordBreak: "break-word" }}>
-                    {(audit as any).psi_last_error}
-                  </p>
-                )}
-              </div>
-              <MetricGradeBox grade={audit.psi_grade || "F"} pending={psiPending} />
-
-              {((audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null)) || ((((audit as any).psi_status === 'error') || ((audit as any).psi_status !== 'fetching' && audit.psi_mobile_score == null)) && !!user)) && (
-                <div className="metricBtn">
-                  {(() => {
-                    const psiUrl = audit.psi_audit_url || (audit.website_url ? `https://pagespeed.web.dev/report?url=${encodeURIComponent(audit.website_url)}` : null);
-                    return psiUrl ? (
-                      <a href={psiUrl} target="_blank" rel="noopener noreferrer" className="pillBtn">
-                        View Audit <span>→</span>
-                      </a>
-                    ) : null;
-                  })()}
-                  {(((audit as any).psi_status === 'error') || ((audit as any).psi_status !== 'fetching' && audit.psi_mobile_score == null)) && user && (
-                    <button
-                      className="pillBtn retryBtn"
-                      onClick={async () => {
-                        if (!audit.website_url) return;
-                        toast.success("Retrying PSI fetch…");
-                        setAudit(prev => prev ? { ...prev, psi_status: 'fetching' } as Audit : prev);
-                        try {
-                          await supabase.functions.invoke("run-psi-and-update", {
-                            body: { audit_id: audit.id, website_url: audit.website_url },
-                          });
-                        } catch {
-                          toast.error("PSI retry failed");
-                        }
-                      }}
-                    >
-                      Retry PSI
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
+            {/* Performance Score (GTmetrix) */}
+            <PerformanceScorePanel
+              audit={audit}
+              onUpdate={(updates) => setAudit(prev => prev ? { ...prev, ...updates } as Audit : prev)}
+              isOwner={!!user}
+            />
 
             <hr className="metricDivider" />
 
