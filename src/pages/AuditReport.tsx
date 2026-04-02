@@ -447,7 +447,8 @@ const AuditReport = () => {
   }, [audit, loading]);
 
   // Overall grade matrix
-  const psiPendingEarly = !audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success';
+  const gtPending = (audit as any)?.gtmetrix_performance == null && (audit as any)?.gtmetrix_status !== 'success';
+  const psiPendingEarly = gtPending && !audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success';
   const wavePendingEarly = audit?.accessibility_score == null && (audit as any)?.wave_status !== 'success';
   const w3cPendingEarly = audit?.w3c_issue_count == null && (audit as any)?.w3c_status !== 'success';
   const overallGradeForMatrix = (psiPendingEarly || wavePendingEarly || w3cPendingEarly) ? "—" : (audit?.overall_grade || "F");
