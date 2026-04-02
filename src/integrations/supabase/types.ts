@@ -138,6 +138,16 @@ export type Database = {
           created_by: string | null
           design_grade: string | null
           design_score: number | null
+          gtmetrix_cls: number | null
+          gtmetrix_fetched_at: string | null
+          gtmetrix_grade: string | null
+          gtmetrix_last_error: string | null
+          gtmetrix_lcp: number | null
+          gtmetrix_performance: number | null
+          gtmetrix_report_url: string | null
+          gtmetrix_status: string
+          gtmetrix_structure: number | null
+          gtmetrix_tbt: number | null
           id: string
           is_deleted: boolean
           legal_risk_flag: boolean | null
@@ -190,6 +200,16 @@ export type Database = {
           created_by?: string | null
           design_grade?: string | null
           design_score?: number | null
+          gtmetrix_cls?: number | null
+          gtmetrix_fetched_at?: string | null
+          gtmetrix_grade?: string | null
+          gtmetrix_last_error?: string | null
+          gtmetrix_lcp?: number | null
+          gtmetrix_performance?: number | null
+          gtmetrix_report_url?: string | null
+          gtmetrix_status?: string
+          gtmetrix_structure?: number | null
+          gtmetrix_tbt?: number | null
           id?: string
           is_deleted?: boolean
           legal_risk_flag?: boolean | null
@@ -242,6 +262,16 @@ export type Database = {
           created_by?: string | null
           design_grade?: string | null
           design_score?: number | null
+          gtmetrix_cls?: number | null
+          gtmetrix_fetched_at?: string | null
+          gtmetrix_grade?: string | null
+          gtmetrix_last_error?: string | null
+          gtmetrix_lcp?: number | null
+          gtmetrix_performance?: number | null
+          gtmetrix_report_url?: string | null
+          gtmetrix_status?: string
+          gtmetrix_structure?: number | null
+          gtmetrix_tbt?: number | null
           id?: string
           is_deleted?: boolean
           legal_risk_flag?: boolean | null
