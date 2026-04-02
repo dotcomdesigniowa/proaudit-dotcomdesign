@@ -5,6 +5,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import ComputerScreenshot from "@/components/ComputerScreenshot";
 import InfoTip from "@/components/InfoTip";
 import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
+import PerformanceScorePanel from "@/components/PerformanceScorePanel";
 import "./AuditReport.css";
 import { LayoutTemplate, Files, ShieldAlert, ImageOff, Layers, Award } from "lucide-react";
 import { formatPhone } from "@/lib/formatPhone";
