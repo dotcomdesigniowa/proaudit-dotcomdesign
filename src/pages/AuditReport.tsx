@@ -521,9 +521,9 @@ const AuditReport = () => {
       </AppLayout>
     );
 
-   const psiPending = !audit.psi_mobile_score && (audit as any).psi_status !== 'success';
+   const perfPending = (audit as any).gtmetrix_performance == null && (audit as any).gtmetrix_status !== 'success' && !audit.psi_mobile_score && (audit as any).psi_status !== 'success';
    const wavePending = audit.accessibility_score == null && (audit as any).wave_status !== 'success';
-   const overallPending = psiPending || wavePending;
+   const overallPending = perfPending || wavePending;
    const og = overallPending ? "—" : (audit.overall_grade || "F");
   const normalizedLogo = normalizeLogoUrl(audit.company_logo_url, audit.website_url);
 
