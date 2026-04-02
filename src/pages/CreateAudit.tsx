@@ -157,11 +157,11 @@ const CreateAudit = () => {
       body: { audit_id: data.id },
     }).catch((err) => logError({ page: "/create-audit", action: "capture-screenshot", message: err?.message || "Screenshot capture failed" }));
 
-    // Fire-and-forget: fetch PSI score automatically
+    // Fire-and-forget: fetch GTmetrix performance score
     if (normalizedUrl) {
-      supabase.functions.invoke("run-psi-and-update", {
+      supabase.functions.invoke("run-gtmetrix", {
         body: { audit_id: data.id, website_url: normalizedUrl },
-      }).catch((err) => logError({ page: "/create-audit", action: "run-psi", message: err?.message || "PSI fetch failed" }));
+      }).catch((err) => logError({ page: "/create-audit", action: "run-gtmetrix", message: err?.message || "GTmetrix fetch failed" }));
 
       // Fire-and-forget: fetch WAVE accessibility score automatically
       supabase.functions.invoke("run-wave", {

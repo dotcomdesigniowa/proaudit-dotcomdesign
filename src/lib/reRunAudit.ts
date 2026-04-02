@@ -49,9 +49,9 @@ export async function reRunAudit(auditId: string): Promise<boolean> {
     );
 
   supabase.functions
-    .invoke("run-psi-and-update", { body: { audit_id: auditId, website_url: websiteUrl } })
+    .invoke("run-gtmetrix", { body: { audit_id: auditId, website_url: websiteUrl } })
     .catch((err) =>
-      logError({ page: "re-run-audit", action: "run-psi", message: err?.message || "PSI fetch failed" })
+      logError({ page: "re-run-audit", action: "run-gtmetrix", message: err?.message || "GTmetrix fetch failed" })
     );
 
   supabase.functions
