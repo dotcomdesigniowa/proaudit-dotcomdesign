@@ -445,20 +445,15 @@ Deno.serve(async (req) => {
       }
     } catch { results.push(safeResult(28, "The llms.txt File", 4, "HTTP Fetch", "llms.txt check failed")); }
 
-    // Factor 31 — Video Transcript Integration
+    // Factor 31 — HTML Lang Attribute
     try {
-      const hasVideo = /<iframe[^>]*(youtube|vimeo)[^>]*>/i.test(html);
-      if (!hasVideo) {
-        results.push({ factor_id: 31, factor_name: "Video Transcript Integration", pillar: 4, check_method: "HTTP Fetch", status: "pass", finding: "No embedded videos found — N/A (counts as pass).", fix: "" });
+      const langMatch = html.match(/<html[^>]*\slang=["']([^"']+)["']/i);
+      if (langMatch) {
+        results.push({ factor_id: 31, factor_name: "HTML Lang Attribute", pillar: 4, check_method: "HTTP Fetch", status: "pass", finding: `HTML lang attribute found: "${langMatch[1]}".`, fix: "" });
       } else {
-        const hasTranscript = /transcript/i.test(plainText);
-        if (hasTranscript) {
-          results.push({ factor_id: 31, factor_name: "Video Transcript Integration", pillar: 4, check_method: "HTTP Fetch", status: "pass", finding: "Videos found with transcript text nearby.", fix: "" });
-        } else {
-          results.push({ factor_id: 31, factor_name: "Video Transcript Integration", pillar: 4, check_method: "HTTP Fetch", status: "warn", finding: "Embedded videos found but no transcript text detected.", fix: "Add text transcripts below videos so AI systems can read the content." });
-        }
+        results.push({ factor_id: 31, factor_name: "HTML Lang Attribute", pillar: 4, check_method: "HTTP Fetch", status: "fail", finding: "No lang attribute on the <html> tag.", fix: "Add lang=\"en\" (or appropriate language) to your <html> tag so AI systems know the content language." });
       }
-    } catch { results.push(safeResult(31, "Video Transcript Integration", 4, "HTTP Fetch", "video check failed")); }
+    } catch { results.push(safeResult(31, "HTML Lang Attribute", 4, "HTTP Fetch", "lang attribute check failed")); }
 
     // Factor 32 — AI Attribution in Forms
     try {
