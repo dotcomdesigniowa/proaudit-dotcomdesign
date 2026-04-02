@@ -465,6 +465,7 @@ const AuditReport = () => {
       setAudit(prev => prev ? {
         ...prev,
         psi_status: "fetching", psi_last_error: null,
+        gtmetrix_status: "fetching", gtmetrix_last_error: null,
         wave_status: "fetching", wave_last_error: null,
         w3c_status: "fetching", w3c_last_error: null,
         ai_status: "fetching", ai_last_error: null,
