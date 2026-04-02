@@ -70,6 +70,7 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const auditId = body.audit_id as string;
     const rawUrl = (body.website_url || body.domain || "") as string;
+    const forceRefresh = body.force_refresh === true || body.force_refresh === "true";
 
     if (!auditId || !rawUrl) {
       return new Response(JSON.stringify({ success: false, error: "audit_id and website_url/domain required" }), { status: 400, headers: jsonHeaders });
@@ -79,27 +80,30 @@ Deno.serve(async (req) => {
     const baseUrl = `https://${domain}`;
     console.log("run-ai-audit:", { auditId, domain });
 
-    // Check for cached results (last 7 days)
-    const { data: cached } = await supabase
-      .from("ai_audit_runs")
-      .select("id, score, letter_grade, completed_at")
-      .eq("audit_id", auditId)
-      .eq("status", "complete")
-      .gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString())
-      .order("created_at", { ascending: false })
-      .limit(1);
+    // Check for cached results (last 7 days) — skip if force_refresh
+    if (!forceRefresh) {
+      const { data: cached } = await supabase
+        .from("ai_audit_runs")
+        .select("id, score, letter_grade, completed_at")
+        .eq("audit_id", auditId)
+        .eq("status", "complete")
+        .gte("created_at", new Date(Date.now() - 7 * 86400000).toISOString())
+        .order("created_at", { ascending: false })
+        .limit(1);
 
-    if (cached && cached.length > 0) {
-      console.log("Using cached AI audit results:", cached[0].id);
-      // Update audit table with cached score
-      await supabase.from("audit").update({
-        ai_status: "success",
-        ai_score: cached[0].score,
-        ai_grade: cached[0].letter_grade,
-        ai_fetched_at: new Date().toISOString(),
-        ai_last_error: null,
-      }).eq("id", auditId);
-      return new Response(JSON.stringify({ success: true, cached: true, run_id: cached[0].id }), { headers: jsonHeaders });
+      if (cached && cached.length > 0) {
+        console.log("Using cached AI audit results:", cached[0].id);
+        await supabase.from("audit").update({
+          ai_status: "success",
+          ai_score: cached[0].score,
+          ai_grade: cached[0].letter_grade,
+          ai_fetched_at: new Date().toISOString(),
+          ai_last_error: null,
+        }).eq("id", auditId);
+        return new Response(JSON.stringify({ success: true, cached: true, run_id: cached[0].id }), { headers: jsonHeaders });
+      }
+    } else {
+      console.log("Bypassing cache — force_refresh requested");
     }
 
     // Mark fetching

@@ -128,7 +128,7 @@ const CreateAudit = () => {
       w3c_audit_url: form.w3c_audit_url || null,
       w3c_status: normalizedUrl && !form.w3c_issue_count ? 'fetching' : (form.w3c_issue_count ? 'success' : 'idle'),
       psi_mobile_score: null,
-      psi_status: normalizedUrl ? 'fetching' : 'idle',
+      psi_status: 'idle',
       gtmetrix_status: normalizedUrl ? 'fetching' : 'idle',
       accessibility_score: null,
       accessibility_audit_url: normalizedUrl ? `https://wave.webaim.org/report#/${encodeURIComponent(normalizedUrl)}` : null,

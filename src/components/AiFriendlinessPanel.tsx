@@ -112,10 +112,10 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
   const handleRetry = async () => {
     if (!audit.website_url) return;
     toast.success("Retrying Ai Friendliness audit…");
-    onUpdate({ ai_status: "fetching" } as any);
+    onUpdate({ ai_status: "fetching", ai_last_error: null } as any);
     try {
       await supabase.functions.invoke("run-ai-audit", {
-        body: { audit_id: audit.id, website_url: audit.website_url },
+        body: { audit_id: audit.id, website_url: audit.website_url, force_refresh: true },
       });
     } catch {
       toast.error("AI audit retry failed");

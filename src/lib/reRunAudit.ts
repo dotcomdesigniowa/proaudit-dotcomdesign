@@ -28,8 +28,6 @@ export async function reRunAudit(auditId: string): Promise<boolean> {
   await supabase
     .from("audit")
     .update({
-      psi_status: "fetching",
-      psi_last_error: null,
       gtmetrix_status: "fetching",
       gtmetrix_last_error: null,
       wave_status: "fetching",
@@ -67,7 +65,7 @@ export async function reRunAudit(auditId: string): Promise<boolean> {
     );
 
   supabase.functions
-    .invoke("run-ai-audit", { body: { audit_id: auditId, website_url: websiteUrl } })
+    .invoke("run-ai-audit", { body: { audit_id: auditId, website_url: websiteUrl, force_refresh: true } })
     .catch((err) =>
       logError({ page: "re-run-audit", action: "run-ai-audit", message: err?.message || "AI audit failed" })
     );
