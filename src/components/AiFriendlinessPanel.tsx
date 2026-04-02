@@ -182,7 +182,7 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
             {PILLAR_INFO.map((pillar, idx) => {
               const score = pillarScores[idx];
               const pct = pillar.max > 0 ? (score / pillar.max) * 100 : 0;
-              const barColor = pct >= 80 ? "#16a34a" : pct >= 60 ? "#3b82f6" : pct >= 40 ? "#eab308" : pct >= 25 ? "#f97316" : "#dc2626";
+              const barColor = pct >= 100 ? "#16a34a" : pct >= 50 ? "#b45309" : "#dc2626";
               return (
                 <div key={pillar.num} style={{
                   display: "flex",
