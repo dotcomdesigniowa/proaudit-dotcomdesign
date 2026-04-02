@@ -216,32 +216,31 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
   );
 };
 
-function ProgressBar({ label, value, suffix, color }: { label: string; value: number | null; suffix: string; color: string }) {
+function MetricRow({ label, value, max, suffix, displayValue, color }: { label: string; value: number | null; max: number; suffix?: string; displayValue?: string; color: string }) {
+  const pct = value != null ? Math.max(5, Math.min(100, (value / max) * 100)) : 0;
+  const display = displayValue ?? (value != null ? `${value}${suffix ?? ""}` : "—");
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-        <span style={{ fontSize: "0.8rem", fontWeight: 600, opacity: 0.8 }}>{label}</span>
-        <span style={{ fontSize: "0.8rem", fontWeight: 700, color }}>{value ?? "—"}{value != null ? suffix : ""}</span>
-      </div>
-      <div style={{ height: 8, borderRadius: 4, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${value ?? 0}%`, borderRadius: 4, background: color, transition: "width 0.8s ease" }} />
-      </div>
-    </div>
-  );
-}
-
-function VitalBar({ label, display, pct, color, good, poor }: { label: string; display: string; pct: number; color: string; good: string; poor: string }) {
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-        <span style={{ fontSize: "0.78rem", opacity: 0.8 }}>{label}</span>
-        <span style={{ fontSize: "0.78rem", fontWeight: 700, color }}>{display}</span>
-      </div>
-      <div style={{ height: 6, borderRadius: 3, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${pct}%`, borderRadius: 3, background: color, transition: "width 0.8s ease" }} />
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.65rem", opacity: 0.4, marginTop: 2 }}>
-        <span>Good: {good}</span><span>Poor: {poor}</span>
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      padding: "8px 12px",
+      borderRadius: 10,
+      background: "rgba(15,18,32,.03)",
+      border: "1px solid rgba(15,18,32,.08)",
+    }}>
+      <span style={{ flex: 1, fontWeight: 700, fontSize: 14, textAlign: "left" }}>{label}</span>
+      <span style={{ fontWeight: 900, fontSize: 14, fontVariantNumeric: "tabular-nums", color }}>
+        {display}
+      </span>
+      <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
+        <div style={{
+          height: "100%",
+          width: `${pct}%`,
+          borderRadius: 3,
+          background: color,
+          transition: "width .5s ease",
+        }} />
       </div>
     </div>
   );
