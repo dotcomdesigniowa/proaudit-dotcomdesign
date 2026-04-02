@@ -396,41 +396,30 @@ Deno.serve(async (req) => {
       }
     } catch { results.push(safeResult(22, "Author Schema (Person)", 3, "HTTP Fetch", "check failed")); }
 
-    // Factor 25 — Content Freshness
+    // Factor 25 — Open Graph Metadata
     try {
-      const dateModifiedMatch = html.match(/"dateModified"\s*:\s*"([^"]+)"/i) || html.match(/"datePublished"\s*:\s*"([^"]+)"/i);
-      const textDateMatch = plainText.match(/(?:updated|last updated|modified)\s+(?:on\s+)?(\w+\s+\d{1,2},?\s+\d{4}|\d{4})/i);
-      let dateStr = dateModifiedMatch?.[1] || textDateMatch?.[1] || null;
-      if (dateStr) {
-        const d = new Date(dateStr);
-        const monthsAgo = (Date.now() - d.getTime()) / (30 * 86400000);
-        if (!isNaN(d.getTime()) && monthsAgo <= 12) {
-          results.push({ factor_id: 25, factor_name: "Content Freshness", pillar: 3, check_method: "HTTP Fetch", status: "pass", finding: `Content date found: ${dateStr} (within last 12 months).`, fix: "" });
-        } else {
-          results.push({ factor_id: 25, factor_name: "Content Freshness", pillar: 3, check_method: "HTTP Fetch", status: "warn", finding: `Date found (${dateStr}) but may be older than 12 months.`, fix: "Update content regularly and include visible 'Last Updated' dates." });
-        }
+      const ogTitle = /<meta\s[^>]*property=["']og:title["'][^>]*>/i.test(html);
+      const ogDesc = /<meta\s[^>]*property=["']og:description["'][^>]*>/i.test(html);
+      const ogImage = /<meta\s[^>]*property=["']og:image["'][^>]*>/i.test(html);
+      const ogCount = [ogTitle, ogDesc, ogImage].filter(Boolean).length;
+      if (ogCount === 3) {
+        results.push({ factor_id: 25, factor_name: "Open Graph Metadata", pillar: 3, check_method: "HTTP Fetch", status: "pass", finding: "All three Open Graph tags found (og:title, og:description, og:image).", fix: "" });
+      } else if (ogCount >= 1) {
+        results.push({ factor_id: 25, factor_name: "Open Graph Metadata", pillar: 3, check_method: "HTTP Fetch", status: "warn", finding: `Only ${ogCount}/3 Open Graph tags found. ${!ogTitle ? "Missing og:title. " : ""}${!ogDesc ? "Missing og:description. " : ""}${!ogImage ? "Missing og:image." : ""}`, fix: "Add og:title, og:description, and og:image meta tags for AI and social sharing." });
       } else {
-        results.push({ factor_id: 25, factor_name: "Content Freshness", pillar: 3, check_method: "HTTP Fetch", status: "fail", finding: "No content dates found in schema or page text.", fix: "Add dateModified to your schema and visible 'Last Updated' dates on pages." });
+        results.push({ factor_id: 25, factor_name: "Open Graph Metadata", pillar: 3, check_method: "HTTP Fetch", status: "fail", finding: "No Open Graph meta tags found.", fix: "Add og:title, og:description, and og:image tags so AI systems can identify your page." });
       }
-    } catch { results.push(safeResult(25, "Content Freshness", 3, "HTTP Fetch", "date check failed")); }
+    } catch { results.push(safeResult(25, "Open Graph Metadata", 3, "HTTP Fetch", "Open Graph check failed")); }
 
-    // Factor 26 — Consistent NAP Information
+    // Factor 26 — Canonical URL Tag
     try {
-      const phoneRe = /(\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/;
-      const addressRe = /\d{2,5}\s+[\w\s]+(?:street|st|avenue|ave|boulevard|blvd|road|rd|drive|dr|lane|ln|way|court|ct|place|pl)/i;
-      const cityStateRe = /[A-Z][a-z]+(?:\s[A-Z][a-z]+)?,?\s+[A-Z]{2}\s+\d{5}/;
-      const hasPhone = phoneRe.test(plainText);
-      const hasAddress = addressRe.test(plainText);
-      const hasCityState = cityStateRe.test(plainText);
-      const count = [hasPhone, hasAddress, hasCityState].filter(Boolean).length;
-      if (count === 3) {
-        results.push({ factor_id: 26, factor_name: "Consistent NAP Information", pillar: 3, check_method: "HTTP Fetch", status: "pass", finding: "Phone, address, and city/state/zip all found in page text.", fix: "" });
-      } else if (count >= 1) {
-        results.push({ factor_id: 26, factor_name: "Consistent NAP Information", pillar: 3, check_method: "HTTP Fetch", status: "warn", finding: `Only ${count}/3 NAP elements found. ${!hasPhone ? "Missing phone. " : ""}${!hasAddress ? "Missing address. " : ""}${!hasCityState ? "Missing city/state/zip." : ""}`, fix: "Include complete Name, Address, Phone (NAP) information in visible text." });
+      const hasCanonical = /<link\s[^>]*rel=["']canonical["'][^>]*>/i.test(html);
+      if (hasCanonical) {
+        results.push({ factor_id: 26, factor_name: "Canonical URL Tag", pillar: 3, check_method: "HTTP Fetch", status: "pass", finding: "Canonical URL tag found.", fix: "" });
       } else {
-        results.push({ factor_id: 26, factor_name: "Consistent NAP Information", pillar: 3, check_method: "HTTP Fetch", status: "fail", finding: "No phone, address, or city/state/zip found in page text.", fix: "Add complete business contact information in plain text on your website." });
+        results.push({ factor_id: 26, factor_name: "Canonical URL Tag", pillar: 3, check_method: "HTTP Fetch", status: "fail", finding: "No canonical URL tag found.", fix: "Add <link rel=\"canonical\" href=\"...\"> to prevent duplicate content issues for AI crawlers." });
       }
-    } catch { results.push(safeResult(26, "Consistent NAP Information", 3, "HTTP Fetch", "NAP check failed")); }
+    } catch { results.push(safeResult(26, "Canonical URL Tag", 3, "HTTP Fetch", "canonical check failed")); }
 
     // ══════════════════════════════════════════════
     // PILLAR 4 — Strategic AI Assets (5 factors)
