@@ -175,21 +175,21 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 <MetricRow
-                  label="LCP"
+                  label="Load Speed (LCP)"
                   value={lcp != null ? Math.round((1 - Math.min(lcp, 5000) / 5000) * 100) : null}
                   max={100}
                   displayValue={lcp != null ? `${(lcp / 1000).toFixed(2)}s` : "—"}
                   color={lcpColor}
                 />
                 <MetricRow
-                  label="TBT"
+                  label="Responsiveness (TBT)"
                   value={tbt != null ? Math.round((1 - Math.min(tbt, 600) / 600) * 100) : null}
                   max={100}
                   displayValue={tbt != null ? `${Math.round(tbt)}ms` : "—"}
                   color={tbtColor}
                 />
                 <MetricRow
-                  label="CLS"
+                  label="Visual Stability (CLS)"
                   value={cls != null ? Math.round((1 - Math.min(cls, 0.5) / 0.5) * 100) : null}
                   max={100}
                   displayValue={cls != null ? cls.toFixed(3) : "—"}
