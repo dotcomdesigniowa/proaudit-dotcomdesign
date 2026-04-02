@@ -161,9 +161,9 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
 
           {/* Performance & Structure bars */}
           {hasData && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16, margin: "16px 0", width: "100%" }}>
-              <ProgressBar label="Performance" value={performance} suffix="%" color={statusColor(performance ?? 0)} />
-              <ProgressBar label="Structure" value={structure} suffix="%" color={statusColor(structure ?? 0)} />
+            <div style={{ margin: "12px 0", display: "flex", flexDirection: "column", gap: 6 }}>
+              <MetricRow label="Performance" value={performance} max={100} suffix="%" color={statusColor(performance ?? 0)} />
+              <MetricRow label="Structure" value={structure} max={100} suffix="%" color={statusColor(structure ?? 0)} />
             </div>
           )}
 
@@ -173,30 +173,27 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
               <div style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, opacity: 0.5, marginBottom: 10 }}>
                 Core Web Vitals
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <VitalBar
-                  label="LCP (Largest Contentful Paint)"
-                  display={lcp != null ? `${(lcp / 1000).toFixed(2)}s` : "—"}
-                  pct={lcpPct}
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <MetricRow
+                  label="LCP"
+                  value={lcp != null ? Math.round((1 - Math.min(lcp, 5000) / 5000) * 100) : null}
+                  max={100}
+                  displayValue={lcp != null ? `${(lcp / 1000).toFixed(2)}s` : "—"}
                   color={lcpColor}
-                  good="≤ 2.5s"
-                  poor="> 4s"
                 />
-                <VitalBar
-                  label="TBT (Total Blocking Time)"
-                  display={tbt != null ? `${Math.round(tbt)}ms` : "—"}
-                  pct={tbtPct}
+                <MetricRow
+                  label="TBT"
+                  value={tbt != null ? Math.round((1 - Math.min(tbt, 600) / 600) * 100) : null}
+                  max={100}
+                  displayValue={tbt != null ? `${Math.round(tbt)}ms` : "—"}
                   color={tbtColor}
-                  good="≤ 200ms"
-                  poor="> 600ms"
                 />
-                <VitalBar
-                  label="CLS (Cumulative Layout Shift)"
-                  display={cls != null ? cls.toFixed(3) : "—"}
-                  pct={clsPct}
+                <MetricRow
+                  label="CLS"
+                  value={cls != null ? Math.round((1 - Math.min(cls, 0.5) / 0.5) * 100) : null}
+                  max={100}
+                  displayValue={cls != null ? cls.toFixed(3) : "—"}
                   color={clsColor}
-                  good="≤ 0.1"
-                  poor="> 0.25"
                 />
               </div>
             </div>
