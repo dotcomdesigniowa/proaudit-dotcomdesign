@@ -21,10 +21,10 @@ const glowClass = (grade: string | null) => {
 };
 
 const statusColor = (pct: number) =>
-  pct >= 100 ? "#16a34a" : pct >= 50 ? "#b45309" : "#dc2626";
+  pct >= 100 ? "#16a34a" : pct >= 50 ? "#eab308" : "#dc2626";
 
 const vitalColor = (status: "good" | "warn" | "poor") =>
-  status === "good" ? "#16a34a" : status === "warn" ? "#b45309" : "#dc2626";
+  status === "good" ? "#16a34a" : status === "warn" ? "#eab308" : "#dc2626";
 
 const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePanelProps) => {
   const a = audit as any;
