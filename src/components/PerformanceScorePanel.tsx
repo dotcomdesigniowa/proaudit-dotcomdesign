@@ -65,7 +65,6 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
       const { data } = await supabase
         .from("audit")
         .select("gtmetrix_grade, gtmetrix_performance, gtmetrix_structure, gtmetrix_lcp, gtmetrix_tbt, gtmetrix_cls, gtmetrix_report_url, gtmetrix_status, gtmetrix_last_error, gtmetrix_fetched_at, overall_score, overall_grade")
-        // cleaned up — no PSI fallback
         .eq("id", audit.id)
         .maybeSingle();
       if (data && ((data as any).gtmetrix_status === "success" || (data as any).gtmetrix_status === "error")) {
