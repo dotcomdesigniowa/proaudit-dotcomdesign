@@ -21,10 +21,10 @@ const glowClass = (grade: string | null) => {
 };
 
 const statusColor = (pct: number) =>
-  pct >= 100 ? "#16a34a" : pct >= 50 ? "#b45309" : "#dc2626";
+  pct >= 100 ? "#16a34a" : pct >= 50 ? "#eab308" : "#dc2626";
 
 const vitalColor = (status: "good" | "warn" | "poor") =>
-  status === "good" ? "#16a34a" : status === "warn" ? "#b45309" : "#dc2626";
+  status === "good" ? "#16a34a" : status === "warn" ? "#eab308" : "#dc2626";
 
 const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePanelProps) => {
   const a = audit as any;
@@ -161,9 +161,9 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
 
           {/* Performance & Structure bars */}
           {hasData && (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16, margin: "16px 0", width: "100%" }}>
-              <ProgressBar label="Performance" value={performance} suffix="%" color={statusColor(performance ?? 0)} />
-              <ProgressBar label="Structure" value={structure} suffix="%" color={statusColor(structure ?? 0)} />
+            <div style={{ margin: "12px 0", display: "flex", flexDirection: "column", gap: 6 }}>
+              <MetricRow label="Performance" value={performance} max={100} suffix="%" color={statusColor(performance ?? 0)} />
+              <MetricRow label="Structure" value={structure} max={100} suffix="%" color={statusColor(structure ?? 0)} />
             </div>
           )}
 
@@ -173,30 +173,27 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
               <div style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, opacity: 0.5, marginBottom: 10 }}>
                 Core Web Vitals
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                <VitalBar
-                  label="LCP (Largest Contentful Paint)"
-                  display={lcp != null ? `${(lcp / 1000).toFixed(2)}s` : "—"}
-                  pct={lcpPct}
+              <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                <MetricRow
+                  label="LCP"
+                  value={lcp != null ? Math.round((1 - Math.min(lcp, 5000) / 5000) * 100) : null}
+                  max={100}
+                  displayValue={lcp != null ? `${(lcp / 1000).toFixed(2)}s` : "—"}
                   color={lcpColor}
-                  good="≤ 2.5s"
-                  poor="> 4s"
                 />
-                <VitalBar
-                  label="TBT (Total Blocking Time)"
-                  display={tbt != null ? `${Math.round(tbt)}ms` : "—"}
-                  pct={tbtPct}
+                <MetricRow
+                  label="TBT"
+                  value={tbt != null ? Math.round((1 - Math.min(tbt, 600) / 600) * 100) : null}
+                  max={100}
+                  displayValue={tbt != null ? `${Math.round(tbt)}ms` : "—"}
                   color={tbtColor}
-                  good="≤ 200ms"
-                  poor="> 600ms"
                 />
-                <VitalBar
-                  label="CLS (Cumulative Layout Shift)"
-                  display={cls != null ? cls.toFixed(3) : "—"}
-                  pct={clsPct}
+                <MetricRow
+                  label="CLS"
+                  value={cls != null ? Math.round((1 - Math.min(cls, 0.5) / 0.5) * 100) : null}
+                  max={100}
+                  displayValue={cls != null ? cls.toFixed(3) : "—"}
                   color={clsColor}
-                  good="≤ 0.1"
-                  poor="> 0.25"
                 />
               </div>
             </div>
@@ -219,32 +216,31 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
   );
 };
 
-function ProgressBar({ label, value, suffix, color }: { label: string; value: number | null; suffix: string; color: string }) {
+function MetricRow({ label, value, max, suffix, displayValue, color }: { label: string; value: number | null; max: number; suffix?: string; displayValue?: string; color: string }) {
+  const pct = value != null ? Math.max(5, Math.min(100, (value / max) * 100)) : 0;
+  const display = displayValue ?? (value != null ? `${value}${suffix ?? ""}` : "—");
   return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-        <span style={{ fontSize: "0.8rem", fontWeight: 600, opacity: 0.8 }}>{label}</span>
-        <span style={{ fontSize: "0.8rem", fontWeight: 700, color }}>{value ?? "—"}{value != null ? suffix : ""}</span>
-      </div>
-      <div style={{ height: 8, borderRadius: 4, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${value ?? 0}%`, borderRadius: 4, background: color, transition: "width 0.8s ease" }} />
-      </div>
-    </div>
-  );
-}
-
-function VitalBar({ label, display, pct, color, good, poor }: { label: string; display: string; pct: number; color: string; good: string; poor: string }) {
-  return (
-    <div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-        <span style={{ fontSize: "0.78rem", opacity: 0.8 }}>{label}</span>
-        <span style={{ fontSize: "0.78rem", fontWeight: 700, color }}>{display}</span>
-      </div>
-      <div style={{ height: 6, borderRadius: 3, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
-        <div style={{ height: "100%", width: `${pct}%`, borderRadius: 3, background: color, transition: "width 0.8s ease" }} />
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.65rem", opacity: 0.4, marginTop: 2 }}>
-        <span>Good: {good}</span><span>Poor: {poor}</span>
+    <div style={{
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      padding: "8px 12px",
+      borderRadius: 10,
+      background: "rgba(15,18,32,.03)",
+      border: "1px solid rgba(15,18,32,.08)",
+    }}>
+      <span style={{ flex: 1, fontWeight: 700, fontSize: 14, textAlign: "left" }}>{label}</span>
+      <span style={{ fontWeight: 900, fontSize: 14, fontVariantNumeric: "tabular-nums", color }}>
+        {display}
+      </span>
+      <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
+        <div style={{
+          height: "100%",
+          width: `${pct}%`,
+          borderRadius: 3,
+          background: color,
+          transition: "width .5s ease",
+        }} />
       </div>
     </div>
   );
