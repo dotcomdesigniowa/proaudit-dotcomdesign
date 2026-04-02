@@ -67,7 +67,7 @@ Deno.serve(async (req) => {
         method: "POST",
         headers: {
           "Authorization": authHeader,
-          "Content-Type": "application/json",
+          "Content-Type": "application/vnd.api+json",
         },
         body: JSON.stringify({ data: { type: "test", attributes: { url: normalizedUrl } } }),
       });
