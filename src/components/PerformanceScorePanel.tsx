@@ -230,7 +230,7 @@ function MetricRow({ label, value, max, suffix, displayValue, color }: { label: 
       border: "1px solid rgba(15,18,32,.08)",
     }}>
       <span style={{ flex: 1, fontWeight: 700, fontSize: 14, textAlign: "left" }}>{label}</span>
-      <span style={{ fontWeight: 900, fontSize: 14, fontVariantNumeric: "tabular-nums", color }}>
+      <span style={{ fontWeight: 900, fontSize: 14, fontVariantNumeric: "tabular-nums" }}>
         {display}
       </span>
       <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(0,0,0,0.06)", overflow: "hidden" }}>
