@@ -255,7 +255,7 @@ const CreateAudit = () => {
                       <Input disabled placeholder="Enter a website URL first" />
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground sm:col-span-2">PSI Mobile Score, Accessibility Score, W3C count, and Design Score are set automatically.</p>
+                  <p className="text-xs text-muted-foreground sm:col-span-2">Performance Score, Accessibility Score, W3C count, and Design Score are set automatically.</p>
                 </div>
               </section>
 
