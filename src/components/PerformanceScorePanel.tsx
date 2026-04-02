@@ -23,27 +23,29 @@ const glowClass = (grade: string | null) => {
 const statusColor = (pct: number) =>
   pct >= 100 ? "#16a34a" : pct >= 50 ? "#b45309" : "#dc2626";
 
+const vitalColor = (status: "good" | "warn" | "poor") =>
+  status === "good" ? "#16a34a" : status === "warn" ? "#b45309" : "#dc2626";
+
 const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePanelProps) => {
   const a = audit as any;
-  const status = a.gtmetrix_status || a.psi_status;
+  const status = a.gtmetrix_status;
   const isFetching = status === "fetching";
   const isError = status === "error";
-  const lastError = a.gtmetrix_last_error || a.psi_last_error;
+  const lastError = a.gtmetrix_last_error;
 
-  const grade = a.gtmetrix_grade || audit.psi_grade || null;
-  const performance = a.gtmetrix_performance ?? audit.psi_mobile_score;
+  const grade = a.gtmetrix_grade || null;
+  const performance = a.gtmetrix_performance ?? null;
   const structure = a.gtmetrix_structure ?? null;
   const lcp = a.gtmetrix_lcp ?? null;
   const tbt = a.gtmetrix_tbt ?? null;
   const cls = a.gtmetrix_cls ?? null;
-  const reportUrl = a.gtmetrix_report_url || audit.psi_audit_url;
-  const fetchedAt = a.gtmetrix_fetched_at || a.psi_fetched_at;
-  const hasGtmetrix = a.gtmetrix_performance != null;
+  const reportUrl = a.gtmetrix_report_url || null;
+  const fetchedAt = a.gtmetrix_fetched_at || null;
+  const hasData = performance != null;
 
-  // Bar colors
-  const lcpColor = lcp != null ? (lcp <= 1200 ? "#16a34a" : lcp <= 2500 ? "#b45309" : "#dc2626") : "#999";
-  const tbtColor = tbt != null ? (tbt <= 150 ? "#16a34a" : tbt <= 300 ? "#b45309" : "#dc2626") : "#999";
-  const clsColor = cls != null ? (cls <= 0.1 ? "#16a34a" : cls <= 0.25 ? "#b45309" : "#dc2626") : "#999";
+  const lcpColor = lcp != null ? vitalColor(lcp <= 2500 ? "good" : lcp <= 4000 ? "warn" : "poor") : "#999";
+  const tbtColor = tbt != null ? vitalColor(tbt <= 200 ? "good" : tbt <= 600 ? "warn" : "poor") : "#999";
+  const clsColor = cls != null ? vitalColor(cls <= 0.1 ? "good" : cls <= 0.25 ? "warn" : "poor") : "#999";
 
   // Bar widths (inverted scale — lower is better)
   const lcpPct = lcp != null ? Math.max(5, Math.min(100, (1 - lcp / 5000) * 100)) : 0;
@@ -52,7 +54,7 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
 
   // Polling
   useEffect(() => {
-    if (!audit.id || a.gtmetrix_status !== "fetching") return;
+    if (!audit.id || status !== "fetching") return;
     const startTime = Date.now();
     const timer = setInterval(async () => {
       if (Date.now() - startTime > 210_000) {
@@ -63,6 +65,7 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
       const { data } = await supabase
         .from("audit")
         .select("gtmetrix_grade, gtmetrix_performance, gtmetrix_structure, gtmetrix_lcp, gtmetrix_tbt, gtmetrix_cls, gtmetrix_report_url, gtmetrix_status, gtmetrix_last_error, gtmetrix_fetched_at, psi_mobile_score, psi_grade, psi_status, psi_fetched_at, psi_audit_url, overall_score, overall_grade")
+        // cleaned up — no PSI fallback
         .eq("id", audit.id)
         .maybeSingle();
       if (data && ((data as any).gtmetrix_status === "success" || (data as any).gtmetrix_status === "error")) {
@@ -71,7 +74,7 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
       }
     }, 5000);
     return () => clearInterval(timer);
-  }, [a.gtmetrix_status, audit.id]);
+  }, [status, audit.id]);
 
   if (isFetching) {
     return (
@@ -157,16 +160,16 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
             </p>
           )}
 
-          {/* Performance & Structure bars inline */}
-          {hasGtmetrix && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, margin: "16px 0" }}>
+          {/* Performance & Structure bars */}
+          {hasData && (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 16, margin: "16px 0", width: "100%" }}>
               <ProgressBar label="Performance" value={performance} suffix="%" color={statusColor(performance ?? 0)} />
               <ProgressBar label="Structure" value={structure} suffix="%" color={statusColor(structure ?? 0)} />
             </div>
           )}
 
           {/* Web Vitals */}
-          {hasGtmetrix && (
+          {hasData && (
             <div style={{ marginTop: 4 }}>
               <div style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, opacity: 0.5, marginBottom: 10 }}>
                 Core Web Vitals
