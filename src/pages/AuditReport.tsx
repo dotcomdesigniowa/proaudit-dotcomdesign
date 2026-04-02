@@ -14,6 +14,7 @@ import { formatPhone } from "@/lib/formatPhone";
 import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
 import { reRunAudit } from "@/lib/reRunAudit";
 import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
+import PerformanceScorePanel from "@/components/PerformanceScorePanel";
 import { useAuditCopy } from "@/hooks/useAuditCopy";
 import { getUthKeys } from "@/lib/copyTemplateKeys";
 import { DESIGN_BULLETS_SOURCE } from "@/lib/designBulletDefaults";
