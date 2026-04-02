@@ -343,7 +343,7 @@ const AuditReport = () => {
         setAudit(prev => prev ? { ...prev, gtmetrix_status: 'error', gtmetrix_last_error: 'Timed out waiting for GTmetrix results.' } as Audit : prev);
         return;
       }
-      const { data } = await supabase.from("audit").select("gtmetrix_grade, gtmetrix_performance, gtmetrix_structure, gtmetrix_lcp, gtmetrix_tbt, gtmetrix_cls, gtmetrix_report_url, gtmetrix_status, gtmetrix_last_error, gtmetrix_fetched_at, psi_mobile_score, psi_status, psi_grade, psi_fetched_at, psi_audit_url, overall_score, overall_grade").eq("id", auditId).maybeSingle();
+      const { data } = await supabase.from("audit").select("gtmetrix_grade, gtmetrix_performance, gtmetrix_structure, gtmetrix_lcp, gtmetrix_tbt, gtmetrix_cls, gtmetrix_report_url, gtmetrix_status, gtmetrix_last_error, gtmetrix_fetched_at, overall_score, overall_grade").eq("id", auditId).maybeSingle();
       if (data && ((data as any).gtmetrix_status === 'success' || (data as any).gtmetrix_status === 'error')) {
         clearInterval(timer);
         setAudit(prev => prev ? { ...prev, ...data } as Audit : prev);
@@ -448,10 +448,10 @@ const AuditReport = () => {
 
   // Overall grade matrix
   const gtPending = (audit as any)?.gtmetrix_performance == null && (audit as any)?.gtmetrix_status !== 'success';
-  const psiPendingEarly = gtPending && !audit?.psi_mobile_score && (audit as any)?.psi_status !== 'success';
+  
   const wavePendingEarly = audit?.accessibility_score == null && (audit as any)?.wave_status !== 'success';
   const w3cPendingEarly = audit?.w3c_issue_count == null && (audit as any)?.w3c_status !== 'success';
-  const overallGradeForMatrix = (psiPendingEarly || wavePendingEarly || w3cPendingEarly) ? "—" : (audit?.overall_grade || "F");
+  const overallGradeForMatrix = (gtPending || wavePendingEarly || w3cPendingEarly) ? "—" : (audit?.overall_grade || "F");
   useMatrixGrade(overallGradeRef, overallGradeForMatrix);
 
   const [reRunning, setReRunning] = useState(false);
@@ -464,7 +464,7 @@ const AuditReport = () => {
       // Reset local state to show fetching spinners
       setAudit(prev => prev ? {
         ...prev,
-        psi_status: "fetching", psi_last_error: null,
+        
         gtmetrix_status: "fetching", gtmetrix_last_error: null,
         wave_status: "fetching", wave_last_error: null,
         w3c_status: "fetching", w3c_last_error: null,
@@ -521,7 +521,7 @@ const AuditReport = () => {
       </AppLayout>
     );
 
-   const perfPending = (audit as any).gtmetrix_performance == null && (audit as any).gtmetrix_status !== 'success' && !audit.psi_mobile_score && (audit as any).psi_status !== 'success';
+   const perfPending = (audit as any).gtmetrix_performance == null && (audit as any).gtmetrix_status !== 'success';
    const wavePending = audit.accessibility_score == null && (audit as any).wave_status !== 'success';
    const overallPending = perfPending || wavePending;
    const og = overallPending ? "—" : (audit.overall_grade || "F");
