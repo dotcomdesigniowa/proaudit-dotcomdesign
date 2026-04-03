@@ -151,7 +151,7 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
         <div>
           <div className="metricLabel">Website Performance Score</div>
           <p className="metricText">
-            When your website loads slow, jumps around, or feels unresponsive — potential customers leave and search engines take note. A website that stutters or hesitates sends people straight to your competitor.
+            When your website loads slow, jumps around, or feels unresponsive, potential customers leave and search engines take note. A website that stutters or hesitates sends people straight to your competitor.
           </p>
           {fetchedAt && (
             <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
