@@ -1,0 +1,1 @@
+UPDATE audit_copy_templates SET content = 'When your website loads slow, jumps around, or feels unresponsive, potential customers leave and search engines take note. A website that stutters or hesitates sends people straight to your competitor.' WHERE section_key = 'metric_psi_desc';
