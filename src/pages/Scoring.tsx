@@ -196,10 +196,10 @@ const Scoring = () => {
         <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-5">
           {([
             ["weight_w3c", "W3C"],
-            ["weight_psi_mobile", "PSI Mobile"],
+            ["weight_psi_mobile", "Performance (GTmetrix)"],
             ["weight_accessibility", "Accessibility"],
             ["weight_design", "Design"],
-            ["weight_ai", "AI Friendliness"],
+            ["weight_ai", "Ai Friendliness"],
           ] as const).map(([key, label]) => (
             <div key={key} className="space-y-1">
               <Label htmlFor={key}>{label}</Label>
