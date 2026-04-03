@@ -156,11 +156,9 @@ export default function AiFriendlinessPanel({ audit, onUpdate, isOwner }: AiFrie
 
       {/* Details */}
       <div>
-        <div className="metricLabel" style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <Bot size={18} /> Ai Friendliness Score
-        </div>
+        <div className="metricLabel">Ai Friendliness Score</div>
         <p className="metricText">
-          This measures whether modern Ai systems (like ChatGPT, Gemini &amp; Voice Assistants) can access, read, and understand your website across 32 specific factors. It does not guarantee visibility in AI-generated results, but it shows whether your website is technically prepared for AI systems.
+          The way people search for local services is changing fast. ChatGPT, Siri, and Ai-powered search are becoming the place people go for recommendations. If your website isn't built in a way those systems can read and understand, you're invisible to them before the conversation even starts.
         </p>
 
         {run?.completed_at && isSuccess && (
