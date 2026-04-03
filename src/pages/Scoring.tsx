@@ -299,7 +299,7 @@ const Scoring = () => {
               <Input type="number" min="0" value={preview.w3c_issues} onChange={(e) => setPreview({ ...preview, w3c_issues: parseInt(e.target.value) || 0 })} />
             </div>
             <div className="space-y-1">
-              <Label>PSI Mobile</Label>
+              <Label>Performance (GTmetrix)</Label>
               <Input type="number" min="0" max="100" value={preview.psi} onChange={(e) => setPreview({ ...preview, psi: parseInt(e.target.value) || 0 })} />
             </div>
             <div className="space-y-1">
@@ -311,7 +311,7 @@ const Scoring = () => {
               <Input type="number" min="0" max="100" value={preview.design} onChange={(e) => setPreview({ ...preview, design: parseInt(e.target.value) || 0 })} />
             </div>
             <div className="space-y-1">
-              <Label>AI Friendliness</Label>
+              <Label>Ai Friendliness</Label>
               <Input type="number" min="0" max="100" value={preview.ai} onChange={(e) => setPreview({ ...preview, ai: parseInt(e.target.value) || 0 })} />
             </div>
           </div>
