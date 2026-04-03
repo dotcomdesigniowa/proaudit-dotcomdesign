@@ -299,7 +299,7 @@ const Scoring = () => {
               <Input type="number" min="0" value={preview.w3c_issues} onChange={(e) => setPreview({ ...preview, w3c_issues: parseInt(e.target.value) || 0 })} />
             </div>
             <div className="space-y-1">
-              <Label>Performance (GTmetrix)</Label>
+              <Label>Performance</Label>
               <Input type="number" min="0" max="100" value={preview.psi} onChange={(e) => setPreview({ ...preview, psi: parseInt(e.target.value) || 0 })} />
             </div>
             <div className="space-y-1">
