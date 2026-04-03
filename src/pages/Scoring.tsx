@@ -64,7 +64,7 @@ const Scoring = () => {
   const [recalculating, setRecalculating] = useState(false);
 
   // Preview calculator state
-  const [preview, setPreview] = useState({ w3c_issues: 10, psi: 65, accessibility: 85, design: 35, ai: 80 });
+  const [preview, setPreview] = useState({ w3c_issues: 10, psi: 65, accessibility: 85, design: 35, ai: 80, gtmetrix_perf: 75, gtmetrix_struct: 80 });
 
   useEffect(() => {
     loadSettings();
