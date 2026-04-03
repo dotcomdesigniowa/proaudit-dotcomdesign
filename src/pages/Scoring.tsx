@@ -383,19 +383,53 @@ const Scoring = () => {
 
       <Separator />
 
-      {/* AI Friendliness Guide */}
+      {/* Performance Score Guide */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg">How to Get a 100 in AI Friendliness</CardTitle>
+          <CardTitle className="text-lg">How the Website Performance Score Works</CardTitle>
           <CardDescription>
-            This checklist shows what a website needs in order to score a perfect AI Friendliness Score. These are technical building blocks that help AI systems access and understand a website. Most businesses don't need a perfect 100 — the goal is to remove blockers and make services and contact details easy to understand.
+            The Website Performance Score is powered by GTmetrix. It measures how fast and stable a website loads for real visitors. The score is based on Performance %, Structure %, and three Core Web Vitals.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Subsection 1 */}
           <div>
-            <h3 className="font-semibold text-foreground mb-1">AI Can Access Your Website</h3>
-            <p className="text-sm text-muted-foreground mb-2">Checks whether AI tools can reach your website without being blocked.</p>
+            <h3 className="font-semibold text-foreground mb-1">Website Metrics</h3>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li><strong>Performance</strong> — Overall page load performance score (0–100%)</li>
+              <li><strong>Structure</strong> — How well the page follows web performance best practices (0–100%)</li>
+            </ul>
+          </div>
+          <Separator />
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Core Web Vitals</h3>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li><strong>Load Speed (LCP)</strong> — How long it takes for the largest visible element to appear. Green ≤ 2.5s, Yellow ≤ 4s, Red &gt; 4s</li>
+              <li><strong>Responsiveness (TBT)</strong> — How long the page is unresponsive to clicks/taps. Green ≤ 200ms, Yellow ≤ 600ms, Red &gt; 600ms</li>
+              <li><strong>Visual Stability (CLS)</strong> — How much content shifts around while loading. Green ≤ 0.1, Yellow ≤ 0.25, Red &gt; 0.25</li>
+            </ul>
+          </div>
+          <Separator />
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Bar Colors</h3>
+            <p className="text-sm text-muted-foreground">All progress bars use strict green/yellow/red: <strong className="text-green-600">Green</strong> = good, <strong className="text-yellow-600">Yellow</strong> = needs work, <strong className="text-red-600">Red</strong> = poor.</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
+      {/* AI Friendliness Guide */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">How to Get a 100 in Ai Friendliness</CardTitle>
+          <CardDescription>
+            The Ai Friendliness Score uses a 32-factor audit across 4 pillars. Each factor is checked automatically and rated pass, needs work, or fail. The bar colors use strict green/yellow/red based on the percentage of points earned in each pillar.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 1: Technical Infrastructure (7 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks whether AI tools can access your website without being blocked.</p>
             <p className="text-sm font-medium text-foreground mb-1">Checklist:</p>
             <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5 mb-2">
               <li>robots.txt loads successfully (yourwebsite.com/robots.txt)</li>
@@ -413,9 +447,8 @@ const Scoring = () => {
 
           <Separator />
 
-          {/* Subsection 2 */}
           <div>
-            <h3 className="font-semibold text-foreground mb-1">AI Can Understand Your Pages</h3>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 2: Content Structure (12 points)</h3>
             <p className="text-sm text-muted-foreground mb-2">Checks whether your pages contain real, readable written content that AI systems can interpret.</p>
             <p className="text-sm font-medium text-foreground mb-1">Checklist:</p>
             <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5 mb-2">
@@ -436,9 +469,8 @@ const Scoring = () => {
 
           <Separator />
 
-          {/* Subsection 3 */}
           <div>
-            <h3 className="font-semibold text-foreground mb-1">Clear Business Details</h3>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 3: Entity & Authority (8 points)</h3>
             <p className="text-sm text-muted-foreground mb-2">Checks whether your website clearly communicates who you are, what you do, and how to contact you.</p>
             <p className="text-sm font-medium text-foreground mb-1">Checklist:</p>
             <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5 mb-2">
@@ -458,9 +490,8 @@ const Scoring = () => {
 
           <Separator />
 
-          {/* Subsection 4 */}
           <div>
-            <h3 className="font-semibold text-foreground mb-1">Technical Setup for AI</h3>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 4: Strategic AI Assets (5 points)</h3>
             <p className="text-sm text-muted-foreground mb-2">Checks for behind-the-scenes setup that helps AI systems find and navigate your pages.</p>
             <p className="text-sm font-medium text-foreground mb-1">Checklist:</p>
             <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5 mb-2">
