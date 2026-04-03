@@ -149,9 +149,9 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
           </div>
         )}
         <div>
-          <div className="metricLabel">Performance Score</div>
+          <div className="metricLabel">Website Performance Score</div>
           <p className="metricText">
-            Your website's performance directly impacts how users experience it and how search engines rank it. Slow load times, unresponsive interactions, and layout shifts all hurt visibility and conversions.
+            When your website loads slow, jumps around, or feels unresponsive — potential customers leave and search engines take note. A website that stutters or hesitates sends people straight to your competitor.
           </p>
           {fetchedAt && (
             <p style={{ fontSize: "0.7rem", opacity: 0.5, marginBottom: 6 }}>
