@@ -162,6 +162,9 @@ const PerformanceScorePanel = ({ audit, onUpdate, isOwner }: PerformanceScorePan
           {/* Performance & Structure bars */}
           {hasData && (
             <div style={{ margin: "12px 0", display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ fontSize: "0.75rem", fontWeight: 700, textTransform: "uppercase", letterSpacing: 1, opacity: 0.5, marginBottom: 4 }}>
+                Website Metrics
+              </div>
               <MetricRow label="Performance" value={performance} max={100} suffix="%" color={statusColor(performance ?? 0)} />
               <MetricRow label="Structure" value={structure} max={100} suffix="%" color={statusColor(structure ?? 0)} />
             </div>
