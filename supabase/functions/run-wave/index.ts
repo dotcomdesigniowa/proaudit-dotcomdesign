@@ -84,6 +84,7 @@ Deno.serve(async (req) => {
     }
 
     const data = await response.json();
+    console.log("WAVE raw response:", JSON.stringify(data).substring(0, 1000));
     console.log("WAVE full statistics:", JSON.stringify(data?.statistics));
     console.log("WAVE response categories:", JSON.stringify(data?.categories));
 
