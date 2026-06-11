@@ -36,6 +36,8 @@ export async function reRunAudit(auditId: string): Promise<boolean> {
       w3c_last_error: null,
       ai_status: "fetching",
       ai_last_error: null,
+      seo_status: "fetching",
+      seo_error: null,
     } as any)
     .eq("id", auditId);
 
@@ -68,6 +70,12 @@ export async function reRunAudit(auditId: string): Promise<boolean> {
     .invoke("run-ai-audit", { body: { audit_id: auditId, website_url: websiteUrl, force_refresh: true } })
     .catch((err) =>
       logError({ page: "re-run-audit", action: "run-ai-audit", message: err?.message || "AI audit failed" })
+    );
+
+  supabase.functions
+    .invoke("run-seo-audit", { body: { audit_id: auditId, website_url: websiteUrl } })
+    .catch((err) =>
+      logError({ page: "re-run-audit", action: "run-seo-audit", message: err?.message || "SEO audit failed" })
     );
 
   return true;

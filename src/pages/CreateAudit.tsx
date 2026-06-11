@@ -179,6 +179,11 @@ const CreateAudit = () => {
       supabase.functions.invoke("run-ai-audit", {
         body: { audit_id: data.id, website_url: normalizedUrl },
       }).catch((err) => logError({ page: "/create-audit", action: "run-ai-audit", message: err?.message || "AI audit failed" }));
+
+      // Fire-and-forget: run SEO Friendliness audit
+      supabase.functions.invoke("run-seo-audit", {
+        body: { audit_id: data.id, website_url: normalizedUrl },
+      }).catch((err) => logError({ page: "/create-audit", action: "run-seo-audit", message: err?.message || "SEO audit failed" }));
     }
 
     navigate(`/${data.id}`);
