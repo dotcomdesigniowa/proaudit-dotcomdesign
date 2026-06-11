@@ -432,6 +432,32 @@ const AuditReport = () => {
     return () => clearInterval(timer);
   }, [(audit as any)?.ai_score, (audit as any)?.ai_status, auditId]);
 
+  // ── SEO Friendliness polling: auto-refresh when fetching ──
+  useEffect(() => {
+    if (!audit || !auditId) return;
+    const status = (audit as any).seo_status;
+    if (status !== 'fetching') return;
+
+    const startTime = Date.now();
+    const TIMEOUT = 180_000;
+    const INTERVAL = 3_000;
+
+    const timer = setInterval(async () => {
+      if (Date.now() - startTime > TIMEOUT) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, seo_status: 'error', seo_error: 'Timed out waiting for SEO audit results.' } as Audit : prev);
+        return;
+      }
+      const { data } = await supabase.from("audit").select("seo_score, seo_grade, seo_status, seo_error, seo_factors, seo_pillar_crawlability, seo_pillar_onpage, seo_pillar_technical, seo_pillar_social, seo_run_at, overall_score, overall_grade").eq("id", auditId).maybeSingle();
+      if (data && ((data as any).seo_status === 'success' || (data as any).seo_status === 'error')) {
+        clearInterval(timer);
+        setAudit(prev => prev ? { ...prev, ...data } as Audit : prev);
+      }
+    }, INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [(audit as any)?.seo_score, (audit as any)?.seo_status, auditId]);
+
   useEffect(() => {
     if (!audit || !heroHeadingRef.current) return;
     const el = heroHeadingRef.current;
