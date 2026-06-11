@@ -5,6 +5,7 @@ import type { Tables } from "@/integrations/supabase/types";
 import ComputerScreenshot from "@/components/ComputerScreenshot";
 import InfoTip from "@/components/InfoTip";
 import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
+import SeoFriendlinessPanel from "@/components/SeoFriendlinessPanel";
 import PerformanceScorePanel from "@/components/PerformanceScorePanel";
 import "./AuditReport.css";
 import { LayoutTemplate, Files, ShieldAlert, ImageOff, Layers, Award } from "lucide-react";
@@ -398,6 +399,15 @@ const SharedAuditReport = ({ tokenOverride, onSlugCheck }: SharedAuditReportProp
 
             {/* AI Friendliness */}
             <AiFriendlinessPanel
+              audit={audit}
+              onUpdate={() => {}}
+              isOwner={false}
+            />
+
+            <hr className="metricDivider" />
+
+            {/* SEO Friendliness */}
+            <SeoFriendlinessPanel
               audit={audit}
               onUpdate={() => {}}
               isOwner={false}

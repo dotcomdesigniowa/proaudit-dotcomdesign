@@ -14,6 +14,7 @@ import { formatPhone } from "@/lib/formatPhone";
 import { getUnderTheHoodCopy } from "@/lib/underTheHoodCopy";
 import { reRunAudit } from "@/lib/reRunAudit";
 import AiFriendlinessPanel from "@/components/AiFriendlinessPanel";
+import SeoFriendlinessPanel from "@/components/SeoFriendlinessPanel";
 import PerformanceScorePanel from "@/components/PerformanceScorePanel";
 import { useAuditCopy } from "@/hooks/useAuditCopy";
 import { getUthKeys } from "@/lib/copyTemplateKeys";
@@ -837,6 +838,15 @@ const AuditReport = () => {
 
             {/* AI Friendliness */}
             <AiFriendlinessPanel
+              audit={audit}
+              onUpdate={(updates) => setAudit(prev => prev ? { ...prev, ...updates } as Audit : prev)}
+              isOwner={!!user}
+            />
+
+            <hr className="metricDivider" />
+
+            {/* SEO Friendliness */}
+            <SeoFriendlinessPanel
               audit={audit}
               onUpdate={(updates) => setAudit(prev => prev ? { ...prev, ...updates } as Audit : prev)}
               isOwner={!!user}
