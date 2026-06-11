@@ -298,7 +298,7 @@ const Scoring = () => {
           <CardDescription>Test how sample values score with current settings.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-6">
             <div className="space-y-1">
               <Label>W3C Issues</Label>
               <Input type="number" min="0" value={preview.w3c_issues} onChange={(e) => setPreview({ ...preview, w3c_issues: parseInt(e.target.value) || 0 })} />
@@ -318,6 +318,10 @@ const Scoring = () => {
             <div className="space-y-1">
               <Label>Ai Friendliness</Label>
               <Input type="number" min="0" max="100" value={preview.ai} onChange={(e) => setPreview({ ...preview, ai: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div className="space-y-1">
+              <Label>SEO Friendliness</Label>
+              <Input type="number" min="0" max="100" value={preview.seo} onChange={(e) => setPreview({ ...preview, seo: parseInt(e.target.value) || 0 })} />
             </div>
           </div>
           <div className="mt-4 flex items-center gap-6 rounded-md bg-muted p-4">
