@@ -518,6 +518,75 @@ const Scoring = () => {
 
       <Separator />
 
+      {/* SEO Friendliness Guide */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">How to Get a 100 in SEO Friendliness</CardTitle>
+          <CardDescription>
+            The SEO Friendliness Score uses a 30-factor audit across 4 pillars. Each factor is checked automatically and rated pass, needs work, or fail. The bar colors use strict green/yellow/red based on the percentage of points earned in each pillar.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 1: Crawlability & Indexing (8 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks whether search engines can reach and index the site.</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>robots.txt exists and does not block all crawlers</li>
+              <li>XML sitemap is published and referenced in robots.txt</li>
+              <li>HTTPS is active and HTTP traffic redirects to HTTPS</li>
+              <li>Canonical link tag is present</li>
+              <li>Homepage is not blocked with a noindex meta tag</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 2: On-Page SEO (10 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks the content quality and structure search engines rely on.</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Title tag present and 30-60 characters</li>
+              <li>Meta description present and 120-160 characters</li>
+              <li>Exactly one H1 and at least 2 H2 subheadings</li>
+              <li>Heading hierarchy is clean (no skipped levels)</li>
+              <li>Images have descriptive alt text (90%+ coverage)</li>
+              <li>Page has at least 300 words of real body content</li>
+              <li>Healthy internal linking to other pages</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 3: Technical SEO (7 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks the behind-the-scenes setup that helps engines render and trust the page.</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Mobile viewport meta tag declared</li>
+              <li>Charset meta tag declared</li>
+              <li>JSON-LD structured data is present</li>
+              <li>LocalBusiness or Organization schema is in place</li>
+              <li>Favicon is declared</li>
+              <li>HTML tag has a lang attribute</li>
+              <li>No mixed (insecure http://) resources on an HTTPS page</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 4: Social & Discoverability (5 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks how the page shows up when shared and whether social profiles are linked.</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Open Graph title, description, and image tags</li>
+              <li>Twitter card meta tag</li>
+              <li>Links to social profiles (Facebook, Instagram, LinkedIn, etc.)</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
       {/* F) Audit Report Copy */}
       <div>
         <h2 className="text-xl font-bold text-foreground mb-1">Audit Report Copy</h2>
