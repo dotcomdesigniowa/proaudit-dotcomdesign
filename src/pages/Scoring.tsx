@@ -28,6 +28,7 @@ interface ScoringSettings {
   weight_accessibility: number;
   weight_design: number;
   weight_ai: number;
+  weight_seo: number;
   w3c_issue_penalty: number;
   grade_a_min: number;
   grade_b_min: number;
@@ -36,11 +37,12 @@ interface ScoringSettings {
 }
 
 const defaultSettings: Omit<ScoringSettings, "id"> = {
-  weight_w3c: 0.27,
-  weight_psi_mobile: 0.27,
-  weight_accessibility: 0.18,
-  weight_design: 0.18,
+  weight_w3c: 0.22,
+  weight_psi_mobile: 0.22,
+  weight_accessibility: 0.16,
+  weight_design: 0.12,
   weight_ai: 0.10,
+  weight_seo: 0.18,
   w3c_issue_penalty: 0.5,
   grade_a_min: 90,
   grade_b_min: 80,
@@ -64,7 +66,7 @@ const Scoring = () => {
   const [recalculating, setRecalculating] = useState(false);
 
   // Preview calculator state
-  const [preview, setPreview] = useState({ w3c_issues: 10, psi: 65, accessibility: 85, design: 35, ai: 80, gtmetrix_perf: 75, gtmetrix_struct: 80 });
+  const [preview, setPreview] = useState({ w3c_issues: 10, psi: 65, accessibility: 85, design: 35, ai: 80, seo: 75, gtmetrix_perf: 75, gtmetrix_struct: 80 });
 
   useEffect(() => {
     loadSettings();
@@ -89,7 +91,7 @@ const Scoring = () => {
   const handleSave = async () => {
     if (!settings || !user) return;
 
-    const sum = settings.weight_w3c + settings.weight_psi_mobile + settings.weight_accessibility + settings.weight_design + settings.weight_ai;
+    const sum = settings.weight_w3c + settings.weight_psi_mobile + settings.weight_accessibility + settings.weight_design + settings.weight_ai + settings.weight_seo;
     if (Math.abs(sum - 1) > 0.01) {
       toast({ title: "Weights must sum to 1.00", description: `Current sum: ${sum.toFixed(2)}`, variant: "destructive" });
       return;
@@ -104,6 +106,7 @@ const Scoring = () => {
         weight_accessibility: settings.weight_accessibility,
         weight_design: settings.weight_design,
         weight_ai: settings.weight_ai,
+        weight_seo: settings.weight_seo,
         w3c_issue_penalty: settings.w3c_issue_penalty,
         grade_a_min: settings.grade_a_min,
         grade_b_min: settings.grade_b_min,
@@ -156,7 +159,8 @@ const Scoring = () => {
         preview.psi * settings.weight_psi_mobile +
         preview.accessibility * settings.weight_accessibility +
         preview.design * settings.weight_design +
-        preview.ai * settings.weight_ai
+        preview.ai * settings.weight_ai +
+        preview.seo * settings.weight_seo
       )
     : 0;
   const previewGrade = settings
@@ -164,7 +168,7 @@ const Scoring = () => {
     : "—";
 
   const weightSum = settings
-    ? (settings.weight_w3c + settings.weight_psi_mobile + settings.weight_accessibility + settings.weight_design + settings.weight_ai).toFixed(2)
+    ? (settings.weight_w3c + settings.weight_psi_mobile + settings.weight_accessibility + settings.weight_design + settings.weight_ai + settings.weight_seo).toFixed(2)
     : "0.00";
 
   if (loading) {
@@ -193,13 +197,14 @@ const Scoring = () => {
             </span>
           </CardDescription>
         </CardHeader>
-        <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+        <CardContent className="grid grid-cols-2 gap-4 sm:grid-cols-6">
           {([
             ["weight_w3c", "W3C"],
             ["weight_psi_mobile", "Performance"],
             ["weight_accessibility", "Accessibility"],
             ["weight_design", "Design"],
             ["weight_ai", "Ai Friendliness"],
+            ["weight_seo", "SEO Friendliness"],
           ] as const).map(([key, label]) => (
             <div key={key} className="space-y-1">
               <Label htmlFor={key}>{label}</Label>
@@ -293,7 +298,7 @@ const Scoring = () => {
           <CardDescription>Test how sample values score with current settings.</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-6">
             <div className="space-y-1">
               <Label>W3C Issues</Label>
               <Input type="number" min="0" value={preview.w3c_issues} onChange={(e) => setPreview({ ...preview, w3c_issues: parseInt(e.target.value) || 0 })} />
@@ -313,6 +318,10 @@ const Scoring = () => {
             <div className="space-y-1">
               <Label>Ai Friendliness</Label>
               <Input type="number" min="0" max="100" value={preview.ai} onChange={(e) => setPreview({ ...preview, ai: parseInt(e.target.value) || 0 })} />
+            </div>
+            <div className="space-y-1">
+              <Label>SEO Friendliness</Label>
+              <Input type="number" min="0" max="100" value={preview.seo} onChange={(e) => setPreview({ ...preview, seo: parseInt(e.target.value) || 0 })} />
             </div>
           </div>
           <div className="mt-4 flex items-center gap-6 rounded-md bg-muted p-4">
@@ -502,6 +511,75 @@ const Scoring = () => {
             <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
               <li>Missing or broken sitemap</li>
               <li>No llms.txt present (optional)</li>
+            </ul>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Separator />
+
+      {/* SEO Friendliness Guide */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">How to Get a 100 in SEO Friendliness</CardTitle>
+          <CardDescription>
+            The SEO Friendliness Score uses a 30-factor audit across 4 pillars. Each factor is checked automatically and rated pass, needs work, or fail. The bar colors use strict green/yellow/red based on the percentage of points earned in each pillar.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 1: Crawlability & Indexing (8 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks whether search engines can reach and index the site.</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>robots.txt exists and does not block all crawlers</li>
+              <li>XML sitemap is published and referenced in robots.txt</li>
+              <li>HTTPS is active and HTTP traffic redirects to HTTPS</li>
+              <li>Canonical link tag is present</li>
+              <li>Homepage is not blocked with a noindex meta tag</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 2: On-Page SEO (10 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks the content quality and structure search engines rely on.</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Title tag present and 30-60 characters</li>
+              <li>Meta description present and 120-160 characters</li>
+              <li>Exactly one H1 and at least 2 H2 subheadings</li>
+              <li>Heading hierarchy is clean (no skipped levels)</li>
+              <li>Images have descriptive alt text (90%+ coverage)</li>
+              <li>Page has at least 300 words of real body content</li>
+              <li>Healthy internal linking to other pages</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 3: Technical SEO (7 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks the behind-the-scenes setup that helps engines render and trust the page.</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Mobile viewport meta tag declared</li>
+              <li>Charset meta tag declared</li>
+              <li>JSON-LD structured data is present</li>
+              <li>LocalBusiness or Organization schema is in place</li>
+              <li>Favicon is declared</li>
+              <li>HTML tag has a lang attribute</li>
+              <li>No mixed (insecure http://) resources on an HTTPS page</li>
+            </ul>
+          </div>
+
+          <Separator />
+
+          <div>
+            <h3 className="font-semibold text-foreground mb-1">Pillar 4: Social & Discoverability (5 points)</h3>
+            <p className="text-sm text-muted-foreground mb-2">Checks how the page shows up when shared and whether social profiles are linked.</p>
+            <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-0.5">
+              <li>Open Graph title, description, and image tags</li>
+              <li>Twitter card meta tag</li>
+              <li>Links to social profiles (Facebook, Instagram, LinkedIn, etc.)</li>
             </ul>
           </div>
         </CardContent>
