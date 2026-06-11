@@ -168,6 +168,16 @@ export type Database = {
           psi_mobile_score: number | null
           psi_status: string
           scheduler_url: string | null
+          seo_error: string | null
+          seo_factors: Json | null
+          seo_grade: string | null
+          seo_pillar_crawlability: number | null
+          seo_pillar_onpage: number | null
+          seo_pillar_social: number | null
+          seo_pillar_technical: number | null
+          seo_run_at: string | null
+          seo_score: number | null
+          seo_status: string | null
           under_the_hood_graphic_url: string | null
           w3c_audit_url: string | null
           w3c_fetched_at: string | null
@@ -230,6 +240,16 @@ export type Database = {
           psi_mobile_score?: number | null
           psi_status?: string
           scheduler_url?: string | null
+          seo_error?: string | null
+          seo_factors?: Json | null
+          seo_grade?: string | null
+          seo_pillar_crawlability?: number | null
+          seo_pillar_onpage?: number | null
+          seo_pillar_social?: number | null
+          seo_pillar_technical?: number | null
+          seo_run_at?: string | null
+          seo_score?: number | null
+          seo_status?: string | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
           w3c_fetched_at?: string | null
@@ -292,6 +312,16 @@ export type Database = {
           psi_mobile_score?: number | null
           psi_status?: string
           scheduler_url?: string | null
+          seo_error?: string | null
+          seo_factors?: Json | null
+          seo_grade?: string | null
+          seo_pillar_crawlability?: number | null
+          seo_pillar_onpage?: number | null
+          seo_pillar_social?: number | null
+          seo_pillar_technical?: number | null
+          seo_run_at?: string | null
+          seo_score?: number | null
+          seo_status?: string | null
           under_the_hood_graphic_url?: string | null
           w3c_audit_url?: string | null
           w3c_fetched_at?: string | null
@@ -520,6 +550,7 @@ export type Database = {
           weight_ai: number
           weight_design: number
           weight_psi_mobile: number
+          weight_seo: number
           weight_w3c: number
         }
         Insert: {
@@ -536,6 +567,7 @@ export type Database = {
           weight_ai?: number
           weight_design?: number
           weight_psi_mobile?: number
+          weight_seo?: number
           weight_w3c?: number
         }
         Update: {
@@ -552,6 +584,7 @@ export type Database = {
           weight_ai?: number
           weight_design?: number
           weight_psi_mobile?: number
+          weight_seo?: number
           weight_w3c?: number
         }
         Relationships: []
