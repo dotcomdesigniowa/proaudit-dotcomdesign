@@ -157,9 +157,11 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Round down to nearest 5 for cleaner display, but never round a non-zero count down to 0.
-    let roundedCount = Math.floor(result.total / 5) * 5;
-    if (result.total > 0 && roundedCount === 0) roundedCount = result.total;
+    // Show exact count under 100; above that, round down to nearest 5 for cleaner display.
+    let roundedCount = result.total;
+    if (result.total >= 100) {
+      roundedCount = Math.floor(result.total / 5) * 5;
+    }
 
     const { error: updateError } = await supabase
       .from("audit")
