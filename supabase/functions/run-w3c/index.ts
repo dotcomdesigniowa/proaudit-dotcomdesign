@@ -123,8 +123,18 @@ Deno.serve(async (req) => {
 
     const VALIDATORS = ["https://validator.w3.org/nu/", "https://html5.validator.nu/"];
 
-    // Prefer POST with our own-fetched HTML (browser UA) so results match what a
-    // user sees when pasting the URL into validator.w3.org/nu in their browser.
+    // First use the same official W3C direct URL that the report links to.
+    // html5.validator.nu can return a different message set for the same page.
+    try {
+      result = await attemptDirect("https://validator.w3.org/nu/", website_url);
+      console.log("[W3C] Direct success via https://validator.w3.org/nu/");
+    } catch (e) {
+      const msg = `Direct https://validator.w3.org/nu/: ${String(e).slice(0, 100)}`;
+      console.log(`[W3C] ${msg}`);
+      errors.push(msg);
+    }
+
+    // Fallback only if the official direct endpoint is unavailable.
     for (const base of VALIDATORS) {
       if (result !== undefined) break;
       try {
@@ -132,19 +142,6 @@ Deno.serve(async (req) => {
         console.log(`[W3C] POST success via ${base}`);
       } catch (e) {
         const msg = `POST ${base}: ${String(e).slice(0, 100)}`;
-        console.log(`[W3C] ${msg}`);
-        errors.push(msg);
-      }
-    }
-
-    // Fallback: let the validator fetch the URL itself.
-    for (const base of VALIDATORS) {
-      if (result !== undefined) break;
-      try {
-        result = await attemptDirect(base, website_url);
-        console.log(`[W3C] Direct success via ${base}`);
-      } catch (e) {
-        const msg = `Direct ${base}: ${String(e).slice(0, 100)}`;
         console.log(`[W3C] ${msg}`);
         errors.push(msg);
       }
