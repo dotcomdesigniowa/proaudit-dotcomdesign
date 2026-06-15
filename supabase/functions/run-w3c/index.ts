@@ -10,11 +10,17 @@ const TIMEOUT_MS = 15_000;
 const USER_AGENT =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
-function countIssues(messages: Array<{ type?: string; subType?: string }>): { total: number; errors: number; warnings: number; info: number } {
+function isFallbackOnlyCssNoise(message?: string): boolean {
+  if (!message) return false;
+  return message.includes("env(safe-area-inset-") || message.includes("Property “size-adjust” doesn't exist");
+}
+
+function countIssues(messages: Array<{ type?: string; subType?: string; message?: string }>, filterFallbackNoise = false): { total: number; errors: number; warnings: number; info: number } {
   let errors = 0;
   let warnings = 0;
   let info = 0;
   for (const m of messages) {
+    if (filterFallbackNoise && isFallbackOnlyCssNoise(m.message)) continue;
     if (m.type === "error") errors++;
     else if (m.type === "info" && m.subType === "warning") warnings++;
     else if (m.type === "info") info++;
@@ -32,7 +38,7 @@ const BROWSER_HEADERS = {
   Pragma: "no-cache",
 };
 
-async function attemptDirect(validatorBase: string, websiteUrl: string): Promise<{ total: number; errors: number; warnings: number; info: number }> {
+async function attemptDirect(validatorBase: string, websiteUrl: string, filterFallbackNoise = false): Promise<{ total: number; errors: number; warnings: number; info: number }> {
   const url = `${validatorBase}?doc=${encodeURIComponent(websiteUrl)}&out=json`;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
@@ -45,14 +51,14 @@ async function attemptDirect(validatorBase: string, websiteUrl: string): Promise
     }
     const data = await res.json();
     if (!data.messages || !Array.isArray(data.messages)) throw new Error("Unexpected validator response format");
-    return countIssues(data.messages);
+    return countIssues(data.messages, filterFallbackNoise);
   } catch (e) {
     clearTimeout(timer);
     throw e;
   }
 }
 
-async function attemptPost(validatorBase: string, websiteUrl: string): Promise<{ total: number; errors: number; warnings: number; info: number }> {
+async function attemptPost(validatorBase: string, websiteUrl: string, filterFallbackNoise = false): Promise<{ total: number; errors: number; warnings: number; info: number }> {
   const controller1 = new AbortController();
   const timer1 = setTimeout(() => controller1.abort(), TIMEOUT_MS);
   let html: string;
@@ -81,7 +87,7 @@ async function attemptPost(validatorBase: string, websiteUrl: string): Promise<{
     }
     const data = await res.json();
     if (!data.messages || !Array.isArray(data.messages)) throw new Error("Unexpected validator POST response format");
-    return countIssues(data.messages);
+    return countIssues(data.messages, filterFallbackNoise);
   } catch (e) {
     clearTimeout(timer2);
     throw e;
