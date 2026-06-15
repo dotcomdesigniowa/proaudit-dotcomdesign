@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
     for (const base of VALIDATORS) {
       if (result !== undefined) break;
       try {
-        result = await attemptPost(base, website_url);
+        result = await attemptPost(base, website_url, base.includes("html5.validator.nu"));
         console.log(`[W3C] POST success via ${base}`);
       } catch (e) {
         const msg = `POST ${base}: ${String(e).slice(0, 100)}`;
