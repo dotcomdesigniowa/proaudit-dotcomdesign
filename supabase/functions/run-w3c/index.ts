@@ -123,18 +123,8 @@ Deno.serve(async (req) => {
 
     const VALIDATORS = ["https://validator.w3.org/nu/", "https://html5.validator.nu/"];
 
-    for (const base of VALIDATORS) {
-      if (result !== undefined) break;
-      try {
-        result = await attemptDirect(base, website_url);
-        console.log(`[W3C] Direct success via ${base}`);
-      } catch (e) {
-        const msg = `Direct ${base}: ${String(e).slice(0, 100)}`;
-        console.log(`[W3C] ${msg}`);
-        errors.push(msg);
-      }
-    }
-
+    // Prefer POST with our own-fetched HTML (browser UA) so results match what a
+    // user sees when pasting the URL into validator.w3.org/nu in their browser.
     for (const base of VALIDATORS) {
       if (result !== undefined) break;
       try {
@@ -142,6 +132,19 @@ Deno.serve(async (req) => {
         console.log(`[W3C] POST success via ${base}`);
       } catch (e) {
         const msg = `POST ${base}: ${String(e).slice(0, 100)}`;
+        console.log(`[W3C] ${msg}`);
+        errors.push(msg);
+      }
+    }
+
+    // Fallback: let the validator fetch the URL itself.
+    for (const base of VALIDATORS) {
+      if (result !== undefined) break;
+      try {
+        result = await attemptDirect(base, website_url);
+        console.log(`[W3C] Direct success via ${base}`);
+      } catch (e) {
+        const msg = `Direct ${base}: ${String(e).slice(0, 100)}`;
         console.log(`[W3C] ${msg}`);
         errors.push(msg);
       }
